@@ -1,7 +1,7 @@
 package com.ramon_silva.projeto_hotel.dto;
 
 import com.ramon_silva.projeto_hotel.enums.TypeRoomEnum;
-import com.ramon_silva.projeto_hotel.models.HotelModel;
+
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;

@@ -6,6 +6,7 @@ import com.ramon_silva.projeto_hotel.enums.UsersEnum;
 
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record UsersDto(
     
@@ -20,7 +21,8 @@ public record UsersDto(
     String password,
 
     @Enumerated
-    UsersEnum typeUser
+    @NotNull
+    UsersEnum role
 
 
 ) {
