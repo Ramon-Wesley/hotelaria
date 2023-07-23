@@ -5,9 +5,9 @@ import java.time.LocalDate;
 
 import org.hibernate.validator.constraints.Length;
 
-import com.ramon_silva.projeto_hotel.dto.PaymentMethodEnum;
-import com.ramon_silva.projeto_hotel.dto.StatusReservation;
-import com.ramon_silva.projeto_hotel.dto.TypeRoom;
+import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
+import com.ramon_silva.projeto_hotel.enums.StatusReservationEnum;
+import com.ramon_silva.projeto_hotel.enums.TypeRoomEnum;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,7 +41,7 @@ public class PaymentModel {
 
     @OneToOne
     @JoinColumn(name = "reserva_id")
-    private ReserveRoomHotel reservation;
+    private ReservationModel reservation;
 
     @Enumerated
     @NotNull

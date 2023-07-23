@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 import org.hibernate.validator.constraints.Length;
 
-import com.ramon_silva.projeto_hotel.dto.OfficeEnum;
+import com.ramon_silva.projeto_hotel.enums.OfficeEnum;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

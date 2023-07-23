@@ -1,4 +1,4 @@
-package com.ramon_silva.projeto_hotel.dto;
+package com.ramon_silva.projeto_hotel.enums;
 
 public enum PaymentMethodEnum {
     CREDITO,

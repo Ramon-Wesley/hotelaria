@@ -1,7 +1,7 @@
 package com.ramon_silva.projeto_hotel.models;
 import org.hibernate.validator.constraints.Length;
 
-import com.ramon_silva.projeto_hotel.dto.UsersEnum;
+import com.ramon_silva.projeto_hotel.enums.UsersEnum;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
