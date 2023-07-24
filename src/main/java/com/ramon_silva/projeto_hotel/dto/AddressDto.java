@@ -2,7 +2,11 @@ package com.ramon_silva.projeto_hotel.dto;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.ramon_silva.projeto_hotel.models.AddressModel;
+
 import jakarta.validation.constraints.NotBlank;
+
+
 
 public record AddressDto(
  
@@ -32,5 +36,9 @@ public record AddressDto(
 
      String complemement
 ) {
-    
+    public AddressDto (AddressModel address){
+        this(address.getId(), address.getCountry(), address.getState(), 
+        address.getZapCode(), address.getCity(), address.getNeighborhood(), address.getNumber(), 
+        address.getComplemement());
+    }
 }

@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.ramon_silva.projeto_hotel.dto.UsersDto;
+
 import com.ramon_silva.projeto_hotel.enums.UsersEnum;
 
 import jakarta.persistence.Column;

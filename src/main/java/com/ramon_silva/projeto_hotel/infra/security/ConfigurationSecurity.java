@@ -31,10 +31,10 @@ public class ConfigurationSecurity {
         requestMatchers(HttpMethod.POST, "/login")
         .permitAll().
         requestMatchers(HttpMethod.POST, "/login/registrar")
-        .permitAll().
-        requestMatchers(HttpMethod.POST,"/usuario")
+        .permitAll()
+        .requestMatchers(HttpMethod.POST,"/usuario")
         .hasRole("ADMIN")
-        .anyRequest().authenticated()
+        .anyRequest().permitAll()
         )
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)        
         .build();

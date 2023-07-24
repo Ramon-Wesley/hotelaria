@@ -1,6 +1,7 @@
 package com.ramon_silva.projeto_hotel.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,7 +45,7 @@ public class AuthenticationController {
     @PostMapping("/registrar")
     public ResponseEntity<?> register(@RequestBody @Valid UsersDto data){
         if(this.userRepository.findByLogin(data.login()) != null){
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
         }else{
             String hashPass= new BCryptPasswordEncoder().encode(data.password());
             
