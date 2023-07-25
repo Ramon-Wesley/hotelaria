@@ -26,11 +26,9 @@ public class RoomModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "hotel_id")
-    private HotelModel hotel;
 
     @NotBlank
+    @NotNull
     @Column(name = "numero")
     private String number_room;
 
@@ -42,7 +40,7 @@ public class RoomModel {
     @Column(name = "descricao")
     private String description;
 
-    @NotBlank
+    @NotNull
     @Column(name = "preco")
     private double price;
 }

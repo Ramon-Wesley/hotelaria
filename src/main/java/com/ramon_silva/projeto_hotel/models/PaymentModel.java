@@ -31,20 +31,24 @@ public class PaymentModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @OneToOne
     @JoinColumn(name = "reserva_id")
     private ReservationModel reservation;
 
+    
     @Enumerated
     @NotNull
     @Column(name = "metodo_de_pagamento")
     private PaymentMethodEnum paymentMethod;
 
+    @NotNull
     @Future
     @NotBlank
     @Column(name="data_do_pagamento")
     private LocalDate payment_day;
 
+    @NotNull
     @NotBlank
     @Column(name="total_do_pagamento")
     private double total_payment;

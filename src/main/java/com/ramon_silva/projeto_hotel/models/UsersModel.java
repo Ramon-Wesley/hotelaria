@@ -47,15 +47,18 @@ public class UsersModel implements UserDetails{
     private Long id;
 
     @NotBlank
+    @NotNull
     @Length(min = 2)
     @Column(name="login",unique = true)
     private String login;
 
     @NotBlank
+    @NotNull
     @Length(min = 8)
     @Column(name="senha")
     private String password;
 
+    
     
     @Enumerated
     @Column(name="tipo_usuario")

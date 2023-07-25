@@ -13,8 +13,6 @@ public record RoomDto(
 
      Long id,
 
-     HotelDto hotel,
-
      @NotBlank
      @Column(name = "numero")
      String number_room,

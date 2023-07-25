@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,30 +42,36 @@ public class AddressModel {
     private Long id;
 
     @NotBlank
+    @NotNull
     @Column(name = "pais")
     @Length(min=2)
     private String country;
 
     @NotBlank
+    @NotNull
     @Column(name = "estado")
     @Length(min=2)
     private String state;
 
     @NotBlank
+    @NotNull
     @Column(name = "CEP")
     @Length(min = 10)
     private String zapCode;
 
+    @NotNull        
     @NotBlank
     @Column(name = "cidade")
     @Length(min = 2)
     private String city;
 
     @NotBlank
+    @NotNull
     @Column(name = "bairro")
     private String neighborhood;
     
     @NotBlank
+    @NotNull
     @Column(name = "numero")
     private String number;
 

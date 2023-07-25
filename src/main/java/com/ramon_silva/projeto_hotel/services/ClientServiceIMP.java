@@ -4,9 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.ramon_silva.projeto_hotel.dto.ClientDto;
+import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
 import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
@@ -26,17 +31,20 @@ public class ClientServiceIMP implements ClientService{
     }
 
     @Override
-    public List<ClientDto> getAll() {
-        List<ClientDto> client=clientRepository.findAll()
-        .stream()
-        .map(ClientDto::new)
-        .collect(Collectors.toList());
-        return client;
+    public PageDto<ClientDto> getAll(int pageNumber,int pageSize,String sortBy,String sortOrder){
+      Sort sort=sortOrder.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+      Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
+      Page<ClientModel> page=clientRepository.findAll(pageable);
+      List<ClientDto> clientDtos=page.getContent().stream().map(ClientDto::new).collect(Collectors.toList());
+
+      PageDto<ClientDto> pageDto=new PageDto<>(clientDtos, page.getNumber(), page.getNumberOfElements(), page.getSize(),
+      page.getTotalPages(), page.getTotalElements());
+      return pageDto;
     }
 
     @Override
-    public ClientDto getById(Long client) {
-        ClientModel clientmodel=clientRepository.findById(client).orElseThrow(()-> new ResourceNotFoundException("Cliente", "id", client));
+    public ClientDto getById(Long id) {
+        ClientModel clientmodel=clientRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Cliente", "id", id));
 
         return new ClientDto(clientmodel);
     }

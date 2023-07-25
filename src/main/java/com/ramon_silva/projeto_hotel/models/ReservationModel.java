@@ -32,14 +32,17 @@ public class ReservationModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name="cliente_id")
     private ClientModel client;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name="quarto_id")
     private RoomModel room;
 
+    
     @Future
     @NotBlank
     @Column(name="data_de_checkIn")
@@ -50,6 +53,7 @@ public class ReservationModel {
     @Column(name="data_de_checkOut")
     private LocalDate checkOutDate;
 
+    
     @Enumerated
     @NotNull
     private StatusReservationEnum status;

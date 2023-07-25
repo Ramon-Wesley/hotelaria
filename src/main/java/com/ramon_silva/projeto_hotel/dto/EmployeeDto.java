@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import org.hibernate.validator.constraints.Length;
 
 import com.ramon_silva.projeto_hotel.enums.OfficeEnum;
-
+import com.ramon_silva.projeto_hotel.models.EmployeeModel;
 
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
@@ -29,6 +29,7 @@ public record EmployeeDto(
     @NotBlank
      String phone,
     
+     @NotNull
      AddressDto address,
     
     @Enumerated
@@ -48,5 +49,11 @@ public record EmployeeDto(
      boolean situation
 
 ) {
-    
+ 
+     public EmployeeDto(EmployeeModel employeeModel){
+          this(employeeModel.getId(), employeeModel.getName(), employeeModel.getEmail(), 
+          employeeModel.getPhone(), new AddressDto(employeeModel.getAddress()), 
+          employeeModel.getOffice(), employeeModel.getRemunaration(), employeeModel.getContractDate(),
+          employeeModel.getShutdownDate(),employeeModel.getSituation());
+     }
 }

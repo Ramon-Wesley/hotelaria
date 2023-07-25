@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ramon_silva.projeto_hotel.dto.ClientDto;
+import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.services.ClientServiceIMP;
 
 import jakarta.transaction.Transactional;
@@ -55,7 +57,13 @@ public class ClientController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClientDto>> getAll(){
-        return ResponseEntity.ok().body(clientServiceIMP.getAll());
+    public ResponseEntity<PageDto<ClientDto>> getAll(
+        @RequestParam(name = "pageNumber",defaultValue = "0")int pageNumber,
+        @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
+        @RequestParam(name = "sortBy",defaultValue = "id")String sortBy,
+        @RequestParam(name = "sortOrder",defaultValue = "desc")String sortOrder
+
+    ){
+        return ResponseEntity.ok().body(clientServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder));
     }
 }
