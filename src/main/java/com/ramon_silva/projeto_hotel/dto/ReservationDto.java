@@ -2,8 +2,8 @@ package com.ramon_silva.projeto_hotel.dto;
 
 import java.time.LocalDate;
 
-import com.ramon_silva.projeto_hotel.enums.StatusReservationEnum;
-
+import com.ramon_silva.projeto_hotel.enums.StatusEnum;
+import com.ramon_silva.projeto_hotel.models.ReservationModel;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
@@ -15,8 +15,10 @@ public record ReservationDto(
 
      Long id,
     
+     @NotNull
      ClientDto client,
 
+     @NotNull
      RoomDto room,
 
      @Future
@@ -25,16 +27,22 @@ public record ReservationDto(
 
      @Future
      @NotBlank
+     @NotNull
      @Column(name="data_de_checkOut")
      LocalDate checkOutDate,
 
      @Enumerated
      @NotNull
-     StatusReservationEnum status,
+     StatusEnum status,
 
      @NotBlank
+     @NotNull
      double total_pay
 
 ) {
-    
+    public ReservationDto(ReservationModel reservationModel){
+     this(reservationModel.getId(),new ClientDto(reservationModel.getClient()),new RoomDto(reservationModel.getRoom()),
+     reservationModel.getCheckInDate(),reservationModel.getCheckOutDate(),
+      reservationModel.getStatus(), reservationModel.getTotal_pay());
+    }
 }

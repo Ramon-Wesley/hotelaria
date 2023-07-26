@@ -3,7 +3,8 @@ package com.ramon_silva.projeto_hotel.dto;
 import java.time.LocalDate;
 
 import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
-
+import com.ramon_silva.projeto_hotel.enums.StatusEnum;
+import com.ramon_silva.projeto_hotel.models.PaymentModel;
 
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Future;
@@ -14,6 +15,7 @@ public record PaymentDto(
      
      Long id,
 
+     @NotNull
      ReservationDto reservation,
 
      @Enumerated
@@ -24,10 +26,17 @@ public record PaymentDto(
      @NotBlank
      LocalDate payment_day,
 
+     @Enumerated
+     @NotNull
+     StatusEnum status,
+
      @NotBlank
      double total_payment
 
 
 ) {
-    
+    public PaymentDto(PaymentModel paymentModel){
+     this(paymentModel.getId(),new ReservationDto(paymentModel.getReservation()), paymentModel.getPaymentMethod(), 
+     paymentModel.getPayment_day(), paymentModel.getStatus(),paymentModel.getTotal_payment());
+    }
 }
