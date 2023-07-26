@@ -23,15 +23,15 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/login")
 public class AuthenticationController {
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final TokenService tokenService;
     
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    TokenService tokenService;
+    public AuthenticationController(AuthenticationManager authenticationManager,UserRepository userRepository,TokenService tokenService){
+        this.authenticationManager=authenticationManager;
+        this.userRepository=userRepository;
+        this.tokenService=tokenService;
+    }
     
     @PostMapping
     public ResponseEntity<?> login(@RequestBody @Valid AuthenticatedDto data){

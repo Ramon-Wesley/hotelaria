@@ -26,8 +26,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/clientes")
 public class ClientController {
     
-    @Autowired
-    private ClientServiceIMP clientServiceIMP;
+    private final ClientServiceIMP clientServiceIMP;
+    
+    public ClientController(ClientServiceIMP clientServiceIMP){
+        this.clientServiceIMP=clientServiceIMP;
+    }
 
 
     @PostMapping
