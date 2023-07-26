@@ -1,13 +1,13 @@
 package com.ramon_silva.projeto_hotel.enums;
 
-public enum StatusReservationEnum {
+public enum StatusEnum {
     CONFIRM("confirmado"),
     PENDING("pendente"),
     CANCELED("cancelado");
 
     private String role;
 
-    StatusReservationEnum(String role){
+    StatusEnum(String role){
         this.role=role;
     }
 
