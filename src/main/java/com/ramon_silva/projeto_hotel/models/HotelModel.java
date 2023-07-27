@@ -1,6 +1,9 @@
 package com.ramon_silva.projeto_hotel.models;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.hibernate.validator.constraints.Length;
 
 import com.ramon_silva.projeto_hotel.dto.HotelDto;
@@ -13,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
@@ -59,9 +63,12 @@ public class HotelModel {
     private int classification;
 
 
+    @OneToMany(mappedBy ="hotel",cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<RoomModel> rooms= new HashSet<>();
+
     @OneToOne(   
      optional = false,
-     fetch = FetchType.EAGER,
+     fetch = FetchType.LAZY,
      orphanRemoval = true,
      cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")

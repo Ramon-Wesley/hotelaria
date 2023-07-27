@@ -10,6 +10,7 @@ import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,7 +46,7 @@ public class PaymentModel {
     private Long id;
 
     @NotNull
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "reserva_id")
     private ReservationModel reservation;
 
@@ -57,7 +58,6 @@ public class PaymentModel {
 
     @NotNull
     @Future
-    @NotBlank
     @Column(name="data_do_pagamento")
     private LocalDate payment_day;
 
@@ -66,7 +66,6 @@ public class PaymentModel {
     private StatusEnum status;
 
     @NotNull
-    @NotBlank
     @Column(name="total_do_pagamento")
     private double total_payment;
 }

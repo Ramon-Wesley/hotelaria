@@ -15,7 +15,7 @@ public record PaymentDto(
      
      Long id,
 
-     @NotNull
+     
      ReservationDto reservation,
 
      @Enumerated
@@ -23,14 +23,13 @@ public record PaymentDto(
      PaymentMethodEnum paymentMethod,
 
      @Future
-     @NotBlank
+     @NotNull
      LocalDate payment_day,
 
      @Enumerated
-     @NotNull
      StatusEnum status,
 
-     @NotBlank
+     
      double total_payment
 
 

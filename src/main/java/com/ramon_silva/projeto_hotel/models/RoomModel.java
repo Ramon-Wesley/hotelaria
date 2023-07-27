@@ -7,6 +7,7 @@ import com.ramon_silva.projeto_hotel.enums.TypeRoomEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,8 +43,8 @@ public class RoomModel {
     private Long id;
 
     @NotNull
-    @ManyToOne
-    @JoinColumn(name = "hotel_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hotel_id",nullable = false)
     private HotelModel hotel;
 
     @NotBlank
@@ -59,6 +61,7 @@ public class RoomModel {
     private String description;
 
     @NotNull
+    @Positive
     @Column(name = "preco")
-    private double price;
+    private Double price;
 }

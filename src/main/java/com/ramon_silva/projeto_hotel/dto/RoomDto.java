@@ -5,29 +5,27 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public record RoomDto(
 
      Long id,
 
-     @NotNull
-     HotelDto hoteldto,
+     HotelDto hotel,
 
      @NotBlank
-     @Column(name = "numero")
      String number_room,
 
      @Enumerated
      @NotNull
-     @Column(name = "tipo_de_quarto")
      TypeRoomEnum type_room,
 
-     @Column(name = "descricao")
+    
      String description,
 
-     @NotBlank
-     @Column(name = "preco")
-     double price
+     @NotNull
+     @Positive
+     Double price
 
 
 ) {

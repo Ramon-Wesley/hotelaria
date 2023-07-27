@@ -15,28 +15,24 @@ public record ReservationDto(
 
      Long id,
     
-     @NotNull
+   
      ClientDto client,
 
-     @NotNull
      RoomDto room,
 
      @Future
-     @NotBlank
+     @NotNull
      LocalDate checkInDate,
 
      @Future
-     @NotBlank
      @NotNull
      @Column(name="data_de_checkOut")
      LocalDate checkOutDate,
 
-     @Enumerated
-     @NotNull
+   
      StatusEnum status,
 
-     @NotBlank
-     @NotNull
+     
      double total_pay
 
 ) {

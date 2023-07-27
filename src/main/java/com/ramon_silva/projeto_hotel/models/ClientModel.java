@@ -66,7 +66,7 @@ public class ClientModel {
     @NotNull
     @OneToOne(   
      optional = false,
-     fetch = FetchType.EAGER,
+     fetch = FetchType.LAZY,
      orphanRemoval = true,
      cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")

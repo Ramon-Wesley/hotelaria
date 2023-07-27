@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.Length;
 import com.ramon_silva.projeto_hotel.dto.EmployeeDto;
 import com.ramon_silva.projeto_hotel.enums.OfficeEnum;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -61,7 +62,8 @@ public class EmployeeModel {
     @NotNull
     @OneToOne(optional = false,
      fetch = FetchType.LAZY,
-     orphanRemoval = true)
+     orphanRemoval = true,
+     cascade = CascadeType.ALL)
      @JoinColumn(name = "endereco_id")
     private AddressModel address;
     
