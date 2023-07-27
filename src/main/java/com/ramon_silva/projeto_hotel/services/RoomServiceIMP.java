@@ -7,27 +7,37 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
-import com.ramon_silva.projeto_hotel.dto.EmployeeDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.RoomDto;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
+import com.ramon_silva.projeto_hotel.models.HotelModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
+import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
 import com.ramon_silva.projeto_hotel.repositories.RoomRepository;
 
+
+@Service
 public class RoomServiceIMP implements RoomService {
 
     private final RoomRepository roomRepository;
+    private final HotelRepository hotelRepository;
 
-    public RoomServiceIMP(RoomRepository roomRepository){
+    public RoomServiceIMP(RoomRepository roomRepository,HotelRepository hotelRepository){
         this.roomRepository=roomRepository;
+        this.hotelRepository=hotelRepository;
     }
     
     @Override
-    public RoomDto create(RoomDto room) {
-        RoomModel roomModel=roomRepository.save(new RoomModel(room));
+    public RoomDto create(RoomDto room,Long hotel_id) {
+        HotelModel hotel=hotelRepository.findById(hotel_id).orElseThrow(()-> new ResourceNotFoundException("Hotel", "id", hotel_id));
 
-        return new RoomDto(roomModel);
+        RoomModel roomModel=new RoomModel(room);
+        roomModel.setHotel(hotel);
+        RoomModel result=roomRepository.save(roomModel);
+
+        return new RoomDto(result);
     }
 
     @Override

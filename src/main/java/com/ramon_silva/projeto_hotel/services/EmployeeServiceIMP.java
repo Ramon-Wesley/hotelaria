@@ -1,7 +1,6 @@
 package com.ramon_silva.projeto_hotel.services;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,13 +49,13 @@ public class EmployeeServiceIMP implements EmployeeService {
 
     @Override
     public EmployeeDto updateById(Long id, EmployeeDto employee) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'updateById'");
     }
 
     @Override
     public void deleteById(Long id) {
-        // TODO Auto-generated method stub
+     
         throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
     }
     

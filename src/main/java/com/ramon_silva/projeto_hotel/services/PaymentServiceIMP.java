@@ -7,15 +7,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
+import com.ramon_silva.projeto_hotel.enums.StatusEnum;
+import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.PaymentModel;
+import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.repositories.PaymentRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
+import com.ramon_silva.projeto_hotel.util.Constants;
 
-public class PaymentServiceIMP implements PaymentServce{
+@Service
+public class PaymentServiceIMP implements PaymentService{
 
     private PaymentRepository paymentRepository;
     private ReservationRepository reservationRepository;
@@ -27,19 +33,27 @@ public class PaymentServiceIMP implements PaymentServce{
 
 
     @Override
-    public PaymentDto payment(PaymentDto paymentDto) {
-        Long idReservation=paymentDto.reservation().id();
-        reservationRepository.findById(idReservation)
-        .orElseThrow(()->new ResourceNotFoundException("Reserva", "id", idReservation));
-        PaymentModel paymentModel=paymentRepository.save(new PaymentModel());
-        return new PaymentDto(paymentModel);
+    public PaymentDto payment(PaymentDto paymentDto,Long reservation_id) {
+        
+        ReservationModel reservationModel= reservationRepository.findById(reservation_id)
+        .orElseThrow(()->new ResourceNotFoundException("Reserva", "id", reservation_id));
+        
+        if(reservationModel.getStatus() == StatusEnum.CONFIRM){
+            PaymentModel paymentModel=new PaymentModel();
+            paymentModel.setReservation(reservationModel);
+            paymentModel.setPaymentMethod(paymentDto.paymentMethod());
+            paymentModel.setPayment_day(paymentDto.payment_day());
+            paymentModel.setStatus(StatusEnum.CONFIRM);
+            paymentModel.setTotal_payment(reservationModel.getTotal_pay());
+            PaymentModel result=paymentRepository.save(paymentModel);
+            return new PaymentDto(result);
+        }
+        throw new GeralException(Constants.NOT_CONFIRM_RESERVATION);
         }
 
     @Override
-    public PaymentDto getPaymentById(Long id) {
-      
+    public PaymentDto getPaymentById(Long id) { 
     PaymentModel payment=paymentRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Pagamento", "id", id));
-
     return new PaymentDto(payment);
     
     }
