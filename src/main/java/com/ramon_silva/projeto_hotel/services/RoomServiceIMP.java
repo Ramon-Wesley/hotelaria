@@ -33,7 +33,7 @@ public class RoomServiceIMP implements RoomService {
     public RoomDto create(RoomDto room,Long hotel_id) {
         HotelModel hotel=hotelRepository.findById(hotel_id).orElseThrow(()-> new ResourceNotFoundException("Hotel", "id", hotel_id));
 
-        RoomModel roomModel=new RoomModel(room);
+        RoomModel roomModel=new RoomModel(null,room);
         roomModel.setHotel(hotel);
         RoomModel result=roomRepository.save(roomModel);
 
@@ -62,7 +62,7 @@ public class RoomServiceIMP implements RoomService {
     public RoomDto updateById(Long id, RoomDto room) {
         roomRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Quartos", "id", id));
 
-        RoomModel roomModel=roomRepository.save(new RoomModel(room));
+        RoomModel roomModel=roomRepository.save(new RoomModel(id,room));
 
         return new RoomDto(roomModel);
     }

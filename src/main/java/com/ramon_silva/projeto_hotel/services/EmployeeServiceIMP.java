@@ -24,7 +24,7 @@ public class EmployeeServiceIMP implements EmployeeService {
 
     @Override
     public EmployeeDto create(EmployeeDto employee) {
-        EmployeeModel employeeModel=employeeRepository.save(new EmployeeModel(employee));
+        EmployeeModel employeeModel=employeeRepository.save(new EmployeeModel(null,employee));
 
         return new EmployeeDto(employeeModel);
     }

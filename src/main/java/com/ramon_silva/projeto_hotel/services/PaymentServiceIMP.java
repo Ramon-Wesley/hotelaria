@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
-import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.PaymentModel;
@@ -19,6 +18,7 @@ import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.repositories.PaymentRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
 import com.ramon_silva.projeto_hotel.util.Constants;
+import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 
 @Service
 public class PaymentServiceIMP implements PaymentService{
@@ -37,14 +37,15 @@ public class PaymentServiceIMP implements PaymentService{
         
         ReservationModel reservationModel= reservationRepository.findById(reservation_id)
         .orElseThrow(()->new ResourceNotFoundException("Reserva", "id", reservation_id));
-        
+        Double valueService=reservationModel.getReservation_service().stream()
+        .mapToDouble(res->res.getServico().getPrice()).sum();
         if(reservationModel.getStatus() == StatusEnum.CONFIRM){
             PaymentModel paymentModel=new PaymentModel();
             paymentModel.setReservation(reservationModel);
             paymentModel.setPaymentMethod(paymentDto.paymentMethod());
             paymentModel.setPayment_day(paymentDto.payment_day());
             paymentModel.setStatus(StatusEnum.CONFIRM);
-            paymentModel.setTotal_payment(reservationModel.getTotal_pay());
+            paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
             PaymentModel result=paymentRepository.save(paymentModel);
             return new PaymentDto(result);
         }

@@ -10,11 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.ramon_silva.projeto_hotel.dto.AddressDto;
 import com.ramon_silva.projeto_hotel.dto.HotelDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
-import com.ramon_silva.projeto_hotel.models.AddressModel;
 import com.ramon_silva.projeto_hotel.models.HotelModel;
 import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
 
@@ -29,7 +27,7 @@ public class HotelServiceIMP implements HotelService {
 
     @Override
     public HotelDto create(HotelDto hotel) {
-        HotelModel hotelModel=hotelRepository.save(new HotelModel(hotel));
+        HotelModel hotelModel=hotelRepository.save(new HotelModel(null,hotel));
 
         return new HotelDto(hotelModel);
     }
@@ -54,34 +52,9 @@ public class HotelServiceIMP implements HotelService {
 
     @Override
     public HotelDto updateById(Long id, HotelDto hotel) {
-     HotelModel hotelModel=hotelRepository.findById(id).orElseThrow(
+     hotelRepository.findById(id).orElseThrow(
         ()-> new ResourceNotFoundException("Hotel", "id", id));
-        hotelRepository.save(new HotelModel(hotel));
-        hotelModel.setName(hotel.name());
-        hotelModel.setDescription(hotel.description());
-        hotelModel.setClassification(hotel.classification());
-
-        // Atualiza o endereço do hotel
-        AddressDto addressDto = hotel.address();
-        if (addressDto != null) {
-            AddressModel addressModel = hotelModel.getAddress();
-            if (addressModel == null) {
-                addressModel = new AddressModel(addressDto);
-            } else {
-                addressModel.setCountry(addressDto.country());
-                addressModel.setState(addressDto.state());
-                addressModel.setZapCode(addressDto.zapCode());
-                addressModel.setCity(addressDto.city());
-                addressModel.setNeighborhood(addressDto.neighborhood());
-                addressModel.setNumber(addressDto.number());
-                addressModel.setComplemement(addressDto.complemement());
-            }
-            hotelModel.setAddress(addressModel);
-        }
-
-        hotelRepository.save(hotelModel);
-
-
+       HotelModel hotelModel= hotelRepository.save(new HotelModel(id,hotel));
         return new HotelDto(hotelModel);
     }
 

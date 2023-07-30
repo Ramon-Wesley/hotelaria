@@ -24,7 +24,7 @@ public class AddressServiceIMP implements AddressService{
 
     @Override
     public AddressDto create(AddressDto address) {
-        AddressModel addressRes=addressRepository.save(new AddressModel(address));
+        AddressModel addressRes=addressRepository.save(new AddressModel(null,address));
         return new AddressDto(addressRes);
     }
 

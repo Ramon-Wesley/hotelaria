@@ -14,20 +14,30 @@ import com.ramon_silva.projeto_hotel.dto.ClientDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
+import com.ramon_silva.projeto_hotel.models.EmailModel;
 import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
+import com.ramon_silva.projeto_hotel.util.MessageMailConstants;
+
+import jakarta.mail.MessagingException;
 
 
 @Service
 public class ClientServiceIMP implements ClientService{
 
-    @Autowired
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+    public final EmailServiceIMP emailServiceIMP;
 
+    public ClientServiceIMP(ClientRepository clientRepository,EmailServiceIMP emailServiceIMP){
+      this.clientRepository=clientRepository;
+      this.emailServiceIMP=emailServiceIMP;
+    }
     
     @Override
     public ClientDto create(ClientDto client) {
-      ClientModel clientModel=clientRepository.save(new ClientModel(client));
-      return new ClientDto(clientModel);
+      ClientModel clientModel=clientRepository.save(new ClientModel(null,client));
+      ClientDto clientDto =new ClientDto(clientModel);
+     
+      return clientDto;
     }
 
     @Override
@@ -53,7 +63,7 @@ public class ClientServiceIMP implements ClientService{
     public ClientDto updateById(Long id, ClientDto client) {
         clientRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("cliente", "id", id));
 
-        ClientModel clientModel=clientRepository.save(new ClientModel(client));
+        ClientModel clientModel=clientRepository.save(new ClientModel(id,client));
 
         return new ClientDto(clientModel);
     }
