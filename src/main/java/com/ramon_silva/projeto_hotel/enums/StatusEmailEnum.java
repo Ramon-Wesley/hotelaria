@@ -1,12 +1,12 @@
 package com.ramon_silva.projeto_hotel.enums;
 
-public enum UsersEnum {
-    ADMIN("admin"),
-    USER("user");
+public enum StatusEmailEnum {
+    SEND("enviado"),
+    ERROR("Erro");
 
-    private String role;
+     private String role;
 
-    UsersEnum(String role){
+       StatusEmailEnum(String role){
         this.role=role;
     }
 

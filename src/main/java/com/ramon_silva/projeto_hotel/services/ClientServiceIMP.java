@@ -3,7 +3,6 @@ package com.ramon_silva.projeto_hotel.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,22 +13,18 @@ import com.ramon_silva.projeto_hotel.dto.ClientDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
-import com.ramon_silva.projeto_hotel.models.EmailModel;
 import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
-import com.ramon_silva.projeto_hotel.util.MessageMailConstants;
 
-import jakarta.mail.MessagingException;
+
 
 
 @Service
 public class ClientServiceIMP implements ClientService{
 
     private final ClientRepository clientRepository;
-    public final EmailServiceIMP emailServiceIMP;
 
-    public ClientServiceIMP(ClientRepository clientRepository,EmailServiceIMP emailServiceIMP){
+    private ClientServiceIMP(ClientRepository clientRepository){
       this.clientRepository=clientRepository;
-      this.emailServiceIMP=emailServiceIMP;
     }
     
     @Override

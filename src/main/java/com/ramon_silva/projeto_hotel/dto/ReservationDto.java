@@ -2,20 +2,17 @@ package com.ramon_silva.projeto_hotel.dto;
 
 import java.time.LocalDate;
 
-import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
+import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record ReservationDto(
 
      Long id,
     
-   
      ClientDto client,
 
      RoomDto room,

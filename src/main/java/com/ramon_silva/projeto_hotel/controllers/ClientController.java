@@ -17,6 +17,7 @@ import com.ramon_silva.projeto_hotel.dto.ClientDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.services.ClientServiceIMP;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
@@ -25,7 +26,6 @@ import jakarta.validation.Valid;
 public class ClientController {
     
     private final ClientServiceIMP clientServiceIMP;
-    
     public ClientController(ClientServiceIMP clientServiceIMP){
         this.clientServiceIMP=clientServiceIMP;
     }
@@ -33,7 +33,7 @@ public class ClientController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<ClientDto> create(@RequestBody @Valid ClientDto client,UriComponentsBuilder uriBuilder){
+    public ResponseEntity<ClientDto> create(@RequestBody @Valid ClientDto client,UriComponentsBuilder uriBuilder) throws MessagingException{
         ClientDto clientDto=clientServiceIMP.create(client);
         var uri=uriBuilder.path("/clientes/{id}").buildAndExpand(clientDto.id()).toUri();
         return ResponseEntity.created(uri).body(clientDto);

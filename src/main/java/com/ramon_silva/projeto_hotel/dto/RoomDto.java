@@ -1,8 +1,7 @@
 package com.ramon_silva.projeto_hotel.dto;
 import com.ramon_silva.projeto_hotel.enums.TypeRoomEnum;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
-import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -16,7 +15,7 @@ public record RoomDto(
      @NotBlank
      String number_room,
 
-     @Enumerated
+
      @NotNull
      TypeRoomEnum type_room,
 

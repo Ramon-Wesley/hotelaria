@@ -27,8 +27,8 @@ import lombok.Setter;
 public class AddressModel {
 
 
-    public AddressModel(AddressDto address){
-        this.id=address.id();
+    public AddressModel(Long id,AddressDto address){
+        this.id=id;
         this.country=address.country();
         this.state=address.state();
         this.zapCode=address.zapCode();

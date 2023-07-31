@@ -24,7 +24,7 @@ public class RoomServiceIMP implements RoomService {
     private final RoomRepository roomRepository;
     private final HotelRepository hotelRepository;
 
-    public RoomServiceIMP(RoomRepository roomRepository,HotelRepository hotelRepository){
+    private RoomServiceIMP(RoomRepository roomRepository,HotelRepository hotelRepository){
         this.roomRepository=roomRepository;
         this.hotelRepository=hotelRepository;
     }

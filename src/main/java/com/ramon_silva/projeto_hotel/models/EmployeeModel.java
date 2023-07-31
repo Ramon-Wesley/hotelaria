@@ -6,12 +6,11 @@ import java.time.LocalDate;
 import org.hibernate.validator.constraints.Length;
 
 import com.ramon_silva.projeto_hotel.dto.EmployeeDto;
-import com.ramon_silva.projeto_hotel.enums.OfficeEnum;
+
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -68,9 +67,9 @@ public class EmployeeModel {
     private AddressModel address;
     
     @NotNull
-    @Enumerated
-    @Column(name="cargo")
-    private OfficeEnum office;
+    @OneToOne(optional = false)
+    @JoinColumn(name="cargo")
+    private OfficesModel office;
     
     @NotNull
     @Column(name="remuneracao")
@@ -92,14 +91,14 @@ public class EmployeeModel {
     @Column(name="situacao")
     private Boolean situation;
 
-    public EmployeeModel(EmployeeDto employeeDto){
-        this.id=employeeDto.id();
+    public EmployeeModel(Long id,EmployeeDto employeeDto){
+        this.id=id;
         this.name=employeeDto.name();
         this.phone=employeeDto.phone();
-        this.office=employeeDto.office();
+        this.office=new OfficesModel(employeeDto.office());
         this.remunaration=employeeDto.remunaration();
         this.email=employeeDto.email();
-        this.address=new AddressModel(employeeDto.address());
+        this.address=new AddressModel(null,employeeDto.address());
         this.contractDate=employeeDto.contractDate();
         this.shutdownDate=employeeDto.shutdownDate();
         this.situation=employeeDto.situation();

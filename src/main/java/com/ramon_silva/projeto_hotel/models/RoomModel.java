@@ -31,7 +31,8 @@ import lombok.Setter;
 public class RoomModel {
 
 
-    public RoomModel(RoomDto roomDto){
+    public RoomModel(Long id,RoomDto roomDto){
+        this.id=id;
         this.number_room=roomDto.number_room();
         this.type_room=roomDto.type_room();
         this.description=roomDto.description();

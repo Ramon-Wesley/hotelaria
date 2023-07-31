@@ -1,9 +1,9 @@
 package com.ramon_silva.projeto_hotel.dto;
 
-import java.util.List;
+import java.util.Collection;
 
 public record PageDto<T>(
-    List<T>getContent,
+    Collection<? extends T> getContent,
     int pageNumber,
     int numberOfElements,
     int pageSize,

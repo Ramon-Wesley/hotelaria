@@ -5,8 +5,8 @@ public enum TypeRoomEnum{
     SUITE("suite"),
     LUX("luxo"),
     PRESIDENTIAL("presidencial");
-    
-private String role;
+    private String role;
+
     TypeRoomEnum(String role){
         this.role=role;
     }

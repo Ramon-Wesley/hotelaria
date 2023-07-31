@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <h1 th:text="${reservation.room.hotel.name}"></h1>
+    </div>
+    <h1 th:text="${reservation.client.name}"></h1>
+    <div>
+        <p th:text="${reservation.room.type_room}"></p>
+        <p th:text="${reservation.total_pay}"></p>
+    </div>
+</body>
+</html>

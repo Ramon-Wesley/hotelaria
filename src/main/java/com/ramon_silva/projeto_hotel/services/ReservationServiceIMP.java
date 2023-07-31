@@ -12,12 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.itextpdf.text.DocumentException;
-import com.ramon_silva.projeto_hotel.dto.ClientDto;
+
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.dto.Reservation_serviceDto;
-import com.ramon_silva.projeto_hotel.dto.RoomDto;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
@@ -32,9 +30,8 @@ import com.ramon_silva.projeto_hotel.repositories.Reservation_serviceRepository;
 import com.ramon_silva.projeto_hotel.repositories.RoomRepository;
 import com.ramon_silva.projeto_hotel.repositories.ServicesRepository;
 import com.ramon_silva.projeto_hotel.util.Constants;
-import com.ramon_silva.projeto_hotel.util.MessageMailConstants;
+import com.ramon_silva.projeto_hotel.util.MailConstants;
 
-import jakarta.mail.MessagingException;
 
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 
@@ -62,27 +59,29 @@ public class ReservationServiceIMP implements ReservationService {
     }
 
     @Override
-    public ReservationDto createReservation(ReservationDto reservationDto,Long client_id,Long room_id) throws MessagingException, DocumentException {
+    public ReservationDto createReservation(ReservationDto reservationDto,Long client_id,Long room_id){
            ClientModel clientModel=clientRepository.findById(client_id)
            .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", client_id));
+           
            RoomModel roomModel=roomRepository.findById(room_id).orElseThrow(()->new ResourceNotFoundException("quarto", "id", room_id));  
+           
            ReservationModel reservationModel=new ReservationModel(null,reservationDto);
            reservationModel.setRoom(roomModel);
            reservationModel.setClient(clientModel);
            reservationModel.setStatus(StatusEnum.PENDING);
            reservationModel.setTotal_pay(totalPrice(reservationModel.getCheckInDate(), reservationModel.getCheckOutDate(), reservationModel.getRoom().getPrice()));
+           
            ReservationModel resultModel=reservationRepository.save(reservationModel);
            ReservationDto resultDto=new ReservationDto(resultModel);
-           if(resultDto != null){       
+             
                EmailModel email=new EmailModel();
-               email.setEmailFrom(MessageMailConstants.BASIC_EMAIL);
+               email.setEmailFrom(MailConstants.BASIC_EMAIL);
                email.setEmailTo(resultDto.client().email());
-               email.setSubject("a");
-               email.setText(MessageMailConstants.MESSAGE_RESERVATION);
-               emailServiceIMP.sendEmail(email,resultDto,MessageMailConstants.RESERVATION);
-      
-           }
-           return resultDto;
+               email.setSubject(resultDto.room().hotel().name());
+               email.setText(MailConstants.MESSAGE_RESERVATION);
+               emailServiceIMP.sendEmail(email,resultDto,MailConstants.RESERVATION);
+               
+               return resultDto;
           }
 
   
@@ -93,7 +92,15 @@ public class ReservationServiceIMP implements ReservationService {
       if(reservationModel.getStatus().equals(StatusEnum.PENDING)){
         reservationModel.setStatus(StatusEnum.CANCELED);
         reservationRepository.save(reservationModel);
-        return new ReservationDto(reservationModel);
+        ReservationDto resultDto=new ReservationDto(reservationModel);
+               EmailModel email=new EmailModel();
+               email.setEmailFrom(MailConstants.BASIC_EMAIL);
+               email.setEmailTo(resultDto.client().email());
+               email.setSubject(resultDto.room().hotel().name());
+               email.setText(MailConstants.MESSAGE_CANCEL_RESERVATION);
+               emailServiceIMP.sendEmail(email,resultDto,MailConstants.CANCEL);
+               
+        return resultDto;
       }
       throw new GeralException(Constants.STATUS_RESERVATION_ERROR);
     }

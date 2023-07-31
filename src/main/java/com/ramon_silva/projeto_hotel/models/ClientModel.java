@@ -1,6 +1,7 @@
 package com.ramon_silva.projeto_hotel.models;
 
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.br.CPF;
 
 import com.ramon_silva.projeto_hotel.dto.ClientDto;
 
@@ -31,12 +32,12 @@ import lombok.Setter;
 public class ClientModel {
 
 
-    public ClientModel(ClientDto client){
-        this.id=client.id();
+    public ClientModel(Long id,ClientDto client){
+        this.id=id;
         this.name=client.name();
         this.email=client.email();
         this.phone=client.phone();
-        this.address=new AddressModel(client.address());
+        this.address=new AddressModel(null,client.address());
 
       
     };
@@ -51,6 +52,9 @@ public class ClientModel {
     @Column(name="nome")
     private String name;
     
+    @CPF
+    private String cpf;
+
     @NotBlank
     @NotNull 
     @Email

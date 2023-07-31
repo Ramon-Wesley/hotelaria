@@ -17,8 +17,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,8 +31,9 @@ import lombok.Setter;
 @Setter
 public class PaymentModel {
 
-    public PaymentModel(PaymentDto paymentDto){
-    this.reservation=new ReservationModel(paymentDto.reservation());
+    public PaymentModel(Long id,PaymentDto paymentDto){
+    this.id=id;
+    this.reservation=new ReservationModel(paymentDto.id(),paymentDto.reservation());
     this.paymentMethod=paymentDto.paymentMethod();
     this.payment_day=paymentDto.payment_day();
     this.status=paymentDto.status();
@@ -57,9 +56,9 @@ public class PaymentModel {
     private PaymentMethodEnum paymentMethod;
 
     @NotNull
-    @Future
+    
     @Column(name="data_do_pagamento")
-    private LocalDate payment_day;
+    private LocalDate payment_day=LocalDate.now();
 
     @Enumerated
     @NotNull

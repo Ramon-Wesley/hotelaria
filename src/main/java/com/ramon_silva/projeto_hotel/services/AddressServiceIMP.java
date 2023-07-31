@@ -3,7 +3,7 @@ package com.ramon_silva.projeto_hotel.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,8 +19,12 @@ import com.ramon_silva.projeto_hotel.repositories.AddressRepository;
 @Service
 public class AddressServiceIMP implements AddressService{
 
-    @Autowired
-    AddressRepository addressRepository;
+
+    private final AddressRepository addressRepository;
+
+    private AddressServiceIMP(AddressRepository addressRepository){
+        this.addressRepository=addressRepository;
+    }
 
     @Override
     public AddressDto create(AddressDto address) {

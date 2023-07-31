@@ -21,7 +21,7 @@ public class ServicesServiceIMP implements ServicesService {
 
     private final ServicesRepository servicesRepository;
 
-    public ServicesServiceIMP(ServicesRepository servicesRepository){
+    private ServicesServiceIMP(ServicesRepository servicesRepository){
         this.servicesRepository=servicesRepository;
     }
 

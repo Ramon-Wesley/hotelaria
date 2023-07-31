@@ -37,10 +37,10 @@ import lombok.Setter;
 public class HotelModel {
 
 
-    public HotelModel(HotelDto hotel){
+    public HotelModel(Long id,HotelDto hotel){
         this.id=hotel.id();
         this.name=hotel.name();
-        this.address=new AddressModel(hotel.address());
+        this.address=new AddressModel(null,hotel.address());
         this.classification=hotel.classification();
         this.description=hotel.description();
     };

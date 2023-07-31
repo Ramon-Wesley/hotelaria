@@ -13,22 +13,28 @@ import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
+import com.ramon_silva.projeto_hotel.models.EmailModel;
 import com.ramon_silva.projeto_hotel.models.PaymentModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.repositories.PaymentRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
 import com.ramon_silva.projeto_hotel.util.Constants;
+import com.ramon_silva.projeto_hotel.util.MailConstants;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 
 @Service
 public class PaymentServiceIMP implements PaymentService{
 
-    private PaymentRepository paymentRepository;
-    private ReservationRepository reservationRepository;
+    private final PaymentRepository paymentRepository;
+    private final ReservationRepository reservationRepository;
+    private final EmailServiceIMP emailServiceIMP;
 
-    public  PaymentServiceIMP(PaymentRepository paymentRepository,ReservationRepository reservationRepository){
+    private  PaymentServiceIMP(PaymentRepository paymentRepository,
+    ReservationRepository reservationRepository,
+    EmailServiceIMP emailServiceIMP){
         this.paymentRepository=paymentRepository;
         this.reservationRepository=reservationRepository;
+        this.emailServiceIMP=emailServiceIMP;
     }
 
 
@@ -47,7 +53,16 @@ public class PaymentServiceIMP implements PaymentService{
             paymentModel.setStatus(StatusEnum.CONFIRM);
             paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
             PaymentModel result=paymentRepository.save(paymentModel);
-            return new PaymentDto(result);
+            PaymentDto resultDto= new PaymentDto(result);
+
+            EmailModel emailModel=new EmailModel();
+            emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
+            emailModel.setEmailTo(resultDto.reservation().client().email());
+            emailModel.setText(MailConstants.MESSAGE_PAYMENT);
+            emailModel.setSubject(resultDto.reservation().room().hotel().name());
+    
+            emailServiceIMP.sendEmail(emailModel, resultDto, MailConstants.PAYMENT);
+            return resultDto;
         }
         throw new GeralException(Constants.NOT_CONFIRM_RESERVATION);
         }

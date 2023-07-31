@@ -6,9 +6,9 @@ import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.models.PaymentModel;
 
+
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record PaymentDto(

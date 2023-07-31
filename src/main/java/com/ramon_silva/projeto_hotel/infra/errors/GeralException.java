@@ -1,7 +1,7 @@
 package com.ramon_silva.projeto_hotel.infra.errors;
 
 public class GeralException extends RuntimeException {
-    private String message;
+    public String message;
 
     public GeralException(String message){
         super(message);

@@ -4,10 +4,8 @@ import java.time.LocalDate;
 
 import org.hibernate.validator.constraints.Length;
 
-import com.ramon_silva.projeto_hotel.enums.OfficeEnum;
 import com.ramon_silva.projeto_hotel.models.EmployeeModel;
 
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
@@ -32,8 +30,8 @@ public record EmployeeDto(
      @NotNull
      AddressDto address,
     
-    @Enumerated
-     OfficeEnum office,
+    
+     OfficeDto office,
 
     @Min(0)
      double remunaration,
@@ -53,7 +51,7 @@ public record EmployeeDto(
      public EmployeeDto(EmployeeModel employeeModel){
           this(employeeModel.getId(), employeeModel.getName(), employeeModel.getEmail(), 
           employeeModel.getPhone(), new AddressDto(employeeModel.getAddress()), 
-          employeeModel.getOffice(), employeeModel.getRemunaration(), employeeModel.getContractDate(),
+          new OfficeDto(employeeModel.getOffice()), employeeModel.getRemunaration(), employeeModel.getContractDate(),
           employeeModel.getShutdownDate(),employeeModel.getSituation());
      }
 }

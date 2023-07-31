@@ -3,7 +3,6 @@ package com.ramon_silva.projeto_hotel.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,13 +18,15 @@ import com.ramon_silva.projeto_hotel.repositories.EmployeeRepository;
 @Service
 public class EmployeeServiceIMP implements EmployeeService {
 
-    @Autowired
-    EmployeeRepository employeeRepository;
+    
+    private final EmployeeRepository employeeRepository;
+    private EmployeeServiceIMP(EmployeeRepository employeeRepository){
+        this.employeeRepository=employeeRepository;
+    }
 
     @Override
     public EmployeeDto create(EmployeeDto employee) {
         EmployeeModel employeeModel=employeeRepository.save(new EmployeeModel(null,employee));
-
         return new EmployeeDto(employeeModel);
     }
 
@@ -43,7 +44,6 @@ public class EmployeeServiceIMP implements EmployeeService {
     @Override
     public EmployeeDto getById(Long id) {
         EmployeeModel employeemodel=employeeRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Empregados", "id", id));
-    
         return new EmployeeDto(employeemodel);
     }
 

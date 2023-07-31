@@ -1,15 +1,13 @@
 package com.ramon_silva.projeto_hotel.services;
 
 
-import com.itextpdf.text.DocumentException;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.dto.Reservation_serviceDto;
 
-import jakarta.mail.MessagingException;
 
 public interface ReservationService {
-    public ReservationDto createReservation(ReservationDto reservationDto,Long client_id,Long room_id) throws MessagingException,DocumentException,com.lowagie.text.DocumentException;
+    public ReservationDto createReservation(ReservationDto reservationDto,Long client_id,Long room_id);
     public ReservationDto cancelReservation(Long id);
     public ReservationDto confirmReservation(Long id);
     public ReservationDto updateReservation(Long id,ReservationDto reservationDto);

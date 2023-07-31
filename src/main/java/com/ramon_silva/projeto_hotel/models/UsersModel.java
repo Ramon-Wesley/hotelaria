@@ -7,7 +7,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-
 import com.ramon_silva.projeto_hotel.enums.UsersEnum;
 
 import jakarta.persistence.Column;
@@ -67,7 +66,7 @@ public class UsersModel implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(this.role == UsersEnum.RECEPCIONIST) return List.of
+        if(this.role == UsersEnum.ADMIN) return List.of
         (
         new SimpleGrantedAuthority("ROLE_ADMIN"),
         new SimpleGrantedAuthority("ROLE_USER")

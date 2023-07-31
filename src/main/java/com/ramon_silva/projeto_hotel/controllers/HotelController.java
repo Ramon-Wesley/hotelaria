@@ -1,8 +1,6 @@
 package com.ramon_silva.projeto_hotel.controllers;
 
 
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,10 +25,12 @@ import jakarta.validation.Valid;
 @RequestMapping("/hotel")
 public class HotelController {
 
+    private final HotelServiceIMP hotelIMP;
 
-    @Autowired
-    private HotelServiceIMP hotelIMP;
-
+  public HotelController(HotelServiceIMP hotelIMP)
+  {
+     this.hotelIMP=hotelIMP;
+   }
     @PostMapping
     @Transactional
     public ResponseEntity<HotelDto> create(@RequestBody @Valid HotelDto hoteldto,UriComponentsBuilder uriBuilder){

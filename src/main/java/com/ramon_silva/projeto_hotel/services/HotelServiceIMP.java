@@ -3,7 +3,7 @@ package com.ramon_silva.projeto_hotel.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +19,14 @@ import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
 @Service
 public class HotelServiceIMP implements HotelService {
 
-    @Autowired
-    HotelRepository hotelRepository;
+    
+    private final HotelRepository hotelRepository;
 
-    @Autowired 
-    AddressServiceIMP addressServiceIMP;
+
+    private HotelServiceIMP(HotelRepository hotelRepository){
+
+        this.hotelRepository=hotelRepository;
+    }
 
     @Override
     public HotelDto create(HotelDto hotel) {
