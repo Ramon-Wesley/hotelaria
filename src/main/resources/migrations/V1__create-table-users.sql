@@ -1,0 +1,7 @@
+ CREATE TABLE usuarios(
+ id int PRIMARY KEY AUTOINCREMENT,
+ login VARCHAR(100) NOTNULL,
+ senha VARCHAR(100) NOTNULL,
+ tipo_usuario VARCHAR(100) NOT NULL
+ 
+ );
