@@ -19,6 +19,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,22 +30,22 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ClientModel {
 
 
     public ClientModel(Long id,ClientDto client){
         this.id=id;
         this.name=client.name();
+        this.cpf=client.cpf();
         this.email=client.email();
         this.phone=client.phone();
-        this.address=new AddressModel(null,client.address());
-
-      
+        this.address=new AddressModel(client.address().id(),client.address());
     };
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     
     @NotBlank
     @NotNull
@@ -53,12 +54,15 @@ public class ClientModel {
     private String name;
     
     @CPF
+    @Column(name="cpf",unique = true)
+    @NotBlank
+    @NotNull
     private String cpf;
 
     @NotBlank
     @NotNull 
     @Email
-    @Column(unique=true)
+    @Column(name="email", unique=true)
     private String email;
     
     @NotBlank

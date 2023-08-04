@@ -5,5 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
 
 public interface ClientRepository extends JpaRepository<ClientModel,Long>{
-    
+    boolean existsByEmail(String email);
+    boolean existsByCpf(String cpf);
+    ClientModel findByEmail(String email);
 }

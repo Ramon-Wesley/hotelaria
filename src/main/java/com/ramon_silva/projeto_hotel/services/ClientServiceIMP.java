@@ -1,6 +1,6 @@
 package com.ramon_silva.projeto_hotel.services;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.ramon_silva.projeto_hotel.dto.ClientDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
+import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
 import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
@@ -23,16 +24,23 @@ public class ClientServiceIMP implements ClientService{
 
     private final ClientRepository clientRepository;
 
-    private ClientServiceIMP(ClientRepository clientRepository){
+    public ClientServiceIMP(ClientRepository clientRepository){
       this.clientRepository=clientRepository;
     }
     
     @Override
-    public ClientDto create(ClientDto client) {
-      ClientModel clientModel=clientRepository.save(new ClientModel(null,client));
-      ClientDto clientDto =new ClientDto(clientModel);
+    public ClientDto create(ClientDto clientdto) {
+      Objects.requireNonNull(clientdto, "Cliente não pode ser nulo");
+      Boolean existsEmail=clientRepository.existsByEmail(clientdto.email());
+      Boolean existsCPF=clientRepository.existsByCpf(clientdto.cpf());
+      if(!existsEmail && !existsCPF){
+        ClientModel clientModel=clientRepository.save(new ClientModel(null,clientdto));
+        ClientDto clientDto =new ClientDto(clientModel);
+        return clientDto;
+      }else{
+        throw new GeralException("Email ou cpf ja cadastrado!");
+      }
      
-      return clientDto;
     }
 
     @Override
@@ -49,13 +57,15 @@ public class ClientServiceIMP implements ClientService{
 
     @Override
     public ClientDto getById(Long id) {
-        ClientModel clientmodel=clientRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Cliente", "id", id));
-
+        ClientModel clientmodel=clientRepository.findById(id)
+        .orElseThrow(
+          ()-> new ResourceNotFoundException("Cliente", "id", id));
         return new ClientDto(clientmodel);
     }
 
     @Override
     public ClientDto updateById(Long id, ClientDto client) {
+        Objects.requireNonNull(client,"Client nao pode ser nulo!");
         clientRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("cliente", "id", id));
 
         ClientModel clientModel=clientRepository.save(new ClientModel(id,client));
@@ -65,7 +75,10 @@ public class ClientServiceIMP implements ClientService{
 
     @Override
     public void deleteById(Long id) {
-        clientRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("cliente", "id", id));
-    }
+      ClientModel client = clientRepository.findById(id)
+      .orElseThrow(() -> new ResourceNotFoundException("cliente", "id", id));
+
+      clientRepository.deleteById(client.getId());
+     }
     
 }
