@@ -17,9 +17,9 @@ import com.ramon_silva.projeto_hotel.dto.ClientDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.services.ClientServiceIMP;
 
-import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/clientes")
@@ -33,7 +33,7 @@ public class ClientController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<ClientDto> create(@RequestBody @Valid ClientDto client,UriComponentsBuilder uriBuilder) throws MessagingException{
+    public ResponseEntity<ClientDto> create(@RequestBody @Valid ClientDto client,UriComponentsBuilder uriBuilder){
         ClientDto clientDto=clientServiceIMP.create(client);
         var uri=uriBuilder.path("/clientes/{id}").buildAndExpand(clientDto.id()).toUri();
         return ResponseEntity.created(uri).body(clientDto);
@@ -41,19 +41,19 @@ public class ClientController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<ClientDto> updateById(@PathVariable(name="id")Long id,@RequestBody @Valid ClientDto client){
+    public ResponseEntity<ClientDto> updateById(@PathVariable(name="id")@Positive Long id, @RequestBody @Valid ClientDto client){
         return ResponseEntity.ok().body(clientServiceIMP.updateById(id, client));
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity<Void> deleteById(@PathVariable(name="id") Long id){
+    public ResponseEntity<Void> deleteById(@PathVariable(name="id") @Positive Long id){
         clientServiceIMP.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getById(@PathVariable(name="id") Long id){
+    public ResponseEntity<ClientDto> getById(@PathVariable(name="id") @Positive Long id){
         return ResponseEntity.ok().body(clientServiceIMP.getById(id));
     }
 

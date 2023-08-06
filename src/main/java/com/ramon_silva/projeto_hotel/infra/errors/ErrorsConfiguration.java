@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -23,6 +24,8 @@ public class ErrorsConfiguration {
         return ResponseEntity.badRequest().body(errors.stream().map(fieldErros::new).toList());
     }
 
+    
+   
     public record fieldErros(String field, String message){
         public fieldErros(FieldError err){
             this(err.getField(),err.getDefaultMessage());
