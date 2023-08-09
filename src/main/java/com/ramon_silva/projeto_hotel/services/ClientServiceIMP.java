@@ -52,6 +52,7 @@ public class ClientServiceIMP implements ClientService{
 
       PageDto<ClientDto> pageDto=new PageDto<>(clientDtos, page.getNumber(), page.getNumberOfElements(), page.getSize(),
       page.getTotalPages(), page.getTotalElements());
+      
       return pageDto;
     }
 

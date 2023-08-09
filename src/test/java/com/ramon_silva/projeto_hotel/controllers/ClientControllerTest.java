@@ -20,7 +20,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -47,16 +49,15 @@ import com.ramon_silva.projeto_hotel.services.ClientServiceIMP;
 import com.ramon_silva.projeto_hotel.util.ClientCreator;
 
 
-import jakarta.transaction.Transactional;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(addFilters = false)
-@ActiveProfiles("test")
-@Transactional
 public class ClientControllerTest {
 
+@InjectMocks
+private ClientController clientController;
 
-  @MockBean
+@MockBean
 private ClientServiceIMP clientServiceIMP;
 
 @Autowired
@@ -128,7 +129,7 @@ public void setUp(){
     @Test
     @DisplayName("Atualizar registro do cliente")
     void Test_update_client_by_id() throws Exception {
-        clientDto=ClientCreator.createClientToBeSaved();
+        clientDto=ClientCreator.createToBeSave2();
         ClientModel clientmodel=new ClientModel(clientDto.id(), clientDto);
         clientmodel.setPhone(ClientCreator.createNewClient().phone());
         clientmodel.getAddress().setZapCode(ClientCreator.createNewClient().address().zapCode());
@@ -154,7 +155,7 @@ public void setUp(){
     @Test
     @DisplayName("Atualizar registro com email ou cpf ja cadastrado")
       void Test_update_client_with_exists_email_or_with_cpf() throws Exception{
-        clientDto=ClientCreator.createClientToBeSaved();
+        clientDto=ClientCreator.createToBeSave2();
         ClientModel clientmodel=new ClientModel(clientDto.id(), clientDto);
         clientmodel.setCpf(ClientCreator.createClientCPFEqualsSaved().cpf());
         clientmodel.setEmail(ClientCreator.createClientEmailEqualsToBeSaved().email());
@@ -230,18 +231,19 @@ verify(clientServiceIMP,times(1)).deleteById(id);
     @Test
     @DisplayName("Pegar registro de um cliente pelo id")
     void Test_get_client_by_id() throws Exception{
-      Long id= 1L;
-      clientDto=ClientCreator.createClientToBeSaved();
-      when(clientServiceIMP.getById(id)).thenReturn(clientDto);
+      
+      clientDto=ClientCreator.createToBeSave2();
+      when(clientServiceIMP.getById(clientDto.id())).thenReturn(clientDto);
 
-      this.mockMvc.perform(MockMvcRequestBuilders.get("/clientes/{id}", id)
+      this.mockMvc.perform(MockMvcRequestBuilders.get("/clientes/{id}", clientDto.id())
       )
       .andExpect(MockMvcResultMatchers.status().isOk())
-      .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(id.intValue()))
+      .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(clientDto.id().intValue()))
       .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(clientDto.name()))
       .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(clientDto.email()))
       .andExpect(MockMvcResultMatchers.jsonPath("$.cpf").value(clientDto.cpf()));
-      verify(clientServiceIMP,times(1)).getById(id);
+ 
+      verify(clientServiceIMP,times(1)).getById(clientDto.id());
     }
 
     @Test
@@ -272,8 +274,8 @@ void Test_get_all_client_list_by_desc_order() throws Exception{
   String sortBy = "id";
   String sortOrder = "desc";
 
-  ClientDto clientDto1=ClientCreator.createClientToBeSaved();
-  ClientDto clientDto2=ClientCreator.createToBeSave2();
+  ClientDto clientDto2=ClientCreator.createToBeSave3();
+  ClientDto clientDto1=ClientCreator.createToBeSave2();
   List<ClientDto> clientDtos=Arrays.asList(clientDto1,clientDto2);
   
   List<ClientDto> clientDtos2 = new ArrayList<>(clientDtos);
@@ -326,8 +328,8 @@ void Test_get_all_client_list_by_asc_and_order_by_name() throws Exception{
   String sortBy = "name";
   String sortOrder = "asc";
 
-  ClientDto clientDto1=ClientCreator.createClientToBeSaved();
-  ClientDto clientDto2=ClientCreator.createToBeSave2();
+  ClientDto clientDto1=ClientCreator.createToBeSave2();
+  ClientDto clientDto2=ClientCreator.createToBeSave3();
   List<ClientDto> clientDtos=Arrays.asList(clientDto1,clientDto2);
   
   List<ClientDto> clientDtos2 = new ArrayList<>(clientDtos);
