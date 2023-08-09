@@ -6,7 +6,9 @@ import com.ramon_silva.projeto_hotel.models.AddressModel;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
 
 public class ClientCreator {
-    
+     public static ClientModel updateModelClient(){
+    return new ClientModel(1L, "Client2", "118.298.766-43","Ramonwj.s@outlook.com","031 95538-8888",AddressCreator.updateModelHotel());
+    }
     
     public static ClientDto createClientToBeSaved(){
         AddressDto addressDto=new AddressDto(null, "Brasil", "minas gerais","35.117.222", "coronel fabriciano", "gavea", "116", null);
