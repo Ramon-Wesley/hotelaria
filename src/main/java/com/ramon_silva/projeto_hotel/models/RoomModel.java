@@ -30,7 +30,6 @@ import lombok.Setter;
 @Getter
 public class RoomModel {
 
-
     public RoomModel(Long id,RoomDto roomDto){
         this.id=id;
         this.number_room=roomDto.number_room();

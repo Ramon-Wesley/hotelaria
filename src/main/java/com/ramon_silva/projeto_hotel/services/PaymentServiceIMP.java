@@ -43,8 +43,10 @@ public class PaymentServiceIMP implements PaymentService{
         
         ReservationModel reservationModel= reservationRepository.findById(reservation_id)
         .orElseThrow(()->new ResourceNotFoundException("Reserva", "id", reservation_id));
+
         Double valueService=reservationModel.getReservation_service().stream()
         .mapToDouble(res->res.getServico().getPrice()).sum();
+        
         if(reservationModel.getStatus() == StatusEnum.CONFIRM){
             PaymentModel paymentModel=new PaymentModel();
             paymentModel.setReservation(reservationModel);
