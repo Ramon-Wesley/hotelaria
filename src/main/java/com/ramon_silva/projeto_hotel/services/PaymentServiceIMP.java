@@ -91,4 +91,27 @@ public class PaymentServiceIMP implements PaymentService{
         return pageDto;
 
 }
+
+
+    @Override
+    public void deletePaymentById(Long id) {
+        paymentRepository.findById(id)
+        .orElseThrow
+        (()->new ResourceNotFoundException("Pagamento", "id", id));
+
+        paymentRepository.deleteById(id);
+    }
+
+
+    @Override
+    public PaymentDto updateById(Long id, PaymentDto paymentDto) {
+      paymentRepository.findById(id)
+      .orElseThrow(
+        ()->new ResourceNotFoundException("Pagamento", "id", id));
+  
+        PaymentModel paymentModel2=new PaymentModel(id, paymentDto);
+         PaymentModel pay=paymentRepository.save(paymentModel2);
+
+        return new PaymentDto(pay);
+    }
 }

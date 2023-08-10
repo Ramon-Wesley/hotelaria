@@ -1,5 +1,6 @@
 package com.ramon_silva.projeto_hotel.services;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
+import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.PaymentModel;
@@ -61,7 +63,7 @@ public class PaymentServiceIMPTest {
         when(reservationRepository.findById(reservationModel.getId())).thenReturn(Optional.of(reservationModel));
         when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator.getPaymentModel());
 
-        paymentServiceIMP.payment(paymentDto, reservationModel.getId());
+         PaymentDto resulDto=paymentServiceIMP.payment(paymentDto, reservationModel.getId());
        
         verify(reservationRepository,times(1))
         .findById(reservationModel.getId());
@@ -75,7 +77,9 @@ public class PaymentServiceIMPTest {
 
         verify(paymentRepository,times(1))
         .save(paymentCreator.getPaymentModel()); 
-        
+        assertEquals(resulDto.id(),paymentCreator.getPaymentModel().getId());
+        assertEquals(resulDto.reservation().id(),paymentCreator.getPaymentModel().getReservation().getId());
+        assertEquals(resulDto.status(),StatusEnum.CONFIRM);
     }
     @Test
     @DisplayName("Tentar fazer o pagamento sem a confirmacao da reserva")
@@ -106,6 +110,27 @@ public class PaymentServiceIMPTest {
         .save(paymentCreator.getPaymentModel()); 
         
     }
+
+
+@Test
+@DisplayName("Atualizar o registro de pagamento modificando o modo de pagamento!")
+void Test_update_by_id_payment_success(){
+  PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
+  PaymentDto paymentCreatorDto=new PaymentDto(PaymentCreator.createModelPayment2().getPaymentModel());
+  PaymentModel resultPay=new PaymentModel(paymentCreator.getId(),paymentCreatorDto);
+
+  
+  when(paymentRepository.findById(paymentCreator.getId())).thenReturn(Optional.of(paymentCreator));
+  when(paymentRepository.save(resultPay)).thenReturn(resultPay);
+
+  paymentServiceIMP.updateById(paymentCreator.getId(),paymentCreatorDto);
+  //verify(paymentRepository,times(1)).findById(paymentCreatorDto.id());
+  //verify(paymentRepository,times(1)).save(paymentCreator);
+  //assertEquals(paymentDto.id(),paymentCreator.getId());
+  //assertNotEquals(paymentDto.paymentMethod(),paymentCreator.getPaymentMethod());
+
+}
+
 
     @Test
     @DisplayName("Selecionar o pagamento pelo id")
@@ -154,7 +179,7 @@ public class PaymentServiceIMPTest {
 
     
     @Test
-    @DisplayName("Selecionar todos os pagamentos cok lista vazia")
+    @DisplayName("Selecionar todos os pagamentos com lista vazia")
     void Test_get_all_payments_empty(){
 
         int pageNumber = 0;

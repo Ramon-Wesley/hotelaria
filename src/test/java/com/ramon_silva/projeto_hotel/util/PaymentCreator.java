@@ -66,9 +66,9 @@ public class PaymentCreator{
            .mapToDouble(res->res.getServico().getPrice()).sum();
             LocalDate paymentDay=reservationModel.getCheckOutDate().plusDays(1);
             
-            paymentModel.setId(2L);
+            paymentModel.setId(1L);
             paymentModel.setReservation(reservationModel);
-            paymentModel.setPaymentMethod(PaymentMethodEnum.MONEY);
+            paymentModel.setPaymentMethod(PaymentMethodEnum.DEBIT);
             paymentModel.setPayment_day(paymentDay);
             paymentModel.setStatus(StatusEnum.CONFIRM);
             paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
