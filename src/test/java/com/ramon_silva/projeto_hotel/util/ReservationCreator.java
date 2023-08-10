@@ -21,6 +21,10 @@ public class ReservationCreator {
         return new ReservationModel(1L, ClientCreator.updateModelClient(), RoomCreator.updateModelRoom(),oneWeekLater, oneWeekFiveDaysLater, StatusEnum.CONFIRM,total_pay ,Reservation_serviceCreator.getModelReservation_service());
     }
 
+    public static ReservationModel ReservationModelUpdatePending(){
+        return new ReservationModel(1L, ClientCreator.updateModelClient(), RoomCreator.updateModelRoom(),oneWeekLater, oneWeekFiveDaysLater, StatusEnum.PENDING,total_pay ,Reservation_serviceCreator.getModelReservation_service());
+    }
+
         
         private static long calculateDaysDifference(LocalDate startDate, LocalDate endDate) {
             return ChronoUnit.DAYS.between(startDate, endDate);
