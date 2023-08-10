@@ -50,7 +50,31 @@ public class PaymentCreator{
             PaymentModel result=paymentModel;
             PaymentDto resultDto= new PaymentDto(result);
 
-           
+            EmailModel emailModel=new EmailModel();
+            emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
+            emailModel.setEmailTo(resultDto.reservation().client().email());
+            emailModel.setText(MailConstants.MESSAGE_PAYMENT);
+            emailModel.setSubject(resultDto.reservation().room().hotel().name());
+            PaymentCreator.emailReturn=new EmailReturn(emailModel, resultDto, MailConstants.PAYMENT);
+
+            return new PaymentCreator(paymentModel, emailReturn);
+    }
+    public static PaymentCreator createModelPayment2(){
+        PaymentModel paymentModel=new PaymentModel();
+        ReservationModel reservationModel=ReservationCreator.ReservationModelUpdateConfirm();
+        Double valueService=reservationModel.getReservation_service().stream()
+           .mapToDouble(res->res.getServico().getPrice()).sum();
+            LocalDate paymentDay=reservationModel.getCheckOutDate().plusDays(1);
+            
+            paymentModel.setId(2L);
+            paymentModel.setReservation(reservationModel);
+            paymentModel.setPaymentMethod(PaymentMethodEnum.MONEY);
+            paymentModel.setPayment_day(paymentDay);
+            paymentModel.setStatus(StatusEnum.CONFIRM);
+            paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
+            PaymentModel result=paymentModel;
+            PaymentDto resultDto= new PaymentDto(result);
+
             EmailModel emailModel=new EmailModel();
             emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
             emailModel.setEmailTo(resultDto.reservation().client().email());
