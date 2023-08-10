@@ -65,7 +65,7 @@ public class EmailServiceIMP  implements EmailService{
          emailModel.setStatusEmail(StatusEmailEnum.SEND);
          emailRepository.save(emailModel);
      } catch (Exception e) {
-        throw new GeralException("Erro ao enviar emaul"+e.getMessage());
+        throw new GeralException("Erro ao enviar email"+e.getMessage());
      }
 
         } 
