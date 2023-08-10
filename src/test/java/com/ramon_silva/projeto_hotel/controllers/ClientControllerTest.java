@@ -48,10 +48,15 @@ import com.ramon_silva.projeto_hotel.models.ClientModel;
 import com.ramon_silva.projeto_hotel.services.ClientServiceIMP;
 import com.ramon_silva.projeto_hotel.util.ClientCreator;
 
+import jakarta.transaction.Transactional;
+
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureTestDatabase
+@ActiveProfiles("test")
+@Transactional
 public class ClientControllerTest {
 
 @InjectMocks
@@ -63,7 +68,7 @@ private ClientServiceIMP clientServiceIMP;
 @Autowired
 private MockMvc mockMvc;
 
-private ObjectMapper objectJson=new ObjectMapper();
+private ObjectMapper objectJson= new ObjectMapper();
 
 private ClientDto clientDto;
 

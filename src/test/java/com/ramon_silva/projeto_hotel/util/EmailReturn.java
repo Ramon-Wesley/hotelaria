@@ -1,6 +1,5 @@
 package com.ramon_silva.projeto_hotel.util;
 
-import com.ramon_silva.projeto_hotel.dto.PaymentDto;
 import com.ramon_silva.projeto_hotel.models.EmailModel;
 
 public class EmailReturn {

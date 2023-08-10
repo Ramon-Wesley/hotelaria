@@ -35,6 +35,7 @@ public class PaymentCreator{
     }
 
     public static PaymentCreator createModelPayment(){
+        PaymentModel paymentModel=new PaymentModel();
         ReservationModel reservationModel=ReservationCreator.ReservationModelUpdateConfirm();
         Double valueService=reservationModel.getReservation_service().stream()
            .mapToDouble(res->res.getServico().getPrice()).sum();
@@ -49,6 +50,7 @@ public class PaymentCreator{
             PaymentModel result=paymentModel;
             PaymentDto resultDto= new PaymentDto(result);
 
+           
             EmailModel emailModel=new EmailModel();
             emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
             emailModel.setEmailTo(resultDto.reservation().client().email());
