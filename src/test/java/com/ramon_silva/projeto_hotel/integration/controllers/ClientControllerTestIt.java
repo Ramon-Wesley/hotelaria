@@ -36,7 +36,7 @@ import jakarta.transaction.Transactional;
 @AutoConfigureTestDatabase
 @ActiveProfiles("test")
 @Transactional
-public class ClientControllerIT {
+public class ClientControllerTestIt {
 
 
 

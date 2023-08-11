@@ -1,9 +1,10 @@
-package com.ramon_silva.projeto_hotel.services;
+package com.ramon_silva.projeto_hotel.singles.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -34,6 +35,7 @@ import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
 import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
+import com.ramon_silva.projeto_hotel.services.ClientServiceIMP;
 import com.ramon_silva.projeto_hotel.util.ClientCreator;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,8 +61,8 @@ class ClientServiceIMPTest {
         Assertions.assertThrows(GeralException.class, () -> clientServiceIMP.create(clientDto), "Email ja cadastrado!");
 
         verify(clientRepository, never()).save(new ClientModel(null, clientDto));
-        verify(clientRepository, atMost(1)).existsByEmail(clientDto.email());
-        verify(clientRepository, atMost(1)).existsByCpf(clientDto.cpf());
+        verify(clientRepository, times(1)).existsByEmail(clientDto.email());
+        verify(clientRepository, times(1)).existsByCpf(clientDto.cpf());
     }
 
     @Test
@@ -86,8 +88,9 @@ class ClientServiceIMPTest {
         Mockito.when(clientRepository.save(Mockito.any(ClientModel.class))).thenReturn(clientModel);
         ClientDto result = clientServiceIMP.create(clientDto);
 
-        verify(clientRepository, times(1)).save(Mockito.any(ClientModel.class));
-
+        verify(clientRepository,times(1)).existsByEmail(anyString());
+        verify(clientRepository,times(1)).existsByCpf(anyString());
+        verify(clientRepository,times(1)).save(Mockito.any(ClientModel.class));
         assertNotNull(result);
         assertEquals(clientDto, result);
 
@@ -98,6 +101,9 @@ class ClientServiceIMPTest {
     void Test_creating_client_with_empty_data() {
         Assertions.assertThrows(NullPointerException.class, () -> clientServiceIMP.create(null),
                 "Cliente não pode ser nulo");
+                verify(clientRepository,never()).save(any(ClientModel.class));
+                verify(clientRepository,never()).existsByEmail(anyString());
+                verify(clientRepository,never()).existsByCpf(anyString());
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.ramon_silva.projeto_hotel.services;
+package com.ramon_silva.projeto_hotel.singles.services;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +27,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
+import com.ramon_silva.projeto_hotel.services.EmailServiceIMP;
+import com.ramon_silva.projeto_hotel.services.PaymentServiceIMP;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;

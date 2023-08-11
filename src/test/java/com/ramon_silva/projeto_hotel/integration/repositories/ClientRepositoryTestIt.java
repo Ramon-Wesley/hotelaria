@@ -1,4 +1,4 @@
-package com.ramon_silva.projeto_hotel.repositories;
+package com.ramon_silva.projeto_hotel.integration.repositories;
 
 import java.util.Optional;
 
@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
+import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
 import com.ramon_silva.projeto_hotel.util.ClientCreator;
 
 import jakarta.validation.ConstraintViolationException;
@@ -16,7 +17,7 @@ import jakarta.validation.ConstraintViolationException;
 @DataJpaTest
 @DisplayName("Testes para o repositorio")
 
-public class ClientRepositoryTest {
+public class ClientRepositoryTestIt {
 
     @Autowired
     private ClientRepository clientRepository;
