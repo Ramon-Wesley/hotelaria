@@ -102,7 +102,7 @@ class ClientServiceIMPTest {
 
     @Test
     @DisplayName("Deletar o cliente pelo id!")
-    void Test_deleting_client_by_ID() {
+    void Test_deleting_client_by_id() {
         clientDto = ClientCreator.createClientToBeSaved();
         ClientModel savedClient = new ClientModel(clientDto.id(), clientDto);
 

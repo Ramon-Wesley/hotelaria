@@ -1,6 +1,7 @@
 package com.ramon_silva.projeto_hotel.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -16,8 +17,10 @@ import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.EmailModel;
 import com.ramon_silva.projeto_hotel.models.PaymentModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
+import com.ramon_silva.projeto_hotel.models.Reservation_serviceModel;
 import com.ramon_silva.projeto_hotel.repositories.PaymentRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
+import com.ramon_silva.projeto_hotel.repositories.Reservation_serviceRepository;
 import com.ramon_silva.projeto_hotel.util.Constants;
 import com.ramon_silva.projeto_hotel.util.MailConstants;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
@@ -27,14 +30,16 @@ public class PaymentServiceIMP implements PaymentService{
 
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
+    private final Reservation_serviceRepository reservation_serviceRepository;
     private final EmailServiceIMP emailServiceIMP;
 
     private  PaymentServiceIMP(PaymentRepository paymentRepository,
     ReservationRepository reservationRepository,
-    EmailServiceIMP emailServiceIMP){
+    EmailServiceIMP emailServiceIMP,Reservation_serviceRepository reservation_serviceRepository){
         this.paymentRepository=paymentRepository;
         this.reservationRepository=reservationRepository;
         this.emailServiceIMP=emailServiceIMP;
+        this.reservation_serviceRepository=reservation_serviceRepository;
     }
 
 
@@ -105,13 +110,36 @@ public class PaymentServiceIMP implements PaymentService{
 
     @Override
     public PaymentDto updateById(Long id, PaymentDto paymentDto) {
-      paymentRepository.findById(id)
+     PaymentModel paymentModelRepository=paymentRepository.findById(id)
       .orElseThrow(
         ()->new ResourceNotFoundException("Pagamento", "id", id));
-  
-        PaymentModel paymentModel2=new PaymentModel(id, paymentDto);
-         PaymentModel pay=paymentRepository.save(paymentModel2);
+        
+        ReservationModel reservationModel=reservationRepository.findById(paymentModelRepository.getReservation().getId()).orElseThrow(
+        ()->new ResourceNotFoundException("Pagamento", "id", id));
+        
+        Double valueService= reservationModel.getReservation_service().stream()
+        .mapToDouble(res->res.getServico().getPrice()).sum();
+        
+        if(reservationModel.getStatus() == StatusEnum.CONFIRM){
+            PaymentModel paymentModel=new PaymentModel();
+            paymentModel.setReservation(reservationModel);
+            paymentModel.setPaymentMethod(paymentDto.paymentMethod());
+            paymentModel.setPayment_day(paymentDto.payment_day());
+            paymentModel.setStatus(StatusEnum.CONFIRM);
+            paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
+            PaymentModel result=paymentRepository.save(paymentModel);
+            PaymentDto resultDto= new PaymentDto(result);
 
-        return new PaymentDto(pay);
+            EmailModel emailModel=new EmailModel();
+            emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
+            emailModel.setEmailTo(resultDto.reservation().client().email());
+            emailModel.setText(MailConstants.MESSAGE_PAYMENT);
+            emailModel.setSubject(resultDto.reservation().room().hotel().name());
+    
+            emailServiceIMP.sendEmail(emailModel, resultDto, MailConstants.PAYMENT);
+            return resultDto;
+        }
+        throw new GeralException(Constants.NOT_CONFIRM_RESERVATION);
+      
     }
 }
