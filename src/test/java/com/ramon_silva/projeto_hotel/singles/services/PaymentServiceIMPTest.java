@@ -31,6 +31,7 @@ import com.ramon_silva.projeto_hotel.services.EmailServiceIMP;
 import com.ramon_silva.projeto_hotel.services.PaymentServiceIMP;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
+import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
@@ -61,8 +62,14 @@ public class PaymentServiceIMPTest {
     @Test
     @DisplayName("Sucesso no pagamento da estadia")
     void Test_payment_success() {
-        ReservationModel reservationModel=ReservationCreator.ReservationModelUpdateConfirm();
+        ReservationModel reservationModel=ReservationCreator.newReservationModel();
+        reservationModel.setId(1L);
+
         PaymentCreator paymentCreator=PaymentCreator.createModelPayment();
+
+        paymentCreator.getPaymentModel().setId(1L);
+        
+
         PaymentDto paymentDto= new PaymentDto(null, null, 
         paymentCreator.getPaymentModel().getPaymentMethod(),
         paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
@@ -93,8 +100,11 @@ public class PaymentServiceIMPTest {
     @DisplayName("Tentar fazer o pagamento sem a confirmacao da reserva")
     void test_payment_error_status_pending_or_status_canceled() {
 
-        ReservationModel reservationModel=ReservationCreator.ReservationModelUpdatePending();
+        ReservationModel reservationModel=ReservationCreator.newReservationModel();
+        reservationModel.setId(1L);
         PaymentCreator paymentCreator=PaymentCreator.createModelPayment();
+        paymentCreator.getPaymentModel().setStatus(StatusEnum.PENDING);
+
         PaymentDto paymentDto= new PaymentDto(null, null, 
         paymentCreator.getPaymentModel().getPaymentMethod(),
         paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
@@ -151,6 +161,7 @@ public class PaymentServiceIMPTest {
 
         Long reservation_id =99l;
         PaymentCreator paymentCreator=PaymentCreator.createModelPayment();
+        
         PaymentDto paymentDto= new PaymentDto(null, null, 
         paymentCreator.getPaymentModel().getPaymentMethod(),
         paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
@@ -179,6 +190,7 @@ public class PaymentServiceIMPTest {
 @DisplayName("Atualizar o registro de pagamento modificando o modo de pagamento!")
 void Test_update_by_id_payment_success(){
   PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
+  paymentCreator.setId(1L);
   PaymentModel paymentCreator2=PaymentCreator.createModelPayment2().getPaymentModel();
   paymentCreator2.setId(paymentCreator.getId());
   PaymentDto paymentCreatorDto =new PaymentDto(paymentCreator2);
@@ -207,6 +219,7 @@ void Test_update_by_id_payment_success(){
 void Test_update_by_id_payment_error(){
   Long id=99L;
   PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
+  paymentCreator.setId(1L);
   PaymentModel paymentCreator2=PaymentCreator.createModelPayment2().getPaymentModel();
   paymentCreator2.setId(paymentCreator.getId());
   PaymentDto paymentCreatorDto =new PaymentDto(paymentCreator2);
@@ -227,7 +240,7 @@ void Test_update_by_id_payment_error(){
     @DisplayName("Selecionar o pagamento pelo id")
     void Test_get_payment_by_id_success() {
         PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
-       
+       paymentCreator.setId(1L);
         when(paymentRepository.findById(paymentCreator.getId())).thenReturn(Optional.of(paymentCreator));
        
         PaymentDto paymentDto=paymentServiceIMP.getPaymentById(paymentCreator.getId());
@@ -253,7 +266,9 @@ void Test_update_by_id_payment_error(){
     @DisplayName("Selecionar todos os pagamentos")
     void Test_get_all_payments(){
         PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
+        paymentCreator.setId(1L);
         PaymentModel paymentCreator2=PaymentCreator.createModelPayment2().getPaymentModel();
+        paymentCreator2.setId(2L);
         int pageNumber = 0;
         int pageSize = 5;
         String sortBy = "name";

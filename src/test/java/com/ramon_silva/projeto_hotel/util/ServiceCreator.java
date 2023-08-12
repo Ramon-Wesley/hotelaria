@@ -11,13 +11,13 @@ public class ServiceCreator {
     
 
 
-    public static ServicesModel updateModelService(){
+    public static ServicesModel newServiceModel(){
 
-        return new ServicesModel(1L, "alimenticio", "Servico de quarto", 30.00);
+        return new ServicesModel(null, "alimenticio", "Servico de quarto", 30.00);
     }
 
-     public static ServicesModel updateModelService2(){
+     public static ServicesModel newServiceModel2(){
 
-        return new ServicesModel(2L, "Geral", "Servico de hospedagem", 70.00);
+        return new ServicesModel(null, "Geral", "Servico de hospedagem", 70.00);
     }
 }

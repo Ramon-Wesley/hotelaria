@@ -68,7 +68,8 @@ public class ClientServiceIMP implements ClientService{
     public ClientDto updateById(Long id, ClientDto client) {
       
         Objects.requireNonNull(client,"Client nao pode ser nulo!");
-        clientRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("cliente", "id", id));
+        clientRepository.findById(id).orElseThrow
+        (()->new ResourceNotFoundException("cliente", "id", id));
        
        boolean cpf = clientRepository.existsByCpfAndIdNot(client.cpf(), id);
        boolean email=clientRepository.existsByEmailAndIdNot(client.email(), id);

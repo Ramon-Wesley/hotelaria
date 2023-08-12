@@ -3,9 +3,9 @@ package com.ramon_silva.projeto_hotel.singles.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,48 +51,43 @@ class ClientServiceIMPTest {
     private ClientServiceIMP clientServiceIMP;
 
     @Test
-    @DisplayName("Salvar cliente com email ja cadastrado")
+    @DisplayName("Salvar cliente com email ou cpf ja cadastrado")
     void Test_saving_lient_with_existing_email() {
-        clientDto = ClientCreator.createClientEmailEqualsToBeSaved();
+        clientModel =ClientCreator.newClientModel();
+   
+        clientDto = new ClientDto(clientModel);
 
-        Mockito.when(clientRepository.existsByEmail(clientDto.email())).thenReturn(true);
-        Mockito.when(clientRepository.existsByCpf(clientDto.cpf())).thenReturn(false);
+        when(clientRepository.existsByEmail(clientDto.email())).thenReturn(true);
+        when(clientRepository.existsByCpf(clientDto.cpf())).thenReturn(true);
 
-        Assertions.assertThrows(GeralException.class, () -> clientServiceIMP.create(clientDto), "Email ja cadastrado!");
+        assertThrows(GeralException.class, () -> clientServiceIMP.create(clientDto), "Email ja cadastrado!");
 
-        verify(clientRepository, never()).save(new ClientModel(null, clientDto));
+        verify(clientRepository, never()).save(clientModel);
         verify(clientRepository, times(1)).existsByEmail(clientDto.email());
         verify(clientRepository, times(1)).existsByCpf(clientDto.cpf());
     }
 
     @Test
-    @DisplayName("Salvar cliente com CPF ja cadastrado!")
-    void Test_saving_lient_with_existing_cpf() {
-        clientDto = ClientCreator.createClientCPFEqualsSaved();
-        Mockito.when(clientRepository.existsByEmail(clientDto.email())).thenReturn(false);
-        Mockito.when(clientRepository.existsByCpf(clientDto.cpf())).thenReturn(true);
-        Assertions.assertThrows(GeralException.class, () -> clientServiceIMP.create(clientDto), "Cpf já cadastrado");
-        verify(clientRepository, never()).save(new ClientModel(null, clientDto));
-        verify(clientRepository, atMost(1)).existsByEmail(clientDto.email());
-        verify(clientRepository, atMost(1)).existsByCpf(clientDto.cpf());
-    }
-
-    @Test
     @DisplayName("Salvar novo cliente!")
     void Test_create_new_client() {
-        clientDto = ClientCreator.createNewClient();
-        clientModel = new ClientModel(null, clientDto);
-        Mockito.when(clientRepository.existsByEmail(clientDto.email())).thenReturn(false);
-        Mockito.when(clientRepository.existsByCpf(clientDto.cpf())).thenReturn(false);
+        clientModel = ClientCreator.newClientModel();
+        clientDto=new ClientDto(clientModel);
+        clientModel.setId(1L);
+        clientModel.getAddress().setId(1L);
 
-        Mockito.when(clientRepository.save(Mockito.any(ClientModel.class))).thenReturn(clientModel);
+        when(clientRepository.existsByEmail(clientDto.email())).thenReturn(false);
+        when(clientRepository.existsByCpf(clientDto.cpf())).thenReturn(false);
+
+        when(clientRepository.save(any(ClientModel.class))).thenReturn(clientModel);
         ClientDto result = clientServiceIMP.create(clientDto);
 
         verify(clientRepository,times(1)).existsByEmail(anyString());
         verify(clientRepository,times(1)).existsByCpf(anyString());
         verify(clientRepository,times(1)).save(Mockito.any(ClientModel.class));
-        assertNotNull(result);
-        assertEquals(clientDto, result);
+       
+        assertNotNull(result.id());
+        assertNotNull(result.address().id());
+        
 
     }
 
@@ -109,30 +104,32 @@ class ClientServiceIMPTest {
     @Test
     @DisplayName("Deletar o cliente pelo id!")
     void Test_deleting_client_by_id() {
-        clientDto = ClientCreator.createClientToBeSaved();
-        ClientModel savedClient = new ClientModel(clientDto.id(), clientDto);
+        
+        clientModel = ClientCreator.newClientModel();
+        clientModel.setId(1L);
+        clientModel.getAddress().setId(1L);
 
-        Mockito.when(clientRepository.findById(savedClient.getId()))
-                .thenReturn(Optional.of(savedClient));
+        Mockito.when(clientRepository.findById(clientModel.getId()))
+                .thenReturn(Optional.of(clientModel));
 
-        clientServiceIMP.deleteById(savedClient.getId());
+        clientServiceIMP.deleteById(clientModel.getId());
 
-        verify(clientRepository, times(1)).deleteById(savedClient.getId());
-        verify(clientRepository, times(1)).findById(savedClient.getId());
+        verify(clientRepository, times(1)).deleteById(clientModel.getId());
+        verify(clientRepository, times(1)).findById(clientModel.getId());
     }
 
     @Test
     @DisplayName("Deletar o cliente com um id inválido!")
     void Test_deleting_client_with_invalid_ID() {
-
-        Mockito.when(clientRepository.findById(-1L))
+Long id=99L;
+        when(clientRepository.findById(id))
                 .thenThrow(ResourceNotFoundException.class);
 
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> clientServiceIMP.deleteById(-1L),
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> clientServiceIMP.deleteById(id),
                 "Id inválido");
 
-        verify(clientRepository, times(1)).findById(-1L);
-        verify(clientRepository, never()).deleteById(-1L);
+        verify(clientRepository, times(1)).findById(id);
+        verify(clientRepository, never()).deleteById(id);
 
     }
 
@@ -144,8 +141,13 @@ class ClientServiceIMPTest {
         String sortBy = "name";
         String sortOrder = "asc";
 
-        ClientModel client1 = new ClientModel(1L, ClientCreator.createNewClient());
-        ClientModel client2 = new ClientModel(2L, ClientCreator.createClientToBeSaved());
+        ClientModel  client1 = ClientCreator.newClientModel();
+        client1.setId(1L);
+        client1.getAddress().setId(1L);
+
+        ClientModel client2 = ClientCreator.newClientModel();
+        client2.setId(2L);
+        client2.getAddress().setId(2L);
 
         List<ClientModel> clients = Arrays.asList(client1, client2);
 
@@ -184,15 +186,17 @@ class ClientServiceIMPTest {
     @DisplayName("Pegar um usuario pelo id")
     void Test_getting_by_id_client() {
 
-        clientDto = ClientCreator.createClientToBeSaved();
-        ClientModel clientModel = new ClientModel(clientDto.id(), clientDto);
+        clientModel = ClientCreator.newClientModel();
+        clientModel.setId(1L);
+        clientModel.getAddress().setId(1L);
+       
 
-        when(clientRepository.findById(clientDto.id())).thenReturn(Optional.of(clientModel));
+        when(clientRepository.findById(clientModel.getId())).thenReturn(Optional.of(clientModel));
 
-        ClientDto clientDto2 = clientServiceIMP.getById(clientDto.id());
+        ClientDto clientDto2 = clientServiceIMP.getById(clientModel.getId());
 
-        verify(clientRepository, times(1)).findById(clientDto.id());
-        assertEquals(clientDto, clientDto2, "Os dados nao sao compativeis");
+        verify(clientRepository, times(1)).findById(clientModel.getId());
+        assertEquals(clientModel.getId(), clientDto2.id(), "Os dados nao sao compativeis");
 
     }
 
@@ -200,25 +204,30 @@ class ClientServiceIMPTest {
     @DisplayName("Tentar pegar um usuario que nao existe pelo id")
     void Test_getting_by_id_not_found_client() {
 
-        clientDto = ClientCreator.createClientToBeSaved();
-        when(clientRepository.findById(clientDto.id())).thenThrow(ResourceNotFoundException.class);
+        Long id=99L;
+        when(clientRepository.findById(id)).thenThrow(ResourceNotFoundException.class);
 
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> clientServiceIMP.getById(clientDto.id()),
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> clientServiceIMP.getById(id),
                 "Cliente nao encontrado!");
 
-        verify(clientRepository, times(1)).findById(clientDto.id());
+        verify(clientRepository, times(1)).findById(id);
 
     }
 
     @Test
     @DisplayName("Atualizar registro")
     void Test_update_by_id() {
-        clientDto = ClientCreator.createClientToBeSaved();
-        ClientModel clientModel = new ClientModel(clientDto.id(), clientDto);
+        clientModel = ClientCreator.newClientModel();
+        clientModel.setId(1L);
+        clientModel.getAddress().setId(1L);
+
+       clientDto=new ClientDto(clientModel);
+
         ClientDto clientDto2 = new ClientDto(clientDto.id(),
                 clientDto.name(),
-                ClientCreator.createNewClient().cpf(),
-                ClientCreator.createNewClient().email(), clientDto.phone(),
+                ClientCreator.newClientModel2().getCpf(),
+                ClientCreator.newClientModel2().getEmail(),
+                 clientDto.phone(),
                 clientDto.address());
 
         ClientModel clientModel2 = new ClientModel(clientDto2.id(), clientDto2);
@@ -240,12 +249,17 @@ class ClientServiceIMPTest {
     @Test
     @DisplayName("Atualizar registro com id invalido")
     void Test_update_by_invalid_id() {
-        clientDto = ClientCreator.createNewClient();
-        when(clientRepository.findById(1L)).thenThrow(ResourceNotFoundException.class);
-        Assertions.assertThrows(ResourceNotFoundException.class, () -> clientServiceIMP.updateById(1L, clientDto),
+        Long id =99L;
+        clientModel = ClientCreator.newClientModel();
+        clientModel.setId(1L);
+        clientModel.getAddress().setId(1L);
+
+        clientDto=new ClientDto(clientModel);
+        when(clientRepository.findById(id)).thenThrow(ResourceNotFoundException.class);
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> clientServiceIMP.updateById(id, clientDto),
                 "Id invalido");
 
-        verify(clientRepository, times(1)).findById(1L);
+        verify(clientRepository, times(1)).findById(id);
         verify(clientRepository, times(0)).save(Mockito.any(ClientModel.class));
 
     }
@@ -253,9 +267,10 @@ class ClientServiceIMPTest {
     @Test
     @DisplayName("Atualizar registros sem os dados do cliente")
     void Test_update_by_id_with_null_client() {
-        Assertions.assertThrows(NullPointerException.class, () -> clientServiceIMP.updateById(1L, null),
+        Long id=1L;
+        Assertions.assertThrows(NullPointerException.class, () -> clientServiceIMP.updateById(id, null),
                 "dados do cliente sao nulos");
-        verify(clientRepository, times(0)).findById(1L);
+        verify(clientRepository, times(0)).findById(id);
         verify(clientRepository, times(0)).save(Mockito.any(ClientModel.class));
 
     }

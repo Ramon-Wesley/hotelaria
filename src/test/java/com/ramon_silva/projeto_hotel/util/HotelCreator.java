@@ -4,8 +4,8 @@ import com.ramon_silva.projeto_hotel.models.HotelModel;
 
 public class HotelCreator {
     
-    public static HotelModel updateModelHotel(){
+    public static HotelModel newModelHotel(){
 
-        return new HotelModel(1L, "Hotel1", "Hotel bom", 4, null, AddressCreator.updateModelHotel());
+        return new HotelModel(null, "Hotel1", "Hotel bom", 4, null, AddressCreator.newAddressModel());
     }
 }

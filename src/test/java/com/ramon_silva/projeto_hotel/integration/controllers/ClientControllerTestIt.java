@@ -54,9 +54,9 @@ private ClientModel clientModel;
 
 @BeforeEach
 public void setUp(){
-
- clientModel =clientRepository.save(ClientCreator.createClientModelToBeSaved());
- clientRepository.save(ClientCreator.createClientModelToBeSaved2()); 
+  
+ clientModel =clientRepository.save(ClientCreator.newClientModel()); 
+ clientRepository.save(ClientCreator.newClientModel3());
  clientModel = new ClientModel(clientModel.getId(), clientModel.getName(),
  clientModel.getCpf(), clientModel.getEmail(), clientModel.getPhone(), clientModel.getAddress());
 
@@ -71,7 +71,7 @@ public void setDown(){
     @Test
     @DisplayName("Rota para salvar um novo cliente!")
     void Test_create_new_client() throws Exception {
-        clientDto = ClientCreator.createNewClient();
+        clientDto=new ClientDto(ClientCreator.newClientModel2());
         String clientJson = objectJson.writeValueAsString(clientDto);
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/clientes")
@@ -81,7 +81,6 @@ public void setDown(){
                  .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
                  .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(clientDto.name()))  
                  .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(clientDto.email()))  
-                
                  .andDo(MockMvcResultHandlers.print());
       
     }
@@ -103,7 +102,7 @@ public void setDown(){
     @Test
     @DisplayName("Tentar criar um novo usuario com um email ou um cpf ja cadastrado")
     void Test_create_new_client_with_exists_email_or_with_cpf() throws Exception{
-     clientDto=ClientCreator.createClientToBeSaved();
+     clientDto=new ClientDto(ClientCreator.newClientModel());
      String clientJson=objectJson.writeValueAsString(clientDto);
    
 
@@ -122,11 +121,13 @@ public void setDown(){
         ClientModel client=new ClientModel(
         clientModel.getId(), clientModel.getName(), 
         clientModel.getCpf(), clientModel.getEmail(), 
-        clientModel.getPhone(), clientModel.getAddress());
+        clientModel.getPhone(), clientModel.getAddress()
+        );
 
     
-        client.setPhone(ClientCreator.createNewClient().phone());
+        client.setPhone(ClientCreator.newClientModel2().getPhone());
         client.setEmail("emailEmaill@gmail.com");
+
         ClientDto clientDto2=new ClientDto(client);
         String clientJson=objectJson.writeValueAsString(clientDto2);
 
@@ -144,12 +145,12 @@ public void setDown(){
     @Test
     @DisplayName("Atualizar registro com email ou cpf ja cadastrado")
       void Test_update_client_with_exists_email_or_with_cpf() throws Exception{
-        clientDto=ClientCreator.createClientToBeSaved();
-        ClientModel clientmodel=new ClientModel(clientModel.getId(), clientDto);
-        clientmodel.setCpf(ClientCreator.createClientModelToBeSaved2().getCpf());
-        clientmodel.setEmail(ClientCreator.createClientModelToBeSaved2().getEmail());
+        
+       
+        clientModel.setCpf(ClientCreator.newClientModel3().getCpf());
+        clientModel.setEmail(ClientCreator.newClientModel3().getEmail());
 
-        ClientDto clientDto2=new ClientDto(clientmodel);
+        ClientDto clientDto2=new ClientDto(clientModel);
         String clientJson=objectJson.writeValueAsString(clientDto2);
 
         this.mockMvc.perform(MockMvcRequestBuilders.put("/clientes/{id}", clientDto2.id())
@@ -162,10 +163,15 @@ public void setDown(){
       @Test
       @DisplayName("Atualizar registro com cliente invalido")
       void Test_update_client_not_existe() throws Exception{
-          clientDto=ClientCreator.createClientToBeSaved();
+        Long id=99L;
+        ClientModel clientModel=ClientCreator.newClientModel2();
+        clientModel.setId(3L);
+        clientModel.getAddress().setId(3L);
+          clientDto=new ClientDto(clientModel);
+          
           String clientJson=objectJson.writeValueAsString(clientDto);
 
-          this.mockMvc.perform(MockMvcRequestBuilders.put("/clientes/{id}",5L)
+          this.mockMvc.perform(MockMvcRequestBuilders.put("/clientes/{id}",id)
           .content(clientJson)
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(MockMvcResultMatchers.status().isNotFound());   

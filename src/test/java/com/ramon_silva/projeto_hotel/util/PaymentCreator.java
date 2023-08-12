@@ -36,12 +36,13 @@ public class PaymentCreator{
 
     public static PaymentCreator createModelPayment(){
         PaymentModel paymentModel=new PaymentModel();
-        ReservationModel reservationModel=ReservationCreator.ReservationModelUpdateConfirm();
+        ReservationModel reservationModel=ReservationCreator.newReservationModel2();
+        reservationModel.setId(1L);
         Double valueService=reservationModel.getReservation_service().stream()
            .mapToDouble(res->res.getServico().getPrice()).sum();
             LocalDate paymentDay=reservationModel.getCheckOutDate().plusDays(1);
             
-            paymentModel.setId(1L);
+            
             paymentModel.setReservation(reservationModel);
             paymentModel.setPaymentMethod(PaymentMethodEnum.MONEY);
             paymentModel.setPayment_day(paymentDay);
@@ -59,14 +60,15 @@ public class PaymentCreator{
 
             return new PaymentCreator(paymentModel, emailReturn);
     }
+
     public static PaymentCreator createModelPayment2(){
         PaymentModel paymentModel=new PaymentModel();
-        ReservationModel reservationModel=ReservationCreator.ReservationModelUpdateConfirm();
+        ReservationModel reservationModel=ReservationCreator.newReservationModel2();
+        reservationModel.setId(2L);
         Double valueService=reservationModel.getReservation_service().stream()
            .mapToDouble(res->res.getServico().getPrice()).sum();
             LocalDate paymentDay=reservationModel.getCheckOutDate().plusDays(1);
             
-            paymentModel.setId(2L);
             paymentModel.setReservation(reservationModel);
             paymentModel.setPaymentMethod(PaymentMethodEnum.DEBIT);
             paymentModel.setPayment_day(paymentDay);
