@@ -9,5 +9,7 @@ public interface PaymentService {
     public PaymentDto getPaymentById(Long id);
     public void deletePaymentById(Long id);
     public PaymentDto updateById(Long id,PaymentDto paymentDto);
-    public PageDto<PaymentDto> getAll(int pageNumber,int pageSize,String sortBy,String sortOrder);
+   public PageDto<PaymentDto> getAllByReservationClient(String client,int pageNumber,int pageSize,String sortBy,String sortOrder);
+    
+
 }

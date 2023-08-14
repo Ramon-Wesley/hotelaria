@@ -41,7 +41,7 @@ public class RoomServiceIMP implements RoomService {
     }
 
     @Override
-    public PageDto<RoomDto> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder) {
+    public PageDto<RoomDto> getAll(String hotel,int pageNumber, int pageSize, String sortBy, String sortOrder) {
         Sort sort =sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
         Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
         Page<RoomModel> page=roomRepository.findAll(pageable);

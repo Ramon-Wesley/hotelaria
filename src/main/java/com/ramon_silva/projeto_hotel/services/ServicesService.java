@@ -9,5 +9,5 @@ public interface ServicesService {
     public ServicesDto updateById(Long id, ServicesDto service);
     public void deleteById(Long id);
     public ServicesDto getById(Long id);
-    public PageDto<ServicesDto> getAllgetAll(int pageNumber,int pageSize,String sortBy,String sortOrder);
+    public PageDto<ServicesDto> getAll(int pageNumber,int pageSize,String sortBy,String sortOrder);
 }

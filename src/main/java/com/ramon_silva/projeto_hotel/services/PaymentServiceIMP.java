@@ -1,7 +1,6 @@
 package com.ramon_silva.projeto_hotel.services;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -17,7 +16,6 @@ import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.EmailModel;
 import com.ramon_silva.projeto_hotel.models.PaymentModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
-import com.ramon_silva.projeto_hotel.models.Reservation_serviceModel;
 import com.ramon_silva.projeto_hotel.repositories.PaymentRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
 import com.ramon_silva.projeto_hotel.repositories.Reservation_serviceRepository;
@@ -30,16 +28,15 @@ public class PaymentServiceIMP implements PaymentService{
 
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
-    private final Reservation_serviceRepository reservation_serviceRepository;
     private final EmailServiceIMP emailServiceIMP;
 
     private  PaymentServiceIMP(PaymentRepository paymentRepository,
     ReservationRepository reservationRepository,
-    EmailServiceIMP emailServiceIMP,Reservation_serviceRepository reservation_serviceRepository){
+    EmailServiceIMP emailServiceIMP,Reservation_serviceRepository reservation_serviceRepository
+    ){
         this.paymentRepository=paymentRepository;
         this.reservationRepository=reservationRepository;
         this.emailServiceIMP=emailServiceIMP;
-        this.reservation_serviceRepository=reservation_serviceRepository;
     }
 
 
@@ -80,23 +77,6 @@ public class PaymentServiceIMP implements PaymentService{
     return new PaymentDto(payment);
     
     }
-
-   
-
-    @Override
-    public PageDto<PaymentDto> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder) {
-     
-        Sort sort=sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
-        Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
-        Page<PaymentModel> page=paymentRepository.findAll(pageable);
-
-        List<PaymentDto> paymentDtos=page.getContent().stream().map(PaymentDto::new).collect(Collectors.toList());
-        PageDto<PaymentDto> pageDto=new PageDto<>(paymentDtos,page.getNumber(), page.getNumberOfElements(), page.getSize(),
-        page.getTotalPages(), page.getTotalElements());
-        return pageDto;
-
-}
-
 
     @Override
     public void deletePaymentById(Long id) {
@@ -142,4 +122,18 @@ public class PaymentServiceIMP implements PaymentService{
         throw new GeralException(Constants.NOT_CONFIRM_RESERVATION);
       
     }
+
+
+    @Override
+    public PageDto<PaymentDto> getAllByReservationClient(String client, int pageNumber, int pageSize, String sortBy,String sortOrder) {
+ 
+        Sort sort=sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
+        Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
+        Page<PaymentModel> page=paymentRepository.findAllByReservationClientNameContainingIgnoreCase(client,pageable);
+
+        List<PaymentDto> paymentDtos=page.getContent().stream().map(PaymentDto::new).collect(Collectors.toList());
+        PageDto<PaymentDto> pageDto=new PageDto<>(paymentDtos,page.getNumber(), page.getNumberOfElements(), page.getSize(),
+        page.getTotalPages(), page.getTotalElements());
+        return pageDto;
+ }
 }

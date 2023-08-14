@@ -55,7 +55,7 @@ public class ServicesServiceIMP implements ServicesService {
     }
 
     @Override
-    public PageDto<ServicesDto> getAllgetAll(int pageNumber, int pageSize, String sortBy, String sortOrder) {
+    public PageDto<ServicesDto> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder) {
        Sort sort =sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
        Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
        Page<ServicesModel> page=servicesRepository.findAll(pageable);

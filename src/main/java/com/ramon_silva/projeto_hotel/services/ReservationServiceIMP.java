@@ -63,7 +63,8 @@ public class ReservationServiceIMP implements ReservationService {
            ClientModel clientModel=clientRepository.findById(client_id)
            .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", client_id));
            
-           RoomModel roomModel=roomRepository.findById(room_id).orElseThrow(()->new ResourceNotFoundException("quarto", "id", room_id));  
+           RoomModel roomModel=roomRepository.findById(room_id)
+           .orElseThrow(()->new ResourceNotFoundException("quarto", "id", room_id));  
            
            ReservationModel reservationModel=new ReservationModel(null,reservationDto);
            reservationModel.setRoom(roomModel);
@@ -177,7 +178,11 @@ public class ReservationServiceIMP implements ReservationService {
       Sort sort =sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
       Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
       Page<Reservation_serviceModel> page=reservation_serviceRepository.findAllByReservationId(reservation_id, pageable);
-      Set<Reservation_serviceDto> result=page.getContent().stream().map(Reservation_serviceDto::new).collect(Collectors.toSet());
+
+      List<Reservation_serviceDto> result=page.getContent().stream().map(
+        Reservation_serviceDto::new)
+        .collect(Collectors.toList());
+      
       PageDto<Reservation_serviceDto> pageResult=new PageDto<>(result,page.getNumber(), page.getNumberOfElements(), page.getSize(),
       page.getTotalPages(), page.getTotalElements());
       return pageResult;
