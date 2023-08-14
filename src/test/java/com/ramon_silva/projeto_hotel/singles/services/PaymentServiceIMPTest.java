@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -100,10 +101,10 @@ public class PaymentServiceIMPTest {
     @DisplayName("Tentar fazer o pagamento sem a confirmacao da reserva")
     void test_payment_error_status_pending_or_status_canceled() {
 
-        ReservationModel reservationModel=ReservationCreator.newReservationModel();
+        ReservationModel reservationModel=ReservationCreator.newReservationModel2();
         reservationModel.setId(1L);
         PaymentCreator paymentCreator=PaymentCreator.createModelPayment();
-        paymentCreator.getPaymentModel().setStatus(StatusEnum.PENDING);
+      
 
         PaymentDto paymentDto= new PaymentDto(null, null, 
         paymentCreator.getPaymentModel().getPaymentMethod(),
@@ -112,7 +113,7 @@ public class PaymentServiceIMPTest {
         when(reservationRepository.findById(reservationModel.getId())).thenReturn(Optional.of(reservationModel));
        
 
-       assertThrows(GeralException.class,()->paymentServiceIMP.payment(paymentDto, reservationModel.getId())); 
+        assertThrows(GeralException.class,()->paymentServiceIMP.payment(paymentDto, reservationModel.getId())); 
        
         verify(reservationRepository,times(1))
         .findById(reservationModel.getId());
@@ -191,8 +192,12 @@ public class PaymentServiceIMPTest {
 void Test_update_by_id_payment_success(){
   PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
   paymentCreator.setId(1L);
+  
   PaymentModel paymentCreator2=PaymentCreator.createModelPayment2().getPaymentModel();
   paymentCreator2.setId(paymentCreator.getId());
+  paymentCreator2.getReservation().setId(paymentCreator.getReservation().getId());
+  paymentCreator2.getReservation().setStatus(StatusEnum.CONFIRM);
+
   PaymentDto paymentCreatorDto =new PaymentDto(paymentCreator2);
 
   when(paymentRepository.findById(paymentCreator.getId())).thenReturn(Optional.of(paymentCreator));
@@ -279,11 +284,11 @@ void Test_update_by_id_payment_error(){
         paymentModels.add(paymentCreator2);
 
         Page<PaymentModel> pay=new PageImpl<>(paymentModels);
-        when(paymentRepository.findAll(any(Pageable.class))).thenReturn(pay);
+        when(paymentRepository.findAllByReservationClientNameContainingIgnoreCase(anyString(),any(Pageable.class))).thenReturn(pay);
+        String client="";
+       PageDto<PaymentDto> page=paymentServiceIMP.getAllByReservationClient(client,pageNumber, pageSize, sortBy, sortOrder);
 
-        PageDto<PaymentDto> page=paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
-
-        verify(paymentRepository,times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
+        verify(paymentRepository,times(1)).findAllByReservationClientNameContainingIgnoreCase(client,PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
         assertEquals(2, page.totalElments());
         assertEquals(1, page.totalPages());
 
@@ -303,12 +308,13 @@ void Test_update_by_id_payment_error(){
     
 
         Page<PaymentModel> pay=new PageImpl<>(paymentModels);
-        when(paymentRepository.findAll(any(Pageable.class))).thenReturn(pay);
+        when(paymentRepository.findAllByReservationClientNameContainingIgnoreCase(anyString(),any(Pageable.class))).thenReturn(pay);
 
-        PageDto<PaymentDto> page=paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
+        String client="";
+        PageDto<PaymentDto> page=paymentServiceIMP.getAllByReservationClient(client,pageNumber, pageSize, sortBy, sortOrder);
 
-         verify(paymentRepository,times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
-        assertEquals(0, page.totalElments());
+         verify(paymentRepository,times(1)).findAllByReservationClientNameContainingIgnoreCase(client,PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
+          assertEquals(0, page.totalElments());
         assertEquals(1, page.totalPages());
     }
 

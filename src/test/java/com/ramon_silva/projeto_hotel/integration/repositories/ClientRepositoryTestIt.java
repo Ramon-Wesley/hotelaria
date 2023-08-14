@@ -28,8 +28,6 @@ public class ClientRepositoryTestIt {
     @Autowired
     private ClientRepository clientRepository;
 
-    
-
     private ClientModel clientModel;
     private ClientModel clientModel2;
 

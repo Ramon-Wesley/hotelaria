@@ -36,7 +36,7 @@ public class PaymentCreator{
 
     public static PaymentCreator createModelPayment(){
         PaymentModel paymentModel=new PaymentModel();
-        ReservationModel reservationModel=ReservationCreator.newReservationModel2();
+        ReservationModel reservationModel=ReservationCreator.newReservationModel();
         reservationModel.setId(1L);
         Double valueService=reservationModel.getReservation_service().stream()
            .mapToDouble(res->res.getServico().getPrice()).sum();

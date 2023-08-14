@@ -50,6 +50,7 @@ private ClientDto clientDto;
 
 private ClientModel clientModel;
 
+private UriComponentsBuilder uriBuilder=UriComponentsBuilder.newInstance();
 @BeforeEach
 public void setUp(){
 }
@@ -66,7 +67,6 @@ void Test_create_client_controller_success(){
   
   when(clientServiceIMP.create(any(ClientDto.class))).thenReturn(clientDto2);
 
-  UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString("/clientes");
         ResponseEntity<ClientDto> response = clientController.create(clientDto, uriBuilder);
 
         verify(clientServiceIMP,times(1)).create(any(ClientDto.class));
@@ -84,8 +84,7 @@ void Test_create_client_with_dates_empty(){
 
 
   when(clientServiceIMP.create(clientDto)).thenThrow(GeralException.class);
-  UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString("/clientes");
-  assertThrows(GeralException.class, ()->clientController.create(clientDto, uriBuilder));  
+   assertThrows(GeralException.class, ()->clientController.create(clientDto, uriBuilder));  
   verify(clientServiceIMP,times(1)).create(clientDto);   
    
 }
