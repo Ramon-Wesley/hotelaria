@@ -15,7 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.dto.Reservation_serviceDto;
-import com.ramon_silva.projeto_hotel.dto.ServicesDto;
+
 import com.ramon_silva.projeto_hotel.services.ReservationServiceIMP;
 
 
@@ -37,16 +37,16 @@ public class ReservationController {
         return ResponseEntity.created(uri).body(reservationDto2);
     }
 
-    @PostMapping("/{id_reserva}/servicos")
+    @PostMapping("/{id_reserva}/servicos/{id_servico}")
     public ResponseEntity<Void> addServices(@PathVariable(name = "id_reserva")Long id,
-    @RequestBody ServicesDto service_id){
-        reservationServiceIMP.addServices(id, service_id.id());
+    @PathVariable(name = "id_servico")Long service_id){
+        reservationServiceIMP.addServices(id, service_id);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id_reserva}/servicos")
+    @DeleteMapping("/{id_reserva}/servicos/{id_servico}")
      public ResponseEntity<Void> removeServices(@PathVariable(name = "id_reserva")Long id,
-      @RequestBody Long service_id){
+       @PathVariable(name = "id_servico")Long service_id){
         reservationServiceIMP.removeServices(id, service_id);
         return ResponseEntity.ok().build();
     }

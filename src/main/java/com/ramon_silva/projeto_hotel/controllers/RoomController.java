@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,16 +41,22 @@ public class RoomController {
         roomserviceIMP.deleteById(id);
         return ResponseEntity.ok().build();
     }
+    @PutMapping("{id}")
+    @Transactional
+    public ResponseEntity<RoomDto> updateById(@PathVariable(name = "id") @Positive Long id,@RequestBody @Valid RoomDto roomDto){
 
+        return ResponseEntity.ok().body(roomserviceIMP.updateById(id,roomDto));
+    }
     @GetMapping
     public ResponseEntity<PageDto<RoomDto>> getAll(
+        @RequestParam(name="hotel",defaultValue = "") String hotel,
         @RequestParam(name = "pageNumber",defaultValue = "0")int pageNumber,
         @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
         @RequestParam(name = "sortBy",defaultValue = "id")String sortBy,
         @RequestParam(name = "sortOrder",defaultValue = "desc")String sortOrder
 
     ){
-        return ResponseEntity.ok().body(roomserviceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder));
+        return ResponseEntity.ok().body(roomserviceIMP.getAll(hotel,pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("{id}")

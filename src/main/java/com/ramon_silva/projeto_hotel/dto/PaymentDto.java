@@ -8,7 +8,6 @@ import com.ramon_silva.projeto_hotel.models.PaymentModel;
 
 
 import jakarta.persistence.Enumerated;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 
 public record PaymentDto(
@@ -22,7 +21,7 @@ public record PaymentDto(
      @NotNull
      PaymentMethodEnum paymentMethod,
 
-     @Future
+  
      @NotNull
      LocalDate payment_day,
 
