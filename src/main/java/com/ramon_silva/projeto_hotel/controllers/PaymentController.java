@@ -44,7 +44,8 @@ public class PaymentController {
         return ResponseEntity.ok().build();
     }
      @PutMapping("/{id}")
-        public ResponseEntity<PaymentDto> updateById(@PathVariable(name = "id")Long id,@RequestBody @Valid PaymentDto payment){
+        public ResponseEntity<PaymentDto> updateById(@PathVariable(name = "id")Long id,
+        @RequestBody @Valid PaymentDto payment){
        PaymentDto paymentDto=paymentServiceIMP.updateById(id,payment);
         return ResponseEntity.ok().body(paymentDto);
     }
@@ -56,14 +57,13 @@ public class PaymentController {
     }
 
     @GetMapping
-    public ResponseEntity<PageDto<PaymentDto>> getAllByClientId(
-    @RequestParam(name="cliente",defaultValue="") String client,
+    public ResponseEntity<PageDto<PaymentDto>> getAll(
     @RequestParam(name = "pageNumber",defaultValue = "0")int pageNumber,
     @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
     @RequestParam(name = "sortBy",defaultValue = "id")String sortBy,
     @RequestParam(name = "sortOrder",defaultValue = "desc")String sortOrder
 
     ){
-        return ResponseEntity.ok().body(paymentServiceIMP.getAllByReservationClient(client,pageNumber, pageSize, sortBy, sortOrder));
+        return ResponseEntity.ok().body(paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder));
     }
 }

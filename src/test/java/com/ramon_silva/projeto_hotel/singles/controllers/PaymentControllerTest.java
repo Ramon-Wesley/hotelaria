@@ -1,13 +1,20 @@
 package com.ramon_silva.projeto_hotel.singles.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ramon_silva.projeto_hotel.controllers.PaymentController;
+import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
@@ -103,4 +111,156 @@ public class PaymentControllerTest {
 
     }
     
+      @Test
+    @DisplayName("Deletar um pagamento inexistente")
+    void Test_delete_payment_by_id_notExists(){
+        Long id=99L;
+        doThrow(ResourceNotFoundException.class).when(paymentServiceIMP).deletePaymentById(id);
+
+    
+        assertThrows(ResourceNotFoundException.class,()->paymentController.deleteById(id));
+
+        verify(paymentServiceIMP,times(1)).deletePaymentById(id);
+                
+    }
+
+    @Test
+    @DisplayName("Atualizar pagamento existente")
+    void Test_update_payment_by_id(){
+        paymentModel=PaymentCreator.createModelPayment().getPaymentModel();
+        paymentModel.setId(1L);
+        paymentDto=new PaymentDto(paymentModel);
+        Long id=paymentDto.id();
+        paymentModel.setPaymentMethod(PaymentCreator.createModelPayment2().getPaymentModel().getPaymentMethod());
+
+        PaymentDto updatePayment=new PaymentDto(paymentModel);
+
+        when(paymentServiceIMP.updateById(id, updatePayment)).thenReturn(updatePayment);
+
+        ResponseEntity<PaymentDto> response=paymentController.updateById(id, updatePayment);
+
+        assertEquals(HttpStatus.OK,response.getStatusCode());
+        assertEquals(id,response.getBody().id());
+        assertNotEquals(paymentDto.paymentMethod(), updatePayment.paymentMethod());
+        verify(paymentServiceIMP,times(1)).updateById(id, updatePayment);    
+                
+    }
+
+    @Test
+    @DisplayName("Atualizar pagamento inexistente")
+    void Test_update_payment_with_notExist_id(){
+        paymentModel=PaymentCreator.createModelPayment().getPaymentModel();
+        paymentModel.setId(1L);
+        paymentDto=new PaymentDto(paymentModel);
+        Long id=99L;
+        paymentModel.setPaymentMethod(PaymentCreator.createModelPayment2().getPaymentModel().getPaymentMethod());
+
+        PaymentDto updatePayment=new PaymentDto(paymentModel);
+
+        when(paymentServiceIMP.updateById(id, updatePayment)).thenThrow(ResourceNotFoundException.class);
+
+        assertThrows(ResourceNotFoundException.class, ()->paymentController.updateById(id, updatePayment));
+
+        verify(paymentServiceIMP,times(1)).updateById(id, updatePayment);    
+                
+    }
+
+  @Test
+    @DisplayName("selecionar com sucesso um pagamento")
+    void Test_get_payment_by_id(){
+        paymentModel=PaymentCreator.createModelPayment().getPaymentModel();
+        paymentModel.setId(1L);
+        paymentDto=new PaymentDto(paymentModel);
+        Long id=paymentDto.id();
+        when(paymentServiceIMP.getPaymentById(id)).thenReturn(paymentDto);
+        ResponseEntity<PaymentDto> result=paymentController.getById(id);
+
+        assertEquals(HttpStatus.OK,result.getStatusCode());
+        assertEquals(id,result.getBody().id());
+        assertEquals(paymentDto,result.getBody());
+        verify(paymentServiceIMP,times(1)).getPaymentById(id);
+                 
+
+    }
+
+      @Test
+    @DisplayName("selecionar um pagamento inexistente")
+    void Test_get_payment_notExist_by_id(){
+   
+        Long id=99L;
+        when(paymentServiceIMP.getPaymentById(id)).thenThrow(ResourceNotFoundException.class);
+        
+        assertThrows(ResourceNotFoundException.class, ()->paymentController.getById(id));
+
+        verify(paymentServiceIMP,times(1)).getPaymentById(id);
+                
+    }
+
+
+    @Test
+    @DisplayName("Listar pagamentos")
+    void Test_get_all_payment(){
+        int pageNumber = 0;
+        int pageSize = 5;
+        String sortBy = "id";
+        String sortOrder = "asc";
+        int numberOfElements= 2;
+        int totalPages= 1;
+        long totalElments=2;
+    
+
+        paymentModel=PaymentCreator.createModelPayment().getPaymentModel();
+        paymentModel.setId(1L);
+        PaymentModel paymentModel2=PaymentCreator.createModelPayment2().getPaymentModel();
+        paymentModel2.setId(2L);
+        
+        paymentDto=new PaymentDto(paymentModel);
+        PaymentDto paymentDto2=new PaymentDto(paymentModel2);
+        List<PaymentDto> paymentList=new ArrayList<>();
+        paymentList.add(paymentDto);
+        paymentList.add(paymentDto2);
+
+        List<PaymentDto> paymentList2=paymentList.stream().sorted(Comparator.comparingLong(obj->((PaymentDto) obj).id()).reversed()).collect(Collectors.toList());
+    
+        PageDto<PaymentDto> page=new PageDto<>(paymentList2, pageNumber, numberOfElements, pageSize, totalPages, totalElments);
+        when(paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder)).thenReturn(page);
+
+        ResponseEntity<PageDto<PaymentDto>> response=paymentController.getAll(pageNumber, pageSize, sortBy, sortOrder);
+
+        assertEquals(HttpStatus.OK,response.getStatusCode());
+        assertEquals(numberOfElements,response.getBody().getContent().size());
+        assertNotEquals(paymentList,paymentList2);
+
+        verify(paymentServiceIMP,times(1)).getAll(pageNumber, pageSize, sortBy, sortOrder);
+    }
+
+     @Test
+    @DisplayName("Listar pagamentos com lista vazia")
+    void Test_get_all_payment_empty_list(){
+        int pageNumber = 0;
+        int pageSize = 5;
+        String sortBy = "id";
+        String sortOrder = "asc";
+        int numberOfElements= 0;
+        int totalPages= 1;
+        long totalElments=0;
+    
+
+     
+        List<PaymentDto> paymentList=new ArrayList<>();
+    
+     
+        PageDto<PaymentDto> page=new PageDto<>(paymentList, pageNumber, numberOfElements, pageSize, totalPages, totalElments);
+        when(paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder)).thenReturn(page);
+
+        ResponseEntity<PageDto<PaymentDto>> response=paymentController.getAll(pageNumber, pageSize, sortBy, sortOrder);
+
+        assertEquals(HttpStatus.OK,response.getStatusCode());
+        assertEquals(numberOfElements,response.getBody().getContent().size());
+        
+
+        verify(paymentServiceIMP,times(1)).getAll(pageNumber, pageSize, sortBy, sortOrder);
+    }
 }
+
+

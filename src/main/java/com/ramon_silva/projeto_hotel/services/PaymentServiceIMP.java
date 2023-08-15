@@ -90,18 +90,18 @@ public class PaymentServiceIMP implements PaymentService{
 
     @Override
     public PaymentDto updateById(Long id, PaymentDto paymentDto) {
-     PaymentModel paymentModelRepository=paymentRepository.findById(id)
+     PaymentModel paymentModel=paymentRepository.findById(id)
       .orElseThrow(
         ()->new ResourceNotFoundException("Pagamento", "id", id));
         
-        ReservationModel reservationModel=reservationRepository.findById(paymentModelRepository.getReservation().getId()).orElseThrow(
+        ReservationModel reservationModel=reservationRepository.findById(paymentDto.reservation().id()).orElseThrow(
         ()->new ResourceNotFoundException("Pagamento", "id", id));
         
         Double valueService= reservationModel.getReservation_service().stream()
         .mapToDouble(res->res.getServico().getPrice()).sum();
         
         if(reservationModel.getStatus() == StatusEnum.CONFIRM){
-            PaymentModel paymentModel=new PaymentModel();
+          
             paymentModel.setReservation(reservationModel);
             paymentModel.setPaymentMethod(paymentDto.paymentMethod());
             paymentModel.setPayment_day(paymentDto.payment_day());
@@ -125,11 +125,11 @@ public class PaymentServiceIMP implements PaymentService{
 
 
     @Override
-    public PageDto<PaymentDto> getAllByReservationClient(String client, int pageNumber, int pageSize, String sortBy,String sortOrder) {
+    public PageDto<PaymentDto> getAll( int pageNumber, int pageSize, String sortBy,String sortOrder) {
  
         Sort sort=sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
         Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
-        Page<PaymentModel> page=paymentRepository.findAllByReservationClientNameContainingIgnoreCase(client,pageable);
+        Page<PaymentModel> page=paymentRepository.findAll(pageable);
 
         List<PaymentDto> paymentDtos=page.getContent().stream().map(PaymentDto::new).collect(Collectors.toList());
         PageDto<PaymentDto> pageDto=new PageDto<>(paymentDtos,page.getNumber(), page.getNumberOfElements(), page.getSize(),

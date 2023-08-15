@@ -286,9 +286,9 @@ void Test_update_by_id_payment_error(){
         Page<PaymentModel> pay=new PageImpl<>(paymentModels);
         when(paymentRepository.findAllByReservationClientNameContainingIgnoreCase(anyString(),any(Pageable.class))).thenReturn(pay);
         String client="";
-       PageDto<PaymentDto> page=paymentServiceIMP.getAllByReservationClient(client,pageNumber, pageSize, sortBy, sortOrder);
+       PageDto<PaymentDto> page=paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
-        verify(paymentRepository,times(1)).findAllByReservationClientNameContainingIgnoreCase(client,PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
+        verify(paymentRepository,times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
         assertEquals(2, page.totalElments());
         assertEquals(1, page.totalPages());
 
@@ -311,9 +311,9 @@ void Test_update_by_id_payment_error(){
         when(paymentRepository.findAllByReservationClientNameContainingIgnoreCase(anyString(),any(Pageable.class))).thenReturn(pay);
 
         String client="";
-        PageDto<PaymentDto> page=paymentServiceIMP.getAllByReservationClient(client,pageNumber, pageSize, sortBy, sortOrder);
+        PageDto<PaymentDto> page=paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
-         verify(paymentRepository,times(1)).findAllByReservationClientNameContainingIgnoreCase(client,PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
+         verify(paymentRepository,times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
           assertEquals(0, page.totalElments());
         assertEquals(1, page.totalPages());
     }
