@@ -40,6 +40,16 @@ public class ReservationCreator {
         return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.PENDING,total_pay ,Reservation_serviceCreator.getModelReservation_service());
     }
 
+     public static ReservationModel newReservationModel3(){
+        ClientModel clientModel=ClientCreator.newClientModel2();
+        clientModel.setId(2L);
+        clientModel.getAddress().setId(2L);
+
+        RoomModel roomModel=RoomCreator.newModelRoom();
+        roomModel.setId(2L);
+
+        return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.PENDING,total_pay ,Reservation_serviceCreator.getModelReservation_service());
+    }
         
         private static long calculateDaysDifference(LocalDate startDate, LocalDate endDate) {
             return ChronoUnit.DAYS.between(startDate, endDate);

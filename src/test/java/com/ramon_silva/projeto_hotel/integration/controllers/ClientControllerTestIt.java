@@ -34,8 +34,8 @@ import jakarta.transaction.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 @AutoConfigureTestDatabase
-@ActiveProfiles("test")
 @Transactional
+@ActiveProfiles("test")
 public class ClientControllerTestIt {
 
 

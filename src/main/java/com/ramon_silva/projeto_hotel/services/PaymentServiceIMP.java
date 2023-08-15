@@ -53,7 +53,6 @@ public class PaymentServiceIMP implements PaymentService{
             PaymentModel paymentModel=new PaymentModel();
             paymentModel.setReservation(reservationModel);
             paymentModel.setPaymentMethod(paymentDto.paymentMethod());
-            paymentModel.setPayment_day(paymentDto.payment_day());
             paymentModel.setStatus(StatusEnum.CONFIRM);
             paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
             PaymentModel result=paymentRepository.save(paymentModel);

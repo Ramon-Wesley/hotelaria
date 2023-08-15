@@ -22,7 +22,7 @@ public record PaymentDto(
      PaymentMethodEnum paymentMethod,
 
   
-     @NotNull
+     
      LocalDate payment_day,
 
      @Enumerated

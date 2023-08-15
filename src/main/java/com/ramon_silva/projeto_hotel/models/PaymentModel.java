@@ -35,7 +35,6 @@ public class PaymentModel {
     this.id=id;
     this.reservation=new ReservationModel(paymentDto.id(),paymentDto.reservation());
     this.paymentMethod=paymentDto.paymentMethod();
-    this.payment_day=paymentDto.payment_day();
     this.status=paymentDto.status();
     this.total_payment=paymentDto.total_payment();
     }
@@ -55,7 +54,7 @@ public class PaymentModel {
     @Column(name = "metodo_de_pagamento")
     private PaymentMethodEnum paymentMethod;
 
-    @NotNull
+    
     
     @Column(name="data_do_pagamento")
     private LocalDate payment_day=LocalDate.now();
