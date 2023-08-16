@@ -9,7 +9,7 @@ public class ClientCreator {
 
      public static ClientModel newClientModel(){
     return new ClientModel(null, "Client1", "118.298.766-43",
-    "Ramonwj.s@outlook.com","031 95538-8888",AddressCreator.newAddressModel());
+    "ramonwj.s@outlook.com","031 95538-8888",AddressCreator.newAddressModel());
 }
 public static ClientModel newClientModel2(){
    return new ClientModel(null, "Client2", "369.757.090-09",
