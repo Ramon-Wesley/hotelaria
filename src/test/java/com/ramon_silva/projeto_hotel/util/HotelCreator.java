@@ -8,4 +8,9 @@ public class HotelCreator {
 
         return new HotelModel(null, "Hotel1", "Hotel bom", 4, null, AddressCreator.newAddressModel());
     }
+
+    public static HotelModel newModelHotel2(){
+
+        return new HotelModel(null, "Hotel2", "Hotel muito bom", 5, null, AddressCreator.newAddressModel2());
+    }
 }

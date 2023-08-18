@@ -34,7 +34,7 @@ public class ReservationCreator {
         clientModel.setId(2L);
         clientModel.getAddress().setId(2L);
 
-        RoomModel roomModel=RoomCreator.newModelRoom();
+        RoomModel roomModel=RoomCreator.newModelRoom2();
         roomModel.setId(2L);
 
         return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.PENDING,total_pay ,Reservation_serviceCreator.getModelReservation_service());

@@ -12,4 +12,11 @@ public class RoomCreator {
         hotelModel.getAddress().setId(1L);
         return new RoomModel(null, hotelModel,"111", TypeRoomEnum.COMMON, "Quarto comum", 150.00);
     }
+
+    public static RoomModel newModelRoom2(){
+        HotelModel hotelModel=HotelCreator.newModelHotel();
+        hotelModel.setId(2L);
+        hotelModel.getAddress().setId(2L);
+        return new RoomModel(null, hotelModel,"222", TypeRoomEnum.LUX, "Quarto de luxo", 450.00);
+    }
 }
