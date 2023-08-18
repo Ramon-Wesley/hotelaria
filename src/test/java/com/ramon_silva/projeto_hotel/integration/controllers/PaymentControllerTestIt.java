@@ -5,16 +5,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,7 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +43,6 @@ import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
 import com.ramon_silva.projeto_hotel.repositories.PaymentRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
 import com.ramon_silva.projeto_hotel.repositories.RoomRepository;
-import com.ramon_silva.projeto_hotel.services.EmailService;
 import com.ramon_silva.projeto_hotel.services.EmailServiceIMP;
 import com.ramon_silva.projeto_hotel.util.AddressCreator;
 import com.ramon_silva.projeto_hotel.util.ClientCreator;
@@ -68,12 +66,22 @@ public class PaymentControllerTestIt {
     private PaymentRepository paymentRepository;
 
     @Autowired
-    private EmailServiceIMP emailService;
-    @MockBean
-    private EmailServiceIMP mockEmailService; 
+    ReservationRepository reservationRepository;
 
     @Autowired
-    ReservationRepository reservationRepository;
+    private EmailServiceIMP emailService;
+    
+   @Autowired
+     ClientRepository clientRepository;
+   
+    @Autowired
+     RoomRepository roomRepository;
+   
+    @Autowired
+     HotelRepository hotelRepository;
+
+    @MockBean
+    private EmailServiceIMP mockEmailService; 
 
     @Autowired
     private MockMvc mockMvc;
@@ -84,7 +92,6 @@ public class PaymentControllerTestIt {
 
     private PaymentDto paymentDto;
 
-  
     private ReservationModel reservationModel;
     private ClientModel clientModel;
     private AddressModel addressModel;
@@ -92,52 +99,19 @@ public class PaymentControllerTestIt {
     private RoomModel roomModel;
     private Set<Reservation_serviceModel> services=new HashSet<>();
 
+    private ReservationModel reservationModelPayment;
+
     private ObjectMapper objectMapper=new ObjectMapper();
 
 @BeforeAll
 @Transactional
 void setUp(
-   @Autowired
-    ReservationRepository reservationRepository,
 
-   @Autowired
-     ClientRepository clientRepository,
-   
-    @Autowired
-     RoomRepository roomRepository,
-   
-    @Autowired
-     HotelRepository hotelRepository
 ){
   if(!dataInitialize){
-
-  addressModel=AddressCreator.newAddressModel();
-    
-  clientModel=new ClientModel();
-  clientModel=ClientCreator.newClientModel();
-  clientModel.setAddress(addressModel);
-
-  
-  addressModel=AddressCreator.newAddressModel2();
-  
-  hotelModel=HotelCreator.newModelHotel();
-  hotelModel.setAddress(addressModel);
-
-  
-  clientModel=clientRepository.save(clientModel);
-  hotelModel=hotelRepository.save(hotelModel);
-
-  roomModel=RoomCreator.newModelRoom();
-  roomModel.setHotel(hotelModel);
-
-  roomModel=roomRepository.save(roomModel);
-
-  reservationModel=ReservationCreator.newReservationModel();
-  reservationModel.setClient(clientModel);
-  reservationModel.setRoom(roomModel);
-  reservationModel.setStatus(StatusEnum.CONFIRM);
-  reservationModel.setReservation_service(services);
-  reservationModel=reservationRepository.save(reservationModel);
+  SaveReservation(reservationRepository, clientRepository, roomRepository, hotelRepository);
+  SavePayment(reservationRepository,paymentRepository,clientRepository, hotelRepository,roomRepository);
+   
   dataInitialize=true;
 }
 
@@ -145,7 +119,7 @@ void setUp(
 
 @AfterEach
 void setDown(){
-  paymentRepository.deleteAll();
+  paymentRepository.deleteAllAndIdNot(paymentModel.getId());
 }
     @Test
     @DisplayName("Sucesso ao realizar um pagamento de reserva")
@@ -159,8 +133,8 @@ void setDown(){
               .content(json)
               )
               .andExpect(MockMvcResultMatchers.status().isCreated())
-              .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
-              .andDo(MockMvcResultHandlers.print());   
+              .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists());
+            
     
           verify(emailService,times(1)).sendEmail(any(EmailModel.class), any(Object.class), anyString());
        
@@ -183,6 +157,22 @@ void setDown(){
     
           verify(emailService,times(0)).sendEmail(any(EmailModel.class), any(Object.class), anyString());   
     }
+    @Test
+    @DisplayName("erro ao realizar um pagamento com uma reserva ja paga")
+    void Test_payment_error_with_reservation_pay() throws Exception{
+     
+          paymentDto=new PaymentDto(null, null, PaymentMethodEnum.MONEY, null, null, 0);        
+          String json=objectMapper.writeValueAsString(paymentDto);
+          Long reservation_id=reservationModelPayment.getId();
+          mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/{id_reservation}", reservation_id)
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(json)
+              )
+              .andExpect(MockMvcResultMatchers.status().isConflict());
+           
+    
+          verify(emailService,times(0)).sendEmail(any(EmailModel.class), any(Object.class), anyString());   
+    }
 
      @Test
     @DisplayName("erro ao realizar um pagamento com uma reserva inexistente")
@@ -194,23 +184,30 @@ void setDown(){
           mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/{id_reservation}", reservation_id)
               .contentType(MediaType.APPLICATION_JSON)
               .content(json))
-              .andExpect(MockMvcResultMatchers.status().isNotFound())
-              .andDo(MockMvcResultHandlers.print());
+              .andExpect(MockMvcResultMatchers.status().isNotFound());
+      
                     verify(emailService,times(0)).sendEmail(any(EmailModel.class), any(Object.class), anyString());
      
     }
 
     @Test
     @DisplayName("Deletar com sucesso um pagamento")
-    void Test_delete_payment_by_id(){
-          
+    void Test_delete_payment_by_id() throws Exception{
+         Long payment_id=paymentModel.getId();
+
+          mockMvc.perform(MockMvcRequestBuilders.delete("/pagamento/{id}", payment_id))
+          .andExpect(MockMvcResultMatchers.status().isOk());
+
 
     }
     
-      @Test
+    @Test
     @DisplayName("Deletar um pagamento inexistente")
-    void Test_delete_payment_by_id_notExists(){
-             
+    void Test_delete_payment_by_id_notExists ()throws Exception{
+      Long payment_id=99L;
+
+      mockMvc.perform(MockMvcRequestBuilders.delete("/pagamento/{id}", payment_id))
+      .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
@@ -265,4 +262,101 @@ void setDown(){
 
      
      }
+
+     public void SaveReservation(
+    
+      ReservationRepository reservationRepository,
+  
+       ClientRepository clientRepository,
+     
+       RoomRepository roomRepository,
+     
+       HotelRepository hotelRepository
+     ){
+       
+  addressModel=AddressCreator.newAddressModel();
+    
+  clientModel=new ClientModel();
+  clientModel=ClientCreator.newClientModel();
+  clientModel.setAddress(addressModel);
+
+  
+  addressModel=AddressCreator.newAddressModel2();
+  
+  hotelModel=HotelCreator.newModelHotel();
+  hotelModel.setAddress(addressModel);
+
+  
+  clientModel=clientRepository.save(clientModel);
+  hotelModel=hotelRepository.save(hotelModel);
+
+  roomModel=RoomCreator.newModelRoom();
+  roomModel.setHotel(hotelModel);
+
+  roomModel=roomRepository.save(roomModel);
+
+  reservationModel=ReservationCreator.newReservationModel();
+  reservationModel.setClient(clientModel);
+  reservationModel.setRoom(roomModel);
+  reservationModel.setStatus(StatusEnum.CONFIRM);
+  reservationModel.setReservation_service(services);
+  reservationModel=reservationRepository.save(reservationModel);
+
+
+     }
+
+     public void SavePayment(
+    
+       ReservationRepository reservationRepository,
+       
+       PaymentRepository paymentRepository2,
+       
+       ClientRepository clientRepository,
+     
+       HotelRepository hotelRepository,
+
+       RoomRepository roomRepository
+     
+           ){
+       
+  addressModel=AddressCreator.newAddressModel2();
+    
+  clientModel=new ClientModel();
+  clientModel=ClientCreator.newClientModel2();
+  clientModel.setAddress(addressModel);
+
+  
+  addressModel=AddressCreator.newAddressModel3();
+  
+  hotelModel=HotelCreator.newModelHotel();
+  hotelModel.setAddress(addressModel);
+
+  
+  clientModel=clientRepository.save(clientModel);
+  hotelModel=hotelRepository.save(hotelModel);
+
+  roomModel=RoomCreator.newModelRoom2();
+  roomModel.setHotel(hotelModel);
+
+  roomModel=roomRepository.save(roomModel);
+
+  reservationModelPayment=ReservationCreator.newReservationModel2();
+  reservationModelPayment.setClient(clientModel);
+  reservationModelPayment.setRoom(roomModel);
+  reservationModelPayment.setStatus(StatusEnum.CONFIRM);
+  reservationModelPayment.setReservation_service(services);
+  reservationModelPayment=reservationRepository.save(reservationModelPayment);
+
+  Double valueService=reservationModelPayment.getReservation_service().stream()
+  .mapToDouble(res->res.getServico().getPrice()).sum();
+
+  paymentModel=new PaymentModel();
+  paymentModel.setReservation(reservationModelPayment);
+  paymentModel.setPaymentMethod( PaymentMethodEnum.CREDIT);
+  paymentModel.setStatus(StatusEnum.CONFIRM);
+  paymentModel.setTotal_payment(reservationModelPayment.getTotal_pay()+valueService);
+  paymentRepository2.save(paymentModel);
+
+     }
+
 }

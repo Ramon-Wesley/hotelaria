@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +60,7 @@ public class PaymentServiceIMPTest {
     @Mock
     private  EmailServiceIMP emailServiceIMP;
 
+   
 
     @Test
     @DisplayName("Sucesso no pagamento da estadia")
@@ -83,6 +85,50 @@ public class PaymentServiceIMPTest {
         verify(reservationRepository,times(1))
         .findById(reservationModel.getId());
         
+        verify(paymentRepository,times(1))
+        .existsByReservationId(reservationModel.getId());
+
+        verify(paymentRepository,times(1))
+        .save(any(PaymentModel.class)); 
+        
+        verify(emailServiceIMP,times(1))
+        .sendEmail(
+            any(EmailModel.class),
+            any(PaymentDto.class),
+            any(String.class)
+            );
+
+            assertEquals(resulDto.id(),paymentCreator.getPaymentModel().getId());
+            assertEquals(resulDto.reservation().id(),paymentCreator.getPaymentModel().getReservation().getId());
+            assertEquals(resulDto.status(),StatusEnum.CONFIRM);
+    }
+
+    @Test
+    @DisplayName("Tentar realizar o pagamento com um reserva ja paga!")
+    void Test_payment_error_invalid_reservation() {
+        ReservationModel reservationModel=ReservationCreator.newReservationModel();
+        reservationModel.setId(1L);
+
+        PaymentCreator paymentCreator=PaymentCreator.createModelPayment();
+
+        paymentCreator.getPaymentModel().setId(1L);
+        
+
+        PaymentDto paymentDto= new PaymentDto(null, null, 
+        paymentCreator.getPaymentModel().getPaymentMethod(),
+        paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
+        
+        when(reservationRepository.findById(reservationModel.getId())).thenReturn(Optional.of(reservationModel));
+        when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator.getPaymentModel());
+
+        PaymentDto resulDto=paymentServiceIMP.payment(paymentDto, reservationModel.getId());
+       
+        verify(reservationRepository,times(1))
+        .findById(reservationModel.getId());
+        
+        verify(paymentRepository,times(1))
+        .existsByReservationId(reservationModel.getId());
+
         verify(paymentRepository,times(1))
         .save(any(PaymentModel.class)); 
         
