@@ -80,13 +80,13 @@ public class PaymentServiceIMP implements PaymentService{
 
     @Override
     public PaymentDto getPaymentById(Long id) { 
-        try {
-            
-            PaymentModel payment=paymentRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Pagamento", "id", id));
-            return new PaymentDto(payment);
-        } catch (Exception e) {
-            throw new GeralException(Constants.INTERNAL_ERROR);
-        }
+       
+        PaymentModel payment=paymentRepository.findById(id)
+        .orElseThrow(()->
+        new ResourceNotFoundException("Pagamento",
+         "id", id));
+        return new PaymentDto(payment);
+      
     
     }
 
@@ -149,18 +149,17 @@ public class PaymentServiceIMP implements PaymentService{
     @Override
     public PageDto<PaymentDto> getAll( int pageNumber, int pageSize, String sortBy,String sortOrder) {
  
-        try {
             Sort sort=sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
             Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
             Page<PaymentModel> page=paymentRepository.findAll(pageable);
     
-            List<PaymentDto> paymentDtos=page.getContent().stream().map(PaymentDto::new).collect(Collectors.toList());
+            List<PaymentDto> paymentDtos=page.getContent().
+            stream()
+            .map(PaymentDto::new)
+            .collect(Collectors.toList());
             PageDto<PaymentDto> pageDto=new PageDto<>(paymentDtos,page.getNumber(), page.getNumberOfElements(), page.getSize(),
             page.getTotalPages(), page.getTotalElements());
             return pageDto;
-        } catch (Exception e) {
-            throw new GeralException(Constants.GET_RESULT_CONFLIC);
-        }
  }
 
 }

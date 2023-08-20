@@ -21,10 +21,13 @@ public interface PaymentRepository extends JpaRepository<PaymentModel,Long>{
     boolean existsByReservationId(Long id);
     boolean existsByReservationIdAndIdNot(Long id,Long id_not);
 
+   /*
+    * 
     @Transactional
     @Modifying
-    @Query("DELETE FROM pagamentos p WHERE p.id <> :id")
+    @Query("DELETE FROM pagamentos WHERE id <> :id")
     void deleteAllAndIdNot(@Param("id") Long id);
+    */
     
 
 }

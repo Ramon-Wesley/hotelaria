@@ -5,13 +5,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -24,9 +23,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
 import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
@@ -66,19 +68,19 @@ public class PaymentControllerTestIt {
     private PaymentRepository paymentRepository;
 
     @Autowired
-    ReservationRepository reservationRepository;
+    private ReservationRepository reservationRepository;
 
     @Autowired
     private EmailServiceIMP emailService;
     
-   @Autowired
-     ClientRepository clientRepository;
+    @Autowired
+    private ClientRepository clientRepository;
    
     @Autowired
-     RoomRepository roomRepository;
+    private RoomRepository roomRepository;
    
     @Autowired
-     HotelRepository hotelRepository;
+    private HotelRepository hotelRepository;
 
     @MockBean
     private EmailServiceIMP mockEmailService; 
@@ -102,25 +104,31 @@ public class PaymentControllerTestIt {
     private ReservationModel reservationModelPayment;
 
     private ObjectMapper objectMapper=new ObjectMapper();
-
+    
 @BeforeAll
 @Transactional
 void setUp(
 
 ){
   if(!dataInitialize){
-  SaveReservation(reservationRepository, clientRepository, roomRepository, hotelRepository);
-  SavePayment(reservationRepository,paymentRepository,clientRepository, hotelRepository,roomRepository);
-   
-  dataInitialize=true;
-}
+    objectMapper.registerModule(new JavaTimeModule()); 
+    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    SaveReservation(reservationRepository, clientRepository, roomRepository, hotelRepository);
+    
+    dataInitialize=true;
+  }
 
 }
-
 @AfterEach
-void setDown(){
-  paymentRepository.deleteAllAndIdNot(paymentModel.getId());
+void setUpEach(){
+  paymentRepository.deleteAll();
 }
+
+@BeforeEach
+void setDown(){
+  SavePayment(reservationRepository,paymentRepository,clientRepository, hotelRepository,roomRepository);
+}
+
     @Test
     @DisplayName("Sucesso ao realizar um pagamento de reserva")
     void Test_payment_success() throws Exception {
@@ -137,7 +145,7 @@ void setDown(){
             
     
           verify(emailService,times(1)).sendEmail(any(EmailModel.class), any(Object.class), anyString());
-       
+        
     }
     
   @Test
@@ -208,59 +216,108 @@ void setDown(){
 
       mockMvc.perform(MockMvcRequestBuilders.delete("/pagamento/{id}", payment_id))
       .andExpect(MockMvcResultMatchers.status().isNotFound());
-    }
 
+      
+    }
     @Test
     @DisplayName("Atualizar pagamento existente")
-    void Test_update_payment_by_id(){
-           
+    void Test_update_payment_by_id() throws Exception{
+      paymentDto=new PaymentDto(paymentModel);
+   
+      
+      String json=objectMapper.writeValueAsString(paymentDto);
+      long id=paymentDto.id();
+           mockMvc.perform(MockMvcRequestBuilders.put("/pagamento/{id}",id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json)
+            ).andExpect(MockMvcResultMatchers.status().isOk());
     }
-
+    
     @Test
     @DisplayName("Atualizar pagamento inexistente")
-    void Test_update_payment_with_notExist_id(){
+    void Test_update_payment_with_notExist_id() throws Exception{
+      long id=99;
+      paymentDto=new PaymentDto(paymentModel);
+    
+           String json=objectMapper.writeValueAsString(paymentDto);
+           mockMvc.perform(MockMvcRequestBuilders.put("/pagamento/{id}",id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json)
+            ).andExpect(MockMvcResultMatchers.status().isNotFound());
               
     }
 
   @Test
     @DisplayName("selecionar com sucesso um pagamento")
-    void Test_get_payment_by_id(){
-       
+    void Test_get_payment_by_id() throws Exception{
+       long id=paymentModel.getId();
+
+       mockMvc.perform(MockMvcRequestBuilders.get("/pagamento/{id}", id)
+       .contentType(MediaType.APPLICATION_JSON))
+       .andExpect(MockMvcResultMatchers.status().isOk())
+       .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists());
     }
 
       @Test
     @DisplayName("selecionar um pagamento inexistente")
-    void Test_get_payment_notExist_by_id(){
-   
+    void Test_get_payment_notExist_by_id() throws Exception{
+   long id=99L;
+
+       mockMvc.perform(MockMvcRequestBuilders.get("/pagamento/{id}", id)
+       .contentType(MediaType.APPLICATION_JSON))
+       .andExpect(MockMvcResultMatchers.status().isNotFound());
        
     }
 
 
     @Test
     @DisplayName("Listar pagamentos")
-    void Test_get_all_payment(){
+    void Test_get_all_payment() throws Exception{
         int pageNumber = 0;
         int pageSize = 5;
         String sortBy = "id";
         String sortOrder = "asc";
-        int numberOfElements= 2;
-        int totalPages= 1;
-        long totalElments=2;
+  
+
+
+  this.mockMvc.perform(MockMvcRequestBuilders.get("/pagamento")
+  .param("pageNumber", String.valueOf(pageNumber))
+  .param("pageSize", String.valueOf(pageSize))
+  .param("sortBy", sortBy)
+  .param("sortOrder", sortOrder)
+  .contentType(MediaType.APPLICATION_JSON)
+  )
+  .andExpect(MockMvcResultMatchers.status().isOk())
+  .andExpect(MockMvcResultMatchers.jsonPath("$.getContent").exists())
+  .andExpect(MockMvcResultMatchers.jsonPath("$.pageNumber").value(pageNumber))
+  .andExpect(MockMvcResultMatchers.jsonPath("$.pageSize").value(pageSize))
+  .andDo(MockMvcResultHandlers.print());
       }
 
      @Test
     @DisplayName("Listar pagamentos com lista vazia")
-    void Test_get_all_payment_empty_list(){
+    void Test_get_all_payment_empty_list() throws Exception{
+      paymentRepository.deleteAll();  
+
         int pageNumber = 0;
         int pageSize = 5;
         String sortBy = "id";
         String sortOrder = "asc";
-        int numberOfElements= 0;
-        int totalPages= 1;
-        long totalElments=0;
-    
+        
 
      
+  this.mockMvc.perform(MockMvcRequestBuilders.get("/pagamento")
+  .param("pageNumber", String.valueOf(pageNumber))
+  .param("pageSize", String.valueOf(pageSize))
+  .param("sortBy", sortBy)
+  .param("sortOrder", sortOrder)
+  .contentType(MediaType.APPLICATION_JSON)
+  )
+  .andExpect(MockMvcResultMatchers.status().isOk())
+  .andExpect(MockMvcResultMatchers.jsonPath("$.getContent").exists())
+  .andExpect(MockMvcResultMatchers.jsonPath("$.pageNumber").value(pageNumber))
+  .andExpect(MockMvcResultMatchers.jsonPath("$.pageSize").value(pageSize))
+  .andDo(MockMvcResultHandlers.print());
      }
 
      public void SaveReservation(
@@ -355,7 +412,7 @@ void setDown(){
   paymentModel.setPaymentMethod( PaymentMethodEnum.CREDIT);
   paymentModel.setStatus(StatusEnum.CONFIRM);
   paymentModel.setTotal_payment(reservationModelPayment.getTotal_pay()+valueService);
-  paymentRepository2.save(paymentModel);
+  paymentModel=paymentRepository2.save(paymentModel);
 
      }
 

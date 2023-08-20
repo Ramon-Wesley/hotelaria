@@ -10,12 +10,12 @@ import com.ramon_silva.projeto_hotel.models.PaymentModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
 
 public class PaymentCreator{
-    private static PaymentModel paymentModel;
-    private static EmailReturn emailReturn;
+    private PaymentModel paymentModel;
+    private EmailReturn emailReturn;
 
     private PaymentCreator(PaymentModel paymentModel, EmailReturn emailReturn) {
-        PaymentCreator.paymentModel = paymentModel;
-        PaymentCreator.emailReturn= emailReturn;
+        this.paymentModel = paymentModel;
+        this.emailReturn= emailReturn;
     }
 
     public PaymentModel getPaymentModel() {
@@ -23,7 +23,7 @@ public class PaymentCreator{
     }
 
     public void setPaymentModel(PaymentModel paymentModel) {
-       PaymentCreator.paymentModel = paymentModel;
+       this.paymentModel = paymentModel;
     }
 
     public EmailReturn getEmailReturn() {
@@ -31,60 +31,64 @@ public class PaymentCreator{
     }
 
     public void setEmailReturn(EmailReturn emailReturn) {
-        PaymentCreator.emailReturn = emailReturn;
+        this.emailReturn = emailReturn;
     }
 
     public static PaymentCreator createModelPayment(){
-        PaymentModel paymentModel=new PaymentModel();
         ReservationModel reservationModel=ReservationCreator.newReservationModel();
         reservationModel.setId(1L);
-        Double valueService=reservationModel.getReservation_service().stream()
-           .mapToDouble(res->res.getServico().getPrice()).sum();
-            LocalDate paymentDay=reservationModel.getCheckOutDate().plusDays(1);
-            
+        Double valueService=calculateValueService(reservationModel);
+        LocalDate paymentDay=reservationModel.getCheckOutDate().plusDays(1);
+        
+        PaymentModel paymentModel=new PaymentModel();
             
             paymentModel.setReservation(reservationModel);
             paymentModel.setPaymentMethod(PaymentMethodEnum.MONEY);
             paymentModel.setPayment_day(paymentDay);
             paymentModel.setStatus(StatusEnum.CONFIRM);
             paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
-            PaymentModel result=paymentModel;
-            PaymentDto resultDto= new PaymentDto(result);
+            PaymentDto resultDto= new PaymentDto(paymentModel);
 
-            EmailModel emailModel=new EmailModel();
-            emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
-            emailModel.setEmailTo(resultDto.reservation().client().email());
-            emailModel.setText(MailConstants.MESSAGE_PAYMENT);
-            emailModel.setSubject(resultDto.reservation().room().hotel().name());
-            PaymentCreator.emailReturn=new EmailReturn(emailModel, resultDto, MailConstants.PAYMENT);
-
+            
+            EmailReturn emailReturn=createEmailReturn(resultDto);
             return new PaymentCreator(paymentModel, emailReturn);
     }
 
     public static PaymentCreator createModelPayment2(){
-        PaymentModel paymentModel=new PaymentModel();
         ReservationModel reservationModel=ReservationCreator.newReservationModel2();
+        PaymentModel paymentModel=new PaymentModel();
         reservationModel.setId(2L);
-        Double valueService=reservationModel.getReservation_service().stream()
-           .mapToDouble(res->res.getServico().getPrice()).sum();
-            LocalDate paymentDay=reservationModel.getCheckOutDate().plusDays(1);
+        Double valueService=calculateValueService(reservationModel);
+        LocalDate paymentDay=reservationModel.getCheckOutDate().plusDays(1);
             
             paymentModel.setReservation(reservationModel);
             paymentModel.setPaymentMethod(PaymentMethodEnum.DEBIT);
             paymentModel.setPayment_day(paymentDay);
             paymentModel.setStatus(StatusEnum.CONFIRM);
             paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
-            PaymentModel result=paymentModel;
-            PaymentDto resultDto= new PaymentDto(result);
+           
+            PaymentDto resultDto= new PaymentDto(paymentModel);
 
-            EmailModel emailModel=new EmailModel();
-            emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
-            emailModel.setEmailTo(resultDto.reservation().client().email());
-            emailModel.setText(MailConstants.MESSAGE_PAYMENT);
-            emailModel.setSubject(resultDto.reservation().room().hotel().name());
-            PaymentCreator.emailReturn=new EmailReturn(emailModel, resultDto, MailConstants.PAYMENT);
-
+       
+            EmailReturn emailReturn=createEmailReturn(resultDto);
             return new PaymentCreator(paymentModel, emailReturn);
+    }
+
+
+    private static Double calculateValueService(ReservationModel reservationModel) {
+        return reservationModel.getReservation_service().stream()
+                .mapToDouble(res -> res.getServico().getPrice()).sum();
+    }
+    
+
+    private static EmailReturn createEmailReturn(PaymentDto resultDto) {
+        EmailModel emailModel = new EmailModel();
+        emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
+        emailModel.setEmailTo(resultDto.reservation().client().email());
+        emailModel.setText(MailConstants.MESSAGE_PAYMENT);
+        emailModel.setSubject(resultDto.reservation().room().hotel().name());
+    
+        return new EmailReturn(emailModel, resultDto, MailConstants.PAYMENT);
     }
     
 }

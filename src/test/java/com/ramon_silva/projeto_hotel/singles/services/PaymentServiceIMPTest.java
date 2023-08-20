@@ -3,6 +3,7 @@ package com.ramon_silva.projeto_hotel.singles.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -236,33 +237,33 @@ public class PaymentServiceIMPTest {
 @Test
 @DisplayName("Atualizar o registro de pagamento modificando o modo de pagamento!")
 void Test_update_by_id_payment_success(){
-  PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
-  paymentCreator.setId(1L);
+    PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
+    paymentCreator.setId(1L);
+    
+    PaymentModel paymentCreator2=new PaymentModel();
+    PaymentCreator.createModelPayment2().getPaymentModel();
+    paymentCreator2.setId(paymentCreator.getId());
+    paymentCreator2.getReservation().setId(paymentCreator.getReservation().getId());
+    paymentCreator2.getReservation().setStatus(StatusEnum.CONFIRM);
   
-  PaymentModel paymentCreator2=PaymentCreator.createModelPayment2().getPaymentModel();
-  paymentCreator2.setId(paymentCreator.getId());
-  paymentCreator2.getReservation().setId(paymentCreator.getReservation().getId());
-  paymentCreator2.getReservation().setStatus(StatusEnum.CONFIRM);
-
-  PaymentDto paymentCreatorDto =new PaymentDto(paymentCreator2);
-
-  when(paymentRepository.findById(paymentCreator.getId())).thenReturn(Optional.of(paymentCreator));
-
-  when(reservationRepository.findById(paymentCreator.getReservation().getId())).thenReturn(Optional.of(paymentCreator2.getReservation()));
+    PaymentDto paymentCreatorDto =new PaymentDto(paymentCreator2);
   
-  when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator2);
-
-  PaymentDto pay= paymentServiceIMP.updateById(paymentCreator.getId(),paymentCreatorDto);
-
-  verify(paymentRepository,times(1)).findById(paymentCreatorDto.id());
-  verify(reservationRepository,times(1)).findById(paymentCreator.getReservation().getId());
-  verify(paymentRepository,times(1)).save(any(PaymentModel.class));
-
-  assertEquals(pay.id(),paymentCreator.getId());
-  assertEquals(pay.reservation().id(),paymentCreator.getReservation().getId());
-  assertNotEquals(pay.paymentMethod(),paymentCreator.getPaymentMethod());
-
-}
+    when(paymentRepository.findById(paymentCreator.getId())).thenReturn(Optional.of(paymentCreator));
+  
+    when(reservationRepository.findById(paymentCreator.getReservation().getId())).thenReturn(Optional.of(paymentCreator2.getReservation()));
+    
+    when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator2);
+  
+    PaymentDto pay= paymentServiceIMP.updateById(paymentCreatorDto.id(), paymentCreatorDto);
+  
+    verify(paymentRepository,times(1)).findById(paymentCreatorDto.id());
+    verify(reservationRepository,times(1)).findById(paymentCreatorDto.reservation().id());
+    verify(paymentRepository,times(1)).save(any(PaymentModel.class));
+  
+    assertEquals(pay.id(), paymentCreator.getId());
+    assertEquals(pay.reservation().id(), paymentCreator.getReservation().getId());
+    assertNotEquals(paymentCreator2.getPaymentMethod(), paymentCreator.getPaymentMethod());
+  }
 
 
 @Test
@@ -330,8 +331,8 @@ void Test_update_by_id_payment_error(){
         paymentModels.add(paymentCreator2);
 
         Page<PaymentModel> pay=new PageImpl<>(paymentModels);
-        when(paymentRepository.findAllByReservationClientNameContainingIgnoreCase(anyString(),any(Pageable.class))).thenReturn(pay);
-        String client="";
+        when(paymentRepository.findAll(any(Pageable.class))).thenReturn(pay);
+    
        PageDto<PaymentDto> page=paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
         verify(paymentRepository,times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
@@ -354,9 +355,8 @@ void Test_update_by_id_payment_error(){
     
 
         Page<PaymentModel> pay=new PageImpl<>(paymentModels);
-        when(paymentRepository.findAllByReservationClientNameContainingIgnoreCase(anyString(),any(Pageable.class))).thenReturn(pay);
+        when(paymentRepository.findAll(any(Pageable.class))).thenReturn(pay);
 
-        String client="";
         PageDto<PaymentDto> page=paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
          verify(paymentRepository,times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));

@@ -3,16 +3,16 @@ package com.ramon_silva.projeto_hotel.util;
 import com.ramon_silva.projeto_hotel.models.EmailModel;
 
 public class EmailReturn {
-    private static EmailModel emailModel;
-    private static Object paymentDto;
-    private static String mailConstants;
+    private  EmailModel emailModel;
+    private  Object paymentDto;
+    private  String mailConstants;
 
     public EmailModel getEmailModel() {
         return emailModel;
     }
 
     public void setEmailModel(EmailModel emailModel) {
-        EmailReturn.emailModel = emailModel;
+        this.emailModel = emailModel;
     }
 
     public Object getPaymentDto() {
@@ -20,7 +20,7 @@ public class EmailReturn {
     }
 
     public void setPaymentDto(Object paymentDto) {
-        EmailReturn.paymentDto = paymentDto;
+        this.paymentDto = paymentDto;
     }
 
     public String getMailConstants() {
@@ -28,13 +28,13 @@ public class EmailReturn {
     }
 
     public void setMailConstants(String mailConstants) {
-        EmailReturn.mailConstants = mailConstants;
+        this.mailConstants = mailConstants;
     }
 
     public EmailReturn(EmailModel emailModel, Object paymentDto, String payment) {
-        EmailReturn.emailModel = emailModel;
-        EmailReturn.paymentDto = paymentDto;
-        EmailReturn.mailConstants = payment;
+        this.emailModel = emailModel;
+        this.paymentDto = paymentDto;
+        this.mailConstants = payment;
     } 
 
     
