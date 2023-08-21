@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.br.CNPJ;
 
 import com.ramon_silva.projeto_hotel.dto.HotelDto;
 
@@ -40,6 +41,7 @@ public class HotelModel {
     public HotelModel(Long id,HotelDto hotel){
         this.id=hotel.id();
         this.name=hotel.name();
+        this.cnpj=hotel.cnpj();
         this.address=new AddressModel(null,hotel.address());
         this.classification=hotel.classification();
         this.description=hotel.description();
@@ -52,6 +54,10 @@ public class HotelModel {
     @Length(min = 2)
     @Column(name = "nome")
     private String name;
+
+    @CNPJ
+    @Column(name = "cnpj",unique = true)
+    private String cnpj;
 
     @Column(name = "descricao")
     private String description;

@@ -1,7 +1,7 @@
 package com.ramon_silva.projeto_hotel.dto;
 
 import org.hibernate.validator.constraints.Length;
-
+import org.hibernate.validator.constraints.br.CNPJ;
 
 import com.ramon_silva.projeto_hotel.models.HotelModel;
 
@@ -20,6 +20,8 @@ public record HotelDto(
     @Length(min = 2)
     String name,
 
+    @CNPJ
+    String cnpj,
 
     String description,
 
@@ -33,7 +35,7 @@ public record HotelDto(
     ) {
     
       public HotelDto(HotelModel hotel){
-            this(hotel.getId(), hotel.getName(), hotel.getDescription(), hotel.getClassification(),new AddressDto(hotel.getAddress()));
+            this(hotel.getId(), hotel.getName(),hotel.getCnpj(), hotel.getDescription(), hotel.getClassification(),new AddressDto(hotel.getAddress()));
         }
 
 

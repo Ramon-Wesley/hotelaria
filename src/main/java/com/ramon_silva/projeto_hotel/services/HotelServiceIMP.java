@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.ramon_silva.projeto_hotel.dto.HotelDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
+import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.HotelModel;
 import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
@@ -30,9 +31,13 @@ public class HotelServiceIMP implements HotelService {
 
     @Override
     public HotelDto create(HotelDto hotel) {
-        HotelModel hotelModel=hotelRepository.save(new HotelModel(null,hotel));
+        boolean existsCnpj=hotelRepository.existsByCnpj(hotel.cnpj());
 
-        return new HotelDto(hotelModel);
+        if(!existsCnpj){
+            HotelModel hotelModel=hotelRepository.save(new HotelModel(null,hotel));
+            return new HotelDto(hotelModel);
+        }
+        throw new GeralException("Cnpj já cadastrado!");
     }
 
     @Override
@@ -48,17 +53,24 @@ public class HotelServiceIMP implements HotelService {
 
     @Override
     public HotelDto getById(Long id) {
-     HotelModel hotelModel=hotelRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Hotel", "id", id));
+     HotelModel hotelModel=hotelRepository.findById(id)
+     .orElseThrow(()-> new ResourceNotFoundException("Hotel", "id", id));
 
      return new HotelDto(hotelModel);
     }
 
     @Override
     public HotelDto updateById(Long id, HotelDto hotel) {
+    
      hotelRepository.findById(id).orElseThrow(
         ()-> new ResourceNotFoundException("Hotel", "id", id));
-       HotelModel hotelModel= hotelRepository.save(new HotelModel(id,hotel));
-        return new HotelDto(hotelModel);
+
+        boolean existsCnpj=hotelRepository.existsByCnpjAndIdNot(hotelDto.cnpj(),id);
+        if(!existsCnpj){
+            HotelModel result= hotelRepository.save(new HotelModel(id,hotel));
+            return new HotelDto(result);
+        }
+        throw new GeralException("Cnpj já cadastrado!");
     }
 
     @Override

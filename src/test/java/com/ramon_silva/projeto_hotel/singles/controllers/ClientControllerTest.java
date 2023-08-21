@@ -264,5 +264,6 @@ void Test_get_all_clients_empty_list(){
         assertEquals(clientDtos.size(),response.getBody().numberOfElements() );
         
 }
+
 }
 
