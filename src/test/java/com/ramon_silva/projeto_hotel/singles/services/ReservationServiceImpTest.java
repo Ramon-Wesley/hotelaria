@@ -65,12 +65,16 @@ public class ReservationServiceImpTest {
     void Test_create_reservation_success(){
     reservationModel=ReservationCreator.newReservationModel();
     reservationDto=new ReservationDto(reservationModel);
+
     clientModel=reservationModel.getClient();
     roomModel=reservationModel.getRoom();
+
     reservationModel.setId(1L);
+
     when(clientRepository.findById(clientModel.getId())).thenReturn(Optional.of(clientModel));
     when(roomRepository.findById(roomModel.getId())).thenReturn(Optional.of(roomModel));
     when(reservationRepository.save(any(ReservationModel.class))).thenReturn(reservationModel);
+    
     reservationDto=reservationServiceIMP.createReservation(reservationDto, clientModel.getId(), roomModel.getId());
 
     verify(clientRepository,times(1)).findById(clientModel.getId());
