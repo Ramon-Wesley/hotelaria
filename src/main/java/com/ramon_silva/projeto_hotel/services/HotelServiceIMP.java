@@ -65,7 +65,7 @@ public class HotelServiceIMP implements HotelService {
      hotelRepository.findById(id).orElseThrow(
         ()-> new ResourceNotFoundException("Hotel", "id", id));
 
-        boolean existsCnpj=hotelRepository.existsByCnpjAndIdNot(hotelDto.cnpj(),id);
+        boolean existsCnpj=hotelRepository.existsByCnpjAndIdNot(hotel.cnpj(),id);
         if(!existsCnpj){
             HotelModel result= hotelRepository.save(new HotelModel(id,hotel));
             return new HotelDto(result);

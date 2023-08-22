@@ -7,5 +7,5 @@ import com.ramon_silva.projeto_hotel.models.HotelModel;
 public interface HotelRepository extends JpaRepository<HotelModel,Long>{
 
     boolean existsByCnpj(String cnpj);
-    boolean existsByCnpjAndIdNot(long id);
+    boolean existsByCnpjAndIdNot(String cnpj,long id);
 }

@@ -41,9 +41,9 @@ public class HotelController {
 
     @DeleteMapping("/{id}")
     @Transactional
-     public ResponseEntity<?> deleteById(@PathVariable(name="id") Long id){
+     public ResponseEntity<Void> deleteById(@PathVariable(name="id") Long id){
     hotelIMP.deleteById(id);
-     return ResponseEntity.ok().body("Deletado com sucesso!"); 
+     return ResponseEntity.ok().build(); 
     }
 
     @PutMapping("/{id}")

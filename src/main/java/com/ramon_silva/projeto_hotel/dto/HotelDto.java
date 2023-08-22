@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.br.CNPJ;
 
 import com.ramon_silva.projeto_hotel.models.HotelModel;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -23,6 +24,13 @@ public record HotelDto(
     @CNPJ
     String cnpj,
 
+    @NotBlank
+    @Email
+    String email,
+    
+    @NotBlank
+    String phone,
+    
     String description,
 
     @Min(1)
@@ -35,7 +43,7 @@ public record HotelDto(
     ) {
     
       public HotelDto(HotelModel hotel){
-            this(hotel.getId(), hotel.getName(),hotel.getCnpj(), hotel.getDescription(), hotel.getClassification(),new AddressDto(hotel.getAddress()));
+            this(hotel.getId(), hotel.getName(),hotel.getCnpj(),hotel.getEmail(),hotel.getPhone(), hotel.getDescription(), hotel.getClassification(),new AddressDto(hotel.getAddress()));
         }
 
 

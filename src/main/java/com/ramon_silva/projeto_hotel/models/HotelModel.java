@@ -20,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +43,8 @@ public class HotelModel {
         this.id=hotel.id();
         this.name=hotel.name();
         this.cnpj=hotel.cnpj();
+        this.email=hotel.email();
+        this.phone=hotel.phone();
         this.address=new AddressModel(null,hotel.address());
         this.classification=hotel.classification();
         this.description=hotel.description();
@@ -58,6 +61,18 @@ public class HotelModel {
     @CNPJ
     @Column(name = "cnpj",unique = true)
     private String cnpj;
+
+    @NotBlank
+    @NotNull 
+    @Email
+    @Column(name="email", unique=true)
+    private String email;
+    
+    @NotBlank
+    @NotNull
+    @Column(name="telefone")
+    private String phone;
+
 
     @Column(name = "descricao")
     private String description;
