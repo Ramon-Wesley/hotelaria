@@ -23,7 +23,6 @@ public record ReservationDto(
 
      @Future
      @NotNull
-     @Column(name="data_de_checkOut")
      LocalDate checkOutDate,
 
    

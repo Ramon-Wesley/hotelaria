@@ -11,3 +11,4 @@ public class ProjetoHotelApplication {
 	}
 
 }
+//SELECT * FROM `reservas` WHERE data_de_check_in >= 2023-08-25 and data_de_check_out <= 2023-08-25 

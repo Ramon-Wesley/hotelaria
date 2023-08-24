@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ramon_silva.projeto_hotel.dto.PageDto;
+import com.ramon_silva.projeto_hotel.dto.ReservationDatesDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.dto.Reservation_serviceDto;
 
 import com.ramon_silva.projeto_hotel.services.ReservationServiceIMP;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 
 @RequestMapping("/reserva")
@@ -30,16 +34,16 @@ public class ReservationController {
 
     @PostMapping("/{id_cliente}/{id_quarto}")
     public ResponseEntity<ReservationDto> create(@PathVariable(name="id_cliente")Long id_client,
-    @PathVariable(name = "id_quarto")Long id_room,@RequestBody ReservationDto reservationDto,
+    @PathVariable(name = "id_quarto")Long id_room,@Valid @RequestBody ReservationDatesDto reservationDatesDto,
     UriComponentsBuilder uriComponentsBuilder){
-        ReservationDto reservationDto2=reservationServiceIMP.createReservation(reservationDto, id_client, id_room);
+        ReservationDto reservationDto2=reservationServiceIMP.createReservation(reservationDatesDto, id_client, id_room);
         var uri=uriComponentsBuilder.path("/reserva/{id_cliente}/{id_quarto}/{id_reserva}").buildAndExpand(id_client,id_room,reservationDto2.id()).toUri();
         return ResponseEntity.created(uri).body(reservationDto2);
     }
 
     @PostMapping("/{id_reserva}/servicos/{id_servico}")
     public ResponseEntity<Void> addServices(@PathVariable(name = "id_reserva")Long id,
-    @PathVariable(name = "id_servico")Long service_id){
+    @PathVariable(name = "id_servico") @Positive Long service_id){
         reservationServiceIMP.addServices(id, service_id);
         return ResponseEntity.ok().build();
     }
@@ -52,8 +56,14 @@ public class ReservationController {
     }
 
      @PutMapping("/{id_reserva}")
-    public ResponseEntity<ReservationDto> updateById(@PathVariable(name="id_reserva")Long id_reservation,@RequestBody ReservationDto reservationDto){
+    public ResponseEntity<ReservationDto> updateById(@PathVariable(name="id_reserva")Long id_reservation,@RequestBody @Valid ReservationDatesDto reservationDatesDto){
         ReservationDto reservationDto2=reservationServiceIMP.confirmReservation(id_reservation);
+        return ResponseEntity.ok().body(reservationDto2);
+    }
+
+        @GetMapping("/{id_reserva}")
+    public ResponseEntity<ReservationDto> getById(@PathVariable(name="id_reserva")Long id_reservation){
+        ReservationDto reservationDto2=reservationServiceIMP.getReservationById(id_reservation);
         return ResponseEntity.ok().body(reservationDto2);
     }
     @GetMapping

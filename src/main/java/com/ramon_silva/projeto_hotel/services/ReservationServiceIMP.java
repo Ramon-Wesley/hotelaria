@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 
 import com.ramon_silva.projeto_hotel.dto.PageDto;
+import com.ramon_silva.projeto_hotel.dto.ReservationDatesDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.dto.Reservation_serviceDto;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
@@ -59,14 +60,21 @@ public class ReservationServiceIMP implements ReservationService {
     }
 
     @Override
-    public ReservationDto createReservation(ReservationDto reservationDto,Long client_id,Long room_id){
+    public ReservationDto createReservation(ReservationDatesDto reservationDto,Long client_id,Long room_id){
            ClientModel clientModel=clientRepository.findById(client_id)
            .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", client_id));
            
            RoomModel roomModel=roomRepository.findById(room_id)
            .orElseThrow(()->new ResourceNotFoundException("quarto", "id", room_id));  
            
-           ReservationModel reservationModel=new ReservationModel(null,reservationDto);
+           boolean result=reservationRepository.hasConflictingReservations(roomModel.getId(),reservationDto.checkInDate(), reservationDto.checkOutDate());
+           if(result){
+            throw new GeralException("Datas inconpativeis");
+           }
+           
+           ReservationModel reservationModel=new ReservationModel();
+           reservationModel.setCheckInDate(reservationDto.checkInDate());
+           reservationModel.setCheckOutDate(reservationDto.checkOutDate());
            reservationModel.setRoom(roomModel);
            reservationModel.setClient(clientModel);
            reservationModel.setStatus(StatusEnum.PENDING);
@@ -120,14 +128,38 @@ public class ReservationServiceIMP implements ReservationService {
 
 
     @Override
-    public ReservationDto updateReservation(Long id, ReservationDto reservationDto) {
-        ReservationModel reservationModel=reservationRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Reservas","id",id));
-      if(reservationModel.getStatus().equals(StatusEnum.PENDING)){
-        reservationModel.setTotal_pay(ReservationServiceIMP.totalPrice(reservationModel.getCheckInDate(),reservationModel.getCheckOutDate(), reservationModel.getRoom().getPrice()));
-        reservationRepository.save(reservationModel);
-        return new ReservationDto(reservationModel);
-      }
-       throw new GeralException(Constants.CONFLICT_DATE_RESERVATION);
+    public ReservationDto updateReservation(Long id,Long room_id,Long client_id, ReservationDatesDto reservationDto) {
+       ReservationModel reservationModel=reservationRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Reservas","id",id));
+      
+        ClientModel clientModel=clientRepository.findById(client_id)
+           .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", client_id));
+           
+           RoomModel roomModel=roomRepository.findById(room_id)
+           .orElseThrow(()->new ResourceNotFoundException("quarto", "id", room_id));  
+           
+           boolean result=reservationRepository.hasConflictingReservationsDatesWithIdNotEquals(id,roomModel.getId(),reservationDto.checkInDate(), reservationDto.checkOutDate());
+  
+           if(result){
+            throw new GeralException("Datas inconpativeis");
+           }
+  
+           reservationModel.setCheckInDate(reservationDto.checkInDate());
+           reservationModel.setCheckOutDate(reservationDto.checkOutDate());
+           reservationModel.setRoom(roomModel);
+           reservationModel.setClient(clientModel);
+           reservationModel.setStatus(StatusEnum.PENDING);
+           reservationModel.setTotal_pay(totalPrice(reservationModel.getCheckInDate(), reservationModel.getCheckOutDate(), reservationModel.getRoom().getPrice()));
+           
+           ReservationModel resultModel=reservationRepository.save(reservationModel);
+           ReservationDto resultDto=new ReservationDto(resultModel);
+             
+               EmailModel email=new EmailModel();
+               email.setEmailFrom(MailConstants.BASIC_EMAIL);
+               email.setEmailTo(resultDto.client().email());
+               email.setSubject(resultDto.room().hotel().name());
+               email.setText(MailConstants.MESSAGE_RESERVATION);
+               emailServiceIMP.sendEmail(email,resultDto,MailConstants.RESERVATION);
+               return resultDto;
     }
 
 
