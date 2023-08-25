@@ -16,6 +16,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -41,6 +43,8 @@ public class ReservationModel {
         this.checkOutDate=reservationDto.checkOutDate();
         this.total_pay=reservationDto.total_pay();
         this.status=reservationDto.status();
+        this.client=new ClientModel(reservationDto.client().id(),reservationDto.client());
+        this.room=new RoomModel(id, reservationDto.room());
     }
 
     @Id
@@ -77,7 +81,10 @@ public class ReservationModel {
     @NotNull
     private Double total_pay;
     
-    @OneToMany(mappedBy = "reservation",cascade = CascadeType.ALL)
-    private Set<Reservation_serviceModel> reservation_service=new HashSet<>();
+   @ManyToMany
+   @JoinTable(name = "reserva_servico",
+   joinColumns = @JoinColumn(name="reserva_id"),
+   inverseJoinColumns = @JoinColumn(name="servico_id"))
+ private Set<ServicesModel> services=new HashSet<>();
 
 }

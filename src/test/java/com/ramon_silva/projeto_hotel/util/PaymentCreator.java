@@ -76,8 +76,8 @@ public class PaymentCreator{
 
 
     private static Double calculateValueService(ReservationModel reservationModel) {
-        return reservationModel.getReservation_service().stream()
-                .mapToDouble(res -> res.getServico().getPrice()).sum();
+        return reservationModel.getServices().stream()
+                .mapToDouble(res -> res.getPrice()).sum();
     }
     
 

@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
+import com.ramon_silva.projeto_hotel.models.ServicesModel;
 
 public interface ReservationRepository extends JpaRepository<ReservationModel, Long> {
     @Query(value = "SELECT COUNT(*) > 0 FROM reservas  " +
@@ -29,5 +30,5 @@ boolean hasConflictingReservationsDatesWithIdNotEquals(
 @Param("quarto_id") Long room,
 @Param("checkIn") LocalDate checkIn,
 @Param("checkOut") LocalDate checkOut);
-   
+
  }

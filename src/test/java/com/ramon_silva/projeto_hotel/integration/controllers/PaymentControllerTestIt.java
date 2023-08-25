@@ -40,6 +40,7 @@ import com.ramon_silva.projeto_hotel.models.PaymentModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.models.Reservation_serviceModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
+import com.ramon_silva.projeto_hotel.models.ServicesModel;
 import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
 import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
 import com.ramon_silva.projeto_hotel.repositories.PaymentRepository;
@@ -99,7 +100,7 @@ public class PaymentControllerTestIt {
     private AddressModel addressModel;
     private HotelModel hotelModel;
     private RoomModel roomModel;
-    private Set<Reservation_serviceModel> services=new HashSet<>();
+    private Set<ServicesModel> services=new HashSet<>();
 
     private ReservationModel reservationModelPayment;
 
@@ -356,7 +357,7 @@ void setDown(){
   reservationModel.setClient(clientModel);
   reservationModel.setRoom(roomModel);
   reservationModel.setStatus(StatusEnum.CONFIRM);
-  reservationModel.setReservation_service(services);
+  reservationModel.setServices(services);
   reservationModel=reservationRepository.save(reservationModel);
 
 
@@ -400,11 +401,11 @@ void setDown(){
   reservationModelPayment.setClient(clientModel);
   reservationModelPayment.setRoom(roomModel);
   reservationModelPayment.setStatus(StatusEnum.CONFIRM);
-  reservationModelPayment.setReservation_service(services);
+  reservationModelPayment.setServices(services);
   reservationModelPayment=reservationRepository.save(reservationModelPayment);
 
-  Double valueService=reservationModelPayment.getReservation_service().stream()
-  .mapToDouble(res->res.getServico().getPrice()).sum();
+  Double valueService=reservationModelPayment.getServices().stream()
+  .mapToDouble(res->res.getPrice()).sum();
 
   paymentModel=new PaymentModel();
   paymentModel.setReservation(reservationModelPayment);

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +17,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.ramon_silva.projeto_hotel.dto.ReservationDatesDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
+import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
@@ -57,17 +60,18 @@ public class ReservationServiceImpTest {
 
     private ReservationDto reservationDto;
 
+    private ReservationDatesDto reservationDatesDto;
+
     private ClientModel clientModel;
 
     private RoomModel roomModel;
     @Test
     @DisplayName("Realizar a reserva com sucesso!")
     void Test_create_reservation_success(){
+    reservationDatesDto=new ReservationDatesDto(LocalDate.now().plusDays(3), LocalDate.now().plusDays(6), StatusEnum.PENDING);
     reservationModel=ReservationCreator.newReservationModel();
-    reservationDto=new ReservationDto(reservationModel);
-
-    clientModel=reservationModel.getClient();
     roomModel=reservationModel.getRoom();
+    clientModel=reservationModel.getClient();
 
     reservationModel.setId(1L);
 
@@ -75,7 +79,7 @@ public class ReservationServiceImpTest {
     when(roomRepository.findById(roomModel.getId())).thenReturn(Optional.of(roomModel));
     when(reservationRepository.save(any(ReservationModel.class))).thenReturn(reservationModel);
     
-    reservationDto=reservationServiceIMP.createReservation(reservationDto, clientModel.getId(), roomModel.getId());
+    reservationDto=reservationServiceIMP.createReservation(reservationDatesDto, clientModel.getId(), roomModel.getId());
 
     verify(clientRepository,times(1)).findById(clientModel.getId());
     verify(roomRepository,times(1)).findById(roomModel.getId());

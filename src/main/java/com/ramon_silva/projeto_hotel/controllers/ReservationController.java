@@ -41,6 +41,7 @@ public class ReservationController {
         return ResponseEntity.created(uri).body(reservationDto2);
     }
 
+
     @PostMapping("/{id_reserva}/servicos/{id_servico}")
     public ResponseEntity<Void> addServices(@PathVariable(name = "id_reserva")Long id,
     @PathVariable(name = "id_servico") @Positive Long service_id){
@@ -55,17 +56,20 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
 
-     @PutMapping("/{id_reserva}")
-    public ResponseEntity<ReservationDto> updateById(@PathVariable(name="id_reserva")Long id_reservation,@RequestBody @Valid ReservationDatesDto reservationDatesDto){
-        ReservationDto reservationDto2=reservationServiceIMP.confirmReservation(id_reservation);
+
+     @PutMapping("/{id_reserva}/{id_quarto}/{id_cliente}")
+    public ResponseEntity<ReservationDto> updateById(@PathVariable(name="id_reserva")@Positive Long id_reservation,@PathVariable(name="id_quarto")@Positive Long id_room,@PathVariable(name="id_cliente")@Positive Long id_client,@RequestBody @Valid ReservationDatesDto reservationDatesDto){
+        ReservationDto reservationDto2=reservationServiceIMP.updateReservation(id_reservation, id_room, id_reservation, reservationDatesDto);
         return ResponseEntity.ok().body(reservationDto2);
     }
+
 
         @GetMapping("/{id_reserva}")
     public ResponseEntity<ReservationDto> getById(@PathVariable(name="id_reserva")Long id_reservation){
         ReservationDto reservationDto2=reservationServiceIMP.getReservationById(id_reservation);
         return ResponseEntity.ok().body(reservationDto2);
     }
+
     @GetMapping
     public ResponseEntity<PageDto<ReservationDto>> getAll(
  
@@ -76,6 +80,8 @@ public class ReservationController {
       ){
         return ResponseEntity.ok().body(reservationServiceIMP.getAllReservation(pageNumber, pageSize, sortBy, sortOrder));
       }
+
+
     @GetMapping("/{id_reserva}/servicos")
     public ResponseEntity<PageDto<Reservation_serviceDto>> getAllReservation_service(
         @PathVariable(name="id_reserva") Long id,
@@ -87,14 +93,25 @@ public class ReservationController {
         return ResponseEntity.ok().body(reservationServiceIMP.getAllServicesReservation(id, pageNumber, pageSize, sortBy, sortOrder));
       }
 
+
         @GetMapping("/servicos")
         public ResponseEntity<PageDto<Reservation_serviceDto>> getAllService_reservations(
+      
         @RequestParam(name = "pageNumber",defaultValue = "0")int pageNumber,
         @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
         @RequestParam(name = "sortBy",defaultValue = "id")String sortBy,
         @RequestParam(name = "sortOrder",defaultValue = "desc")String sortOrder
       ){
-        return ResponseEntity.ok().body(reservationServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder));
+        return ResponseEntity.ok().body(reservationServiceIMP.getAllServicesReservations( pageNumber, pageSize, sortBy, sortOrder));
      }
-    
+
+     @GetMapping("/{id_reserva}/servico/{id_servico}")
+
+
+     public ResponseEntity<Reservation_serviceDto> getreservation_serviceById(
+      @PathVariable(name="id_reserva") Long id,
+      @PathVariable(name="id_servico") Long id_servico
+     ){
+       return ResponseEntity.ok().body(reservationServiceIMP.getServiceReservationById(id, id_servico));
+     }
 }

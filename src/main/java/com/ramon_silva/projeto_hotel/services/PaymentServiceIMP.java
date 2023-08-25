@@ -53,8 +53,8 @@ public class PaymentServiceIMP implements PaymentService{
                 throw new GeralException(Constants.RESERVATION_CONFLICT);
             }
 
-            Double valueService=reservationModel.getReservation_service().stream()
-            .mapToDouble(res->res.getServico().getPrice()).sum();
+            Double valueService=reservationModel.getServices().stream()
+            .mapToDouble(res->res.getPrice()).sum();
             
             if(reservationModel.getStatus() == StatusEnum.CONFIRM ){
                 PaymentModel paymentModel=new PaymentModel();
@@ -118,8 +118,8 @@ public class PaymentServiceIMP implements PaymentService{
                 throw new GeralException(Constants.RESERVATION_CONFLICT);
             }
 
-               Double valueService= reservationModel.getReservation_service().stream()
-               .mapToDouble(res->res.getServico().getPrice()).sum();
+               Double valueService= reservationModel.getServices().stream()
+               .mapToDouble(res->res.getPrice()).sum();
                
                if(reservationModel.getStatus() == StatusEnum.CONFIRM){
                  
