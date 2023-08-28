@@ -1,5 +1,7 @@
 package com.ramon_silva.projeto_hotel.controllers;
 
+import java.util.Set;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +18,7 @@ import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDatesDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.dto.Reservation_serviceDto;
-
+import com.ramon_silva.projeto_hotel.dto.ServicesDto;
 import com.ramon_silva.projeto_hotel.services.ReservationServiceIMP;
 
 import jakarta.validation.Valid;
@@ -32,20 +34,19 @@ public class ReservationController {
         this.reservationServiceIMP=reservationServiceIMP;
     }
 
-    @PostMapping("/{id_cliente}/{id_quarto}")
-    public ResponseEntity<ReservationDto> create(@PathVariable(name="id_cliente")Long id_client,
-    @PathVariable(name = "id_quarto")Long id_room,@Valid @RequestBody ReservationDatesDto reservationDatesDto,
+    @PostMapping
+    public ResponseEntity<ReservationDto> create(@Valid @RequestBody ReservationDto reservationDto,
     UriComponentsBuilder uriComponentsBuilder){
-        ReservationDto reservationDto2=reservationServiceIMP.createReservation(reservationDatesDto, id_client, id_room);
-        var uri=uriComponentsBuilder.path("/reserva/{id_cliente}/{id_quarto}/{id_reserva}").buildAndExpand(id_client,id_room,reservationDto2.id()).toUri();
+        ReservationDto reservationDto2=reservationServiceIMP.createReservation(reservationDto);
+        var uri=uriComponentsBuilder.path("/reserva/{id_reserva}").buildAndExpand(reservationDto2.id()).toUri();
         return ResponseEntity.created(uri).body(reservationDto2);
     }
 
 
-    @PostMapping("/{id_reserva}/servicos/{id_servico}")
+    @PostMapping("/{id_reserva}/servicos")
     public ResponseEntity<Void> addServices(@PathVariable(name = "id_reserva")Long id,
-    @PathVariable(name = "id_servico") @Positive Long service_id){
-        reservationServiceIMP.addServices(id, service_id);
+    @Valid @RequestBody Set<Reservation_serviceDto> services){
+        reservationServiceIMP.addServices(id, services);
         return ResponseEntity.ok().build();
     }
 
@@ -57,9 +58,10 @@ public class ReservationController {
     }
 
 
-     @PutMapping("/{id_reserva}/{id_quarto}/{id_cliente}")
-    public ResponseEntity<ReservationDto> updateById(@PathVariable(name="id_reserva")@Positive Long id_reservation,@PathVariable(name="id_quarto")@Positive Long id_room,@PathVariable(name="id_cliente")@Positive Long id_client,@RequestBody @Valid ReservationDatesDto reservationDatesDto){
-        ReservationDto reservationDto2=reservationServiceIMP.updateReservation(id_reservation, id_room, id_reservation, reservationDatesDto);
+     @PutMapping("/{id_reserva}")
+    public ResponseEntity<ReservationDto> updateById(@PathVariable(name ="id_reserva" )Long reservation_id,@Valid @RequestBody ReservationDto reservationDto,
+    UriComponentsBuilder uriComponentsBuilder){
+      ReservationDto reservationDto2=reservationServiceIMP.updateReservation(reservation_id,reservationDto);
         return ResponseEntity.ok().body(reservationDto2);
     }
 
@@ -106,8 +108,6 @@ public class ReservationController {
      }
 
      @GetMapping("/{id_reserva}/servico/{id_servico}")
-
-
      public ResponseEntity<Reservation_serviceDto> getreservation_serviceById(
       @PathVariable(name="id_reserva") Long id,
       @PathVariable(name="id_servico") Long id_servico

@@ -53,7 +53,6 @@ public class ServicesModel {
     @NotNull
     private Double price;
 
-    @ManyToMany(mappedBy = "services")
-    private Set<ReservationModel> reservation=new HashSet<>();
+
 
 }

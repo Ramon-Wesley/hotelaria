@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull;
 public record Reservation_serviceDto(
      Long id,
 
-     @NotNull
+     
      ReservationDto reservation,
      
      @NotNull
@@ -23,9 +23,7 @@ public record Reservation_serviceDto(
      LocalDateTime service_hour
 ) {
    
-    public Reservation_serviceDto(Reservation_serviceModel reservation_serviceModel){
-        this(reservation_serviceModel.getId(),new ReservationDto(reservation_serviceModel.getReservation()), new ServicesDto(reservation_serviceModel.getServico()), reservation_serviceModel.getService_hour());
-    }
+    
     
 
 }

@@ -81,10 +81,8 @@ public class ReservationModel {
     @NotNull
     private Double total_pay;
     
-   @ManyToMany
-   @JoinTable(name = "reserva_servico",
-   joinColumns = @JoinColumn(name="reserva_id"),
-   inverseJoinColumns = @JoinColumn(name="servico_id"))
- private Set<ServicesModel> services=new HashSet<>();
+
+    @OneToMany(mappedBy = "reservation")
+    private Set<Reservation_serviceModel> reservation_service=new HashSet<>();
 
 }

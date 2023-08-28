@@ -20,8 +20,10 @@ public record ReservationDto(
 
      Long id,
     
+     @NotNull
      ClientDto client,
 
+     @NotNull
      RoomDto room,
 
      @Future
@@ -35,14 +37,9 @@ public record ReservationDto(
      StatusEnum status,
 
      double total_pay,
-    Set<ServicesDto> services
+    
+     Set<Reservation_serviceDto> reservation_service
 
 
 ) {
-    public ReservationDto(ReservationModel reservationModel){
-     this(reservationModel.getId(),new ClientDto(reservationModel.getClient()),new RoomDto(reservationModel.getRoom()),
-     reservationModel.getCheckInDate(),reservationModel.getCheckOutDate(),
-      reservationModel.getStatus(), reservationModel.getTotal_pay(),
-      reservationModel.getServices().stream().map(ServicesDto::new).collect(Collectors.toSet()));
-    }
 }
