@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -83,6 +84,9 @@ public class PaymentControllerTestIt {
     @Autowired
     private HotelRepository hotelRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @MockBean
     private EmailServiceIMP mockEmailService; 
 
@@ -100,7 +104,7 @@ public class PaymentControllerTestIt {
     private AddressModel addressModel;
     private HotelModel hotelModel;
     private RoomModel roomModel;
-    private Set<ServicesModel> services=new HashSet<>();
+    private Set<Reservation_serviceModel> services=new HashSet<>();
 
     private ReservationModel reservationModelPayment;
 
@@ -137,7 +141,7 @@ void setDown(){
           paymentDto=new PaymentDto(null, null, PaymentMethodEnum.MONEY, null, null, 0);        
           String json=objectMapper.writeValueAsString(paymentDto);
           Long reservation_id=reservationModel.getId();
-          mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/{id_reservation}", reservation_id)
+          mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/{reservation_id}", reservation_id)
               .contentType(MediaType.APPLICATION_JSON)
               .content(json)
               )
@@ -223,11 +227,11 @@ void setDown(){
     @Test
     @DisplayName("Atualizar pagamento existente")
     void Test_update_payment_by_id() throws Exception{
-      paymentDto=new PaymentDto(paymentModel);
+      paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
    
       
       String json=objectMapper.writeValueAsString(paymentDto);
-      long id=paymentDto.id();
+      long id=paymentDto.getId();
            mockMvc.perform(MockMvcRequestBuilders.put("/pagamento/{id}",id)
             .contentType(MediaType.APPLICATION_JSON)
             .content(json)
@@ -238,7 +242,7 @@ void setDown(){
     @DisplayName("Atualizar pagamento inexistente")
     void Test_update_payment_with_notExist_id() throws Exception{
       long id=99;
-      paymentDto=new PaymentDto(paymentModel);
+      paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
     
            String json=objectMapper.writeValueAsString(paymentDto);
            mockMvc.perform(MockMvcRequestBuilders.put("/pagamento/{id}",id)
@@ -357,7 +361,7 @@ void setDown(){
   reservationModel.setClient(clientModel);
   reservationModel.setRoom(roomModel);
   reservationModel.setStatus(StatusEnum.CONFIRM);
-  reservationModel.setServices(services);
+  reservationModel.setReservation_service(services);
   reservationModel=reservationRepository.save(reservationModel);
 
 
@@ -385,7 +389,7 @@ void setDown(){
   
   addressModel=AddressCreator.newAddressModel3();
   
-  hotelModel=HotelCreator.newModelHotel();
+  hotelModel=HotelCreator.newModelHotel2();
   hotelModel.setAddress(addressModel);
 
   
@@ -401,11 +405,11 @@ void setDown(){
   reservationModelPayment.setClient(clientModel);
   reservationModelPayment.setRoom(roomModel);
   reservationModelPayment.setStatus(StatusEnum.CONFIRM);
-  reservationModelPayment.setServices(services);
+  reservationModelPayment.setReservation_service(services);
   reservationModelPayment=reservationRepository.save(reservationModelPayment);
 
-  Double valueService=reservationModelPayment.getServices().stream()
-  .mapToDouble(res->res.getPrice()).sum();
+  Double valueService=reservationModelPayment.getReservation_service().stream()
+  .mapToDouble(res->res.getServico().getPrice()).sum();
 
   paymentModel=new PaymentModel();
   paymentModel.setReservation(reservationModelPayment);

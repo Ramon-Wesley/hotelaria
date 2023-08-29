@@ -22,6 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -44,6 +46,9 @@ public class PaymentControllerTest {
     @Mock
     private PaymentServiceIMP paymentServiceIMP;
 
+    @Autowired 
+    private ModelMapper modelMapper;
+
     private PaymentDto paymentDto;
 
     private PaymentModel paymentModel;
@@ -53,16 +58,16 @@ public class PaymentControllerTest {
     @DisplayName("Sucesso ao realizar um pagamento de reserva")
     void Test_payment_success(){
         paymentModel=PaymentCreator.createModelPayment().getPaymentModel();
-        paymentDto=new PaymentDto(paymentModel);
+        paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
         paymentModel.setId(1L);
-        PaymentDto payment=new PaymentDto(paymentModel);
-        Long reservation_id=paymentDto.reservation().id();
+        PaymentDto payment=modelMapper.map(paymentModel,PaymentDto.class);
+        Long reservation_id=paymentDto.getReservation().getId();
         when(paymentServiceIMP.payment(any(PaymentDto.class),anyLong())).thenReturn(payment);
 
          ResponseEntity<PaymentDto> response= paymentController.payment(reservation_id, payment, uriBuilder);
 
          assertEquals(HttpStatus.CREATED,response.getStatusCode());
-         assertNotNull(response.getBody().id());
+         assertNotNull(response.getBody().getId());
          verify(paymentServiceIMP,times(1)).payment(any(PaymentDto.class),anyLong());
 
     }
@@ -71,10 +76,10 @@ public class PaymentControllerTest {
     @DisplayName("erro ao realizar um pagamento com uma reserva nao confirmada")
     void Test_payment_error_with_reservation_pending(){
         paymentModel=PaymentCreator.createModelPayment2().getPaymentModel();
-        paymentDto=new PaymentDto(paymentModel);
+        paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
         paymentModel.setId(1L);
-        PaymentDto payment=new PaymentDto(paymentModel);
-        Long reservation_id=paymentDto.reservation().id();
+        PaymentDto payment=modelMapper.map(paymentModel,PaymentDto.class);
+        Long reservation_id=paymentDto.getReservation().getId();
         when(paymentServiceIMP.payment(any(PaymentDto.class),anyLong())).thenThrow(GeralException.class);
 
         assertThrows(GeralException.class,()->paymentController.payment(reservation_id, payment, uriBuilder));
@@ -87,9 +92,9 @@ public class PaymentControllerTest {
     @DisplayName("erro ao realizar um pagamento com uma reserva inexistente")
     void Test_payment_error_with_reservation_notExists(){
         paymentModel=PaymentCreator.createModelPayment2().getPaymentModel();
-        paymentDto=new PaymentDto(paymentModel);
+        paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
         paymentModel.setId(1L);
-        PaymentDto payment=new PaymentDto(paymentModel);
+        PaymentDto payment=modelMapper.map(paymentModel,PaymentDto.class);
         Long reservation_id=99L;
         when(paymentServiceIMP.payment(any(PaymentDto.class),anyLong())).thenThrow(ResourceNotFoundException.class);
 
@@ -129,19 +134,19 @@ public class PaymentControllerTest {
     void Test_update_payment_by_id(){
         paymentModel=PaymentCreator.createModelPayment().getPaymentModel();
         paymentModel.setId(1L);
-        paymentDto=new PaymentDto(paymentModel);
-        Long id=paymentDto.id();
+        paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
+        Long id=paymentDto.getId();
         paymentModel.setPaymentMethod(PaymentCreator.createModelPayment2().getPaymentModel().getPaymentMethod());
 
-        PaymentDto updatePayment=new PaymentDto(paymentModel);
+        PaymentDto updatePayment=modelMapper.map(paymentModel,PaymentDto.class);
 
         when(paymentServiceIMP.updateById(id, updatePayment)).thenReturn(updatePayment);
 
         ResponseEntity<PaymentDto> response=paymentController.updateById(id, updatePayment);
 
         assertEquals(HttpStatus.OK,response.getStatusCode());
-        assertEquals(id,response.getBody().id());
-        assertNotEquals(paymentDto.paymentMethod(), updatePayment.paymentMethod());
+        assertEquals(id,response.getBody().getId());
+        assertNotEquals(paymentDto.getPaymentMethod(), updatePayment.getPaymentMethod());
         verify(paymentServiceIMP,times(1)).updateById(id, updatePayment);    
                 
     }
@@ -151,11 +156,11 @@ public class PaymentControllerTest {
     void Test_update_payment_with_notExist_id(){
         paymentModel=PaymentCreator.createModelPayment().getPaymentModel();
         paymentModel.setId(1L);
-        paymentDto=new PaymentDto(paymentModel);
+        paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
         Long id=99L;
         paymentModel.setPaymentMethod(PaymentCreator.createModelPayment2().getPaymentModel().getPaymentMethod());
 
-        PaymentDto updatePayment=new PaymentDto(paymentModel);
+        PaymentDto updatePayment=modelMapper.map(paymentModel,PaymentDto.class);
 
         when(paymentServiceIMP.updateById(id, updatePayment)).thenThrow(ResourceNotFoundException.class);
 
@@ -170,13 +175,13 @@ public class PaymentControllerTest {
     void Test_get_payment_by_id(){
         paymentModel=PaymentCreator.createModelPayment().getPaymentModel();
         paymentModel.setId(1L);
-        paymentDto=new PaymentDto(paymentModel);
-        Long id=paymentDto.id();
+        paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
+        Long id=paymentDto.getId();
         when(paymentServiceIMP.getPaymentById(id)).thenReturn(paymentDto);
         ResponseEntity<PaymentDto> result=paymentController.getById(id);
 
         assertEquals(HttpStatus.OK,result.getStatusCode());
-        assertEquals(id,result.getBody().id());
+        assertEquals(id,result.getBody().getId());
         assertEquals(paymentDto,result.getBody());
         verify(paymentServiceIMP,times(1)).getPaymentById(id);
                  
@@ -214,13 +219,13 @@ public class PaymentControllerTest {
         PaymentModel paymentModel2=PaymentCreator.createModelPayment2().getPaymentModel();
         paymentModel2.setId(2L);
         
-        paymentDto=new PaymentDto(paymentModel);
-        PaymentDto paymentDto2=new PaymentDto(paymentModel2);
+        paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
+        PaymentDto paymentDto2=modelMapper.map(paymentModel2,PaymentDto.class);
         List<PaymentDto> paymentList=new ArrayList<>();
         paymentList.add(paymentDto);
         paymentList.add(paymentDto2);
 
-        List<PaymentDto> paymentList2=paymentList.stream().sorted(Comparator.comparingLong(obj->((PaymentDto) obj).id()).reversed()).collect(Collectors.toList());
+        List<PaymentDto> paymentList2=paymentList.stream().sorted(Comparator.comparingLong(obj->((PaymentDto) obj).getId()).reversed()).collect(Collectors.toList());
     
         PageDto<PaymentDto> page=new PageDto<>(paymentList2, pageNumber, numberOfElements, pageSize, totalPages, totalElments);
         when(paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder)).thenReturn(page);

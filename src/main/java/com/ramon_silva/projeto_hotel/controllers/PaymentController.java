@@ -33,7 +33,7 @@ public class PaymentController {
         @RequestBody @Valid PaymentDto paymentDto,
         UriComponentsBuilder uriComponentsBuilder){
         PaymentDto paymentDto2=paymentServiceIMP.payment(paymentDto, id);
-        var uri=uriComponentsBuilder.path("/pagamento/{reservation_id}/{payment_id}").buildAndExpand(id,paymentDto2.id()).toUri();
+        var uri=uriComponentsBuilder.path("/pagamento/{payment_id}").buildAndExpand(paymentDto2.getId()).toUri();
         return ResponseEntity.created(uri).body(paymentDto2);
     }
 

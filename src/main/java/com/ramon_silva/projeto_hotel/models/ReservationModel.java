@@ -16,14 +16,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,18 +35,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
 public class ReservationModel {
  
-
-    public ReservationModel(Long id,ReservationDto reservationDto){
-        this.id=id;
-        this.checkInDate=reservationDto.checkInDate();
-        this.checkOutDate=reservationDto.checkOutDate();
-        this.total_pay=reservationDto.total_pay();
-        this.status=reservationDto.status();
-        this.client=new ClientModel(reservationDto.client().id(),reservationDto.client());
-        this.room=new RoomModel(id, reservationDto.room());
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -3,6 +3,7 @@ package com.ramon_silva.projeto_hotel.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,14 +30,16 @@ public class PaymentServiceIMP implements PaymentService{
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
     private final EmailServiceIMP emailServiceIMP;
+    private final ModelMapper modelMapper;
 
     private  PaymentServiceIMP(PaymentRepository paymentRepository,
     ReservationRepository reservationRepository,
     EmailServiceIMP emailServiceIMP,Reservation_serviceRepository reservation_serviceRepository
-    ){
+    ,ModelMapper modelMapper){
         this.paymentRepository=paymentRepository;
         this.reservationRepository=reservationRepository;
         this.emailServiceIMP=emailServiceIMP;
+        this.modelMapper=modelMapper;
     }
 
 
@@ -53,23 +56,23 @@ public class PaymentServiceIMP implements PaymentService{
                 throw new GeralException(Constants.RESERVATION_CONFLICT);
             }
 
-            Double valueService=reservationModel.getServices().stream()
-            .mapToDouble(res->res.getPrice()).sum();
+            Double valueService=reservationModel.getReservation_service().stream()
+            .mapToDouble(res->res.getServico().getPrice()).sum();
             
             if(reservationModel.getStatus() == StatusEnum.CONFIRM ){
                 PaymentModel paymentModel=new PaymentModel();
                 paymentModel.setReservation(reservationModel);
-                paymentModel.setPaymentMethod(paymentDto.paymentMethod());
+                paymentModel.setPaymentMethod(paymentDto.getPaymentMethod());
                 paymentModel.setStatus(StatusEnum.CONFIRM);
                 paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
                 PaymentModel result=paymentRepository.save(paymentModel);
-                PaymentDto resultDto= new PaymentDto(result);
+                PaymentDto resultDto= modelMapper.map(result,PaymentDto.class);
     
                 EmailModel emailModel=new EmailModel();
                 emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
-                emailModel.setEmailTo(resultDto.reservation().client().email());
+                emailModel.setEmailTo(resultDto.getReservation().getClient().getEmail());
                 emailModel.setText(MailConstants.MESSAGE_PAYMENT);
-                emailModel.setSubject(resultDto.reservation().room().hotel().name());
+                emailModel.setSubject(resultDto.getReservation().getRoom().getHotel().getName());
         
                 emailServiceIMP.sendEmail(emailModel, resultDto, MailConstants.PAYMENT);
                 return resultDto;
@@ -85,7 +88,7 @@ public class PaymentServiceIMP implements PaymentService{
         .orElseThrow(()->
         new ResourceNotFoundException("Pagamento",
          "id", id));
-        return new PaymentDto(payment);
+        return modelMapper.map(payment,PaymentDto.class);
       
     
     }
@@ -109,7 +112,7 @@ public class PaymentServiceIMP implements PaymentService{
              .orElseThrow(
                ()->new ResourceNotFoundException("Pagamento", "id", id));
                
-               ReservationModel reservationModel=reservationRepository.findById(paymentDto.reservation().id()).orElseThrow(
+               ReservationModel reservationModel=reservationRepository.findById(paymentDto.getReservation().getId()).orElseThrow(
                ()->new ResourceNotFoundException("Reserva", "id", id));
 
                boolean existsReservation=paymentRepository.existsByReservationIdAndIdNot(reservationModel.getId(), id);
@@ -118,24 +121,24 @@ public class PaymentServiceIMP implements PaymentService{
                 throw new GeralException(Constants.RESERVATION_CONFLICT);
             }
 
-               Double valueService= reservationModel.getServices().stream()
-               .mapToDouble(res->res.getPrice()).sum();
+               Double valueService= reservationModel.getReservation_service().stream()
+               .mapToDouble(res->res.getServico().getPrice()).sum();
                
                if(reservationModel.getStatus() == StatusEnum.CONFIRM){
                  
                    paymentModel.setReservation(reservationModel);
-                   paymentModel.setPaymentMethod(paymentDto.paymentMethod());
-                   paymentModel.setPayment_day(paymentDto.payment_day());
+                   paymentModel.setPaymentMethod(paymentDto.getPaymentMethod());
+                   paymentModel.setPayment_day(paymentDto.getPayment_day());
                    paymentModel.setStatus(StatusEnum.CONFIRM);
                    paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
                    PaymentModel result=paymentRepository.save(paymentModel);
-                   PaymentDto resultDto= new PaymentDto(result);
+                   PaymentDto resultDto= modelMapper.map(result,PaymentDto.class);
        
                    EmailModel emailModel=new EmailModel();
                    emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
-                   emailModel.setEmailTo(resultDto.reservation().client().email());
+                   emailModel.setEmailTo(resultDto.getReservation().getClient().getEmail());
                    emailModel.setText(MailConstants.MESSAGE_PAYMENT);
-                   emailModel.setSubject(resultDto.reservation().room().hotel().name());
+                   emailModel.setSubject(resultDto.getReservation().getRoom().getHotel().getName());
            
                    emailServiceIMP.sendEmail(emailModel, resultDto, MailConstants.PAYMENT);
                    return resultDto;
@@ -155,7 +158,7 @@ public class PaymentServiceIMP implements PaymentService{
     
             List<PaymentDto> paymentDtos=page.getContent().
             stream()
-            .map(PaymentDto::new)
+            .map((e)->modelMapper.map(e,PaymentDto.class))
             .collect(Collectors.toList());
             PageDto<PaymentDto> pageDto=new PageDto<>(paymentDtos,page.getNumber(), page.getNumberOfElements(), page.getSize(),
             page.getTotalPages(), page.getTotalElements());

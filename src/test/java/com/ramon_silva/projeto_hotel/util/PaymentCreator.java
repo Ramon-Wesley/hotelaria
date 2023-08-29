@@ -2,6 +2,9 @@ package com.ramon_silva.projeto_hotel.util;
 
 import java.time.LocalDate;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
 import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
@@ -13,9 +16,13 @@ public class PaymentCreator{
     private PaymentModel paymentModel;
     private EmailReturn emailReturn;
 
+    @Autowired
+    private static ModelMapper modelMapper;
+
     private PaymentCreator(PaymentModel paymentModel, EmailReturn emailReturn) {
         this.paymentModel = paymentModel;
         this.emailReturn= emailReturn;
+    
     }
 
     public PaymentModel getPaymentModel() {
@@ -47,7 +54,7 @@ public class PaymentCreator{
             paymentModel.setPayment_day(paymentDay);
             paymentModel.setStatus(StatusEnum.CONFIRM);
             paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
-            PaymentDto resultDto= new PaymentDto(paymentModel);
+            PaymentDto resultDto= modelMapper.map(paymentModel,PaymentDto.class);
 
             
             EmailReturn emailReturn=createEmailReturn(resultDto);
@@ -67,7 +74,7 @@ public class PaymentCreator{
             paymentModel.setStatus(StatusEnum.CONFIRM);
             paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
            
-            PaymentDto resultDto= new PaymentDto(paymentModel);
+            PaymentDto resultDto= modelMapper.map(paymentModel,PaymentDto.class);
 
        
             EmailReturn emailReturn=createEmailReturn(resultDto);
@@ -76,17 +83,17 @@ public class PaymentCreator{
 
 
     private static Double calculateValueService(ReservationModel reservationModel) {
-        return reservationModel.getServices().stream()
-                .mapToDouble(res -> res.getPrice()).sum();
+        return reservationModel.getReservation_service().stream()
+                .mapToDouble(res -> res.getServico().getPrice()).sum();
     }
     
 
     private static EmailReturn createEmailReturn(PaymentDto resultDto) {
         EmailModel emailModel = new EmailModel();
         emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
-        emailModel.setEmailTo(resultDto.reservation().client().email());
+        emailModel.setEmailTo(resultDto.getReservation().getClient().getEmail());
         emailModel.setText(MailConstants.MESSAGE_PAYMENT);
-        emailModel.setSubject(resultDto.reservation().room().hotel().name());
+        emailModel.setSubject(resultDto.getReservation().getRoom().getHotel().getName());
     
         return new EmailReturn(emailModel, resultDto, MailConstants.PAYMENT);
     }

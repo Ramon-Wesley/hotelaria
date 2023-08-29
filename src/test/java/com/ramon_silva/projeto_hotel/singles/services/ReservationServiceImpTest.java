@@ -7,19 +7,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.ramon_silva.projeto_hotel.dto.ReservationDatesDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
-import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
@@ -55,38 +56,45 @@ public class ReservationServiceImpTest {
     
     @Mock
     private  EmailServiceIMP emailServiceIMP;
+     
+    private ModelMapper modelMapper;
 
     private ReservationModel reservationModel;
 
     private ReservationDto reservationDto;
 
-    private ReservationDatesDto reservationDatesDto;
-
     private ClientModel clientModel;
 
     private RoomModel roomModel;
+
+@BeforeEach
+void setup(){
+    modelMapper=new ModelMapper();
+}
+
     @Test
     @DisplayName("Realizar a reserva com sucesso!")
     void Test_create_reservation_success(){
-    reservationDatesDto=new ReservationDatesDto(LocalDate.now().plusDays(3), LocalDate.now().plusDays(6), StatusEnum.PENDING);
     reservationModel=ReservationCreator.newReservationModel();
     roomModel=reservationModel.getRoom();
     clientModel=reservationModel.getClient();
 
     reservationModel.setId(1L);
 
+    ReservationDto reservationDtoMapper= modelMapper.map(reservationModel,ReservationDto.class);
+    
     when(clientRepository.findById(clientModel.getId())).thenReturn(Optional.of(clientModel));
     when(roomRepository.findById(roomModel.getId())).thenReturn(Optional.of(roomModel));
     when(reservationRepository.save(any(ReservationModel.class))).thenReturn(reservationModel);
-    
-    reservationDto=reservationServiceIMP.createReservation(reservationDatesDto, clientModel.getId(), roomModel.getId());
+   
+    reservationDto=reservationServiceIMP.createReservation(reservationDtoMapper);
 
     verify(clientRepository,times(1)).findById(clientModel.getId());
     verify(roomRepository,times(1)).findById(roomModel.getId());
     verify(reservationRepository,times(1)).save(any(ReservationModel.class));
 
-    assertNotNull(reservationDto.id());
-    assertEquals(clientModel.getId(),reservationDto.client().id());
-    assertEquals(roomModel.getId(),reservationDto.room().id());
+    assertNotNull(reservationDto.getId());
+    assertEquals(clientModel.getId(),reservationDto.getClient().getId());
+    assertEquals(roomModel.getId(),reservationDto.getRoom().getId());
     }
 }

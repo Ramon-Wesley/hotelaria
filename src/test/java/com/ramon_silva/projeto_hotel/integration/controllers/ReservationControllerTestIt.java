@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ramon_silva.projeto_hotel.dto.ReservationDatesDto;
+import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.models.AddressModel;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
@@ -83,15 +85,19 @@ public class ReservationControllerTestIt {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ModelMapper modelMapper;
+    
     private ReservationModel reservationModel;
+    private ReservationDto reservationDto;
     private ClientModel clientModel;
     private AddressModel addressModel;
     private HotelModel hotelModel;
     private RoomModel roomModel;
     private Set<Reservation_serviceModel> services=new HashSet<>();
+    private  ReservationModel reservationModelResult;
 
-
-    private ObjectMapper objectMapper=new ObjectMapper();
+private ObjectMapper objectMapper=new ObjectMapper();
 @BeforeEach
 @Transactional
 void setUp()
@@ -101,15 +107,18 @@ void setUp()
     objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     SaveReservation(reservationRepository, clientRepository, roomRepository, hotelRepository);
     SaveDates(clientRepository, roomRepository, hotelRepository);
+    reservationModelResult=new ReservationModel(null, clientModel, 
+    roomModel,
+    LocalDate.now().plusYears(1), LocalDate.now().plusYears(1).plusDays(2), null, null, null);
     
 }
     @Test
     @DisplayName("Erro ao salvar uma reserva com datas conflitantes em um mesmo quarto")
     void Test_create_error_reservation_room_with_dates_conflict() throws Exception{
-      ReservationDatesDto reservationDatesDto=new ReservationDatesDto(LocalDate.now().plusDays(2), LocalDate.now().plusDays(4),StatusEnum.PENDING);
-      String json= objectMapper.writeValueAsString(reservationDatesDto); long id_cliente=reservationModel2.getClient().getId();
-        long id_quarto= reservationModel2.getRoom().getId();
-        mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_cliente}/{id_quarto}",id_cliente,id_quarto)
+    reservationDto=modelMapper.map(reservationModel,ReservationDto.class); 
+    reservationDto.setId(null); 
+      String json= objectMapper.writeValueAsString(reservationDto);
+        mockMvc.perform(MockMvcRequestBuilders.post("/reserva")
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
         ).andDo(MockMvcResultHandlers.log())
@@ -122,10 +131,9 @@ void setUp()
     @Test
     @DisplayName("Salvar uma reserva com sucesso")
     void Test_create_reservation_success() throws Exception{
-      ReservationDatesDto reservationDatesDto=new ReservationDatesDto(LocalDate.now().plusDays(2), LocalDate.now().plusDays(4),StatusEnum.PENDING);
-      String json= objectMapper.writeValueAsString(reservationDatesDto); long id_cliente=clientModel.getId();
-        long id_quarto= roomModel.getId();
-        mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_cliente}/{id_quarto}",id_cliente,id_quarto)
+     reservationDto=modelMapper.map(reservationModelResult,ReservationDto.class);
+      String json= objectMapper.writeValueAsString(reservationDto); 
+        mockMvc.perform(MockMvcRequestBuilders.post("/reserva")
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
         ).andDo(MockMvcResultHandlers.log())
@@ -139,12 +147,12 @@ void setUp()
     @Test
     @DisplayName("Erro ao salvar uma reserva com as datas invalidas!")
     void Test_create_reservation_error_with_dates_empty() throws Exception{
-       ReservationModel reservationModel2=new ReservationModel(null, null, null,LocalDate.now().minusWeeks(2), LocalDate.now().minusWeeks(1), null, null, null); 
+       reservationDto=modelMapper.map(reservationModelResult,ReservationDto.class);
+       reservationDto.setCheckInDate(LocalDate.now().minusWeeks(2));
+       reservationDto.setCheckOutDate(LocalDate.now().minusWeeks(1)); 
       
-        String json= objectMapper.writeValueAsString(reservationModel2);
-        long id_cliente=clientModel.getId();
-        long id_quarto= roomModel.getId();
-        mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_cliente}/{id_quarto}",id_cliente,id_quarto)
+        String json= objectMapper.writeValueAsString(reservationDto);
+        mockMvc.perform(MockMvcRequestBuilders.post("/reserva")
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
         ).andDo(MockMvcResultHandlers.log())
@@ -154,10 +162,10 @@ void setUp()
 @Test
 @DisplayName("Criar uma reserva com um cliente inexistente")
 void Test_create_reservation_with_client_id_not_exists() throws Exception{
-   ReservationDatesDto reservationDatesDto=new ReservationDatesDto(LocalDate.now().plusDays(2), LocalDate.now().plusDays(4),StatusEnum.PENDING);
-   String json= objectMapper.writeValueAsString(reservationDatesDto);  long id_cliente=99L;
-        long id_quarto= roomModel.getId();
-        mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_cliente}/{id_quarto}",id_cliente,id_quarto)
+  reservationDto=modelMapper.map(reservationModelResult,ReservationDto.class);
+  reservationDto.getClient().setId(99L);    
+  String json= objectMapper.writeValueAsString(reservationDto);  
+        mockMvc.perform(MockMvcRequestBuilders.post("/reserva")
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
         ).andDo(MockMvcResultHandlers.log())
@@ -166,11 +174,11 @@ void Test_create_reservation_with_client_id_not_exists() throws Exception{
 @Test
 @DisplayName("Criar uma reserva com um quarto inexistente")
 void Test_create_reservation_with_room_id_not_exists() throws Exception{
-        ReservationDatesDto reservationDatesDto=new ReservationDatesDto(LocalDate.now().plusDays(2), LocalDate.now().plusDays(4),StatusEnum.PENDING);
-        String json= objectMapper.writeValueAsString(reservationDatesDto);
-        long id_cliente=clientModel.getId();
-        long id_quarto= 99L;
-        mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_cliente}/{id_quarto}",id_cliente,id_quarto)
+      reservationDto=modelMapper.map(reservationModelResult,ReservationDto.class);
+     reservationDto.getRoom().setId(99L);
+    
+  String json= objectMapper.writeValueAsString(reservationDto);  
+        mockMvc.perform(MockMvcRequestBuilders.post("/reserva")
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
         ).andDo(MockMvcResultHandlers.log())

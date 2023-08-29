@@ -23,6 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -60,6 +62,9 @@ public class PaymentServiceIMPTest {
     
     @Mock
     private  EmailServiceIMP emailServiceIMP;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
    
 
@@ -99,9 +104,9 @@ public class PaymentServiceIMPTest {
             any(String.class)
             );
 
-            assertEquals(resulDto.id(),paymentCreator.getPaymentModel().getId());
-            assertEquals(resulDto.reservation().id(),paymentCreator.getPaymentModel().getReservation().getId());
-            assertEquals(resulDto.status(),StatusEnum.CONFIRM);
+            assertEquals(resulDto.getId(),paymentCreator.getPaymentModel().getId());
+            assertEquals(resulDto.getReservation().getId(),paymentCreator.getPaymentModel().getReservation().getId());
+            assertEquals(resulDto.getStatus(),StatusEnum.CONFIRM);
     }
 
     @Test
@@ -140,9 +145,9 @@ public class PaymentServiceIMPTest {
             any(String.class)
             );
 
-            assertEquals(resulDto.id(),paymentCreator.getPaymentModel().getId());
-            assertEquals(resulDto.reservation().id(),paymentCreator.getPaymentModel().getReservation().getId());
-            assertEquals(resulDto.status(),StatusEnum.CONFIRM);
+            assertEquals(resulDto.getId(),paymentCreator.getPaymentModel().getId());
+            assertEquals(resulDto.getReservation().getId(),paymentCreator.getPaymentModel().getReservation().getId());
+            assertEquals(resulDto.getStatus(),StatusEnum.CONFIRM);
     }
     @Test
     @DisplayName("Tentar fazer o pagamento sem a confirmacao da reserva")
@@ -246,7 +251,7 @@ void Test_update_by_id_payment_success(){
     paymentCreator2.getReservation().setId(paymentCreator.getReservation().getId());
     paymentCreator2.getReservation().setStatus(StatusEnum.CONFIRM);
   
-    PaymentDto paymentCreatorDto =new PaymentDto(paymentCreator2);
+    PaymentDto paymentCreatorDto =modelMapper.map(paymentCreator2,PaymentDto.class);
   
     when(paymentRepository.findById(paymentCreator.getId())).thenReturn(Optional.of(paymentCreator));
   
@@ -254,14 +259,14 @@ void Test_update_by_id_payment_success(){
     
     when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator2);
   
-    PaymentDto pay= paymentServiceIMP.updateById(paymentCreatorDto.id(), paymentCreatorDto);
+    PaymentDto pay= paymentServiceIMP.updateById(paymentCreatorDto.getId(), paymentCreatorDto);
   
-    verify(paymentRepository,times(1)).findById(paymentCreatorDto.id());
-    verify(reservationRepository,times(1)).findById(paymentCreatorDto.reservation().id());
+    verify(paymentRepository,times(1)).findById(paymentCreatorDto.getId());
+    verify(reservationRepository,times(1)).findById(paymentCreatorDto.getReservation().getId());
     verify(paymentRepository,times(1)).save(any(PaymentModel.class));
   
-    assertEquals(pay.id(), paymentCreator.getId());
-    assertEquals(pay.reservation().id(), paymentCreator.getReservation().getId());
+    assertEquals(pay.getId(), paymentCreator.getId());
+    assertEquals(pay.getReservation().getId(), paymentCreator.getReservation().getId());
     assertNotEquals(paymentCreator2.getPaymentMethod(), paymentCreator.getPaymentMethod());
   }
 
@@ -274,7 +279,7 @@ void Test_update_by_id_payment_error(){
   paymentCreator.setId(1L);
   PaymentModel paymentCreator2=PaymentCreator.createModelPayment2().getPaymentModel();
   paymentCreator2.setId(paymentCreator.getId());
-  PaymentDto paymentCreatorDto =new PaymentDto(paymentCreator2);
+  PaymentDto paymentCreatorDto =modelMapper.map(paymentCreator2,PaymentDto.class);
   
   when(paymentRepository.findById(id)).thenThrow(ResourceNotFoundException.class);
 
@@ -299,9 +304,9 @@ void Test_update_by_id_payment_error(){
  
         verify(paymentRepository,times(1)).findById(paymentCreator.getId());
         
-        assertEquals(paymentDto.id(), paymentCreator.getId());
-        assertEquals(paymentDto.reservation().id(), paymentCreator.getReservation().getId());
-        assertEquals(paymentDto.total_payment(), paymentCreator.getTotal_payment());
+        assertEquals(paymentDto.getId(), paymentCreator.getId());
+        assertEquals(paymentDto.getReservation().getId(), paymentCreator.getReservation().getId());
+        assertEquals(paymentDto.getTotal_payment(), paymentCreator.getTotal_payment());
     }
 
     @Test

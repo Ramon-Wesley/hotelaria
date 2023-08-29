@@ -63,26 +63,19 @@ public class ReservationServiceIMP implements ReservationService {
 
     @Override
     public ReservationDto createReservation(ReservationDto reservationDto){
-           ClientModel clientModel=clientRepository.findById(reservationDto.client().id())
-           .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", reservationDto.client().id()));
+           clientRepository.findById(reservationDto.getClient().getId())
+           .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", reservationDto.getClient().getId()));
            
-           if(!reservationDto.client().equals(clientModel)){
-            throw new GeralException("As informações do cliente não é compativel");
-           }
-
-           RoomModel roomModel=roomRepository.findById(reservationDto.room().id())
-           .orElseThrow(()->new ResourceNotFoundException("quarto", "id",reservationDto.room().id()));  
+           RoomModel roomModel=roomRepository.findById(reservationDto.getRoom().getId())
+           .orElseThrow(()->new ResourceNotFoundException("quarto", "id",reservationDto.getRoom().getId()));  
            
-           if(!reservationDto.room().equals(roomModel)){
-            throw new GeralException("As informacoes do quarto não é compativel");
-           }
-
-           boolean result=reservationRepository.hasConflictingReservations(roomModel.getId(),reservationDto.checkInDate(), reservationDto.checkOutDate());
+           boolean result=reservationRepository.hasConflictingReservations(roomModel.getId(),reservationDto.getCheckInDate(), reservationDto.getCheckOutDate());
            if(result){
             throw new GeralException("Datas inconpativeis");
            }
            
-           ReservationModel reservationModel=new ReservationModel(null,reservationDto);
+           ReservationModel reservationModel=modelMapper.map(reservationDto,ReservationModel.class);
+
            reservationModel.setStatus(StatusEnum.PENDING);
            reservationModel.setTotal_pay(totalPrice(reservationModel.getCheckInDate(), reservationModel.getCheckOutDate(), reservationModel.getRoom().getPrice()));
            ReservationModel resultModel=reservationRepository.save(reservationModel);
@@ -90,8 +83,8 @@ public class ReservationServiceIMP implements ReservationService {
              
                EmailModel email=new EmailModel();
                email.setEmailFrom(MailConstants.BASIC_EMAIL);
-               email.setEmailTo(resultDto.client().email());
-               email.setSubject(resultDto.room().hotel().name());
+               email.setEmailTo(resultDto.getClient().getEmail());
+               email.setSubject(resultDto.getRoom().getHotel().getName());
                email.setText(MailConstants.MESSAGE_RESERVATION);
                emailServiceIMP.sendEmail(email,resultDto,MailConstants.RESERVATION);
                
@@ -105,26 +98,26 @@ public class ReservationServiceIMP implements ReservationService {
               public ReservationDto updateReservation(Long id, ReservationDto reservationDto) {
        ReservationModel reservationModel=reservationRepository.findById(id).orElseThrow(()->
        new ResourceNotFoundException("Reservas","id",id));
-        ClientModel clientModel=clientRepository.findById(reservationDto.client().id())
-           .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", reservationDto.client().id()));
+        ClientModel clientModel=clientRepository.findById(reservationDto.getClient().getId())
+           .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", reservationDto.getClient().getId()));
            
-           if(!reservationDto.client().equals(clientModel)){
+           if(!reservationDto.getClient().equals(clientModel)){
             throw new GeralException("As informações do cliente não é compativel");
            }
 
-           RoomModel roomModel=roomRepository.findById(reservationDto.room().id())
-           .orElseThrow(()->new ResourceNotFoundException("quarto", "id",reservationDto.room().id()));  
+           RoomModel roomModel=roomRepository.findById(reservationDto.getRoom().getId())
+           .orElseThrow(()->new ResourceNotFoundException("quarto", "id",reservationDto.getRoom().getId()));  
            
-           if(!reservationDto.room().equals(roomModel)){
+           if(!reservationDto.getRoom().equals(roomModel)){
             throw new GeralException("As informacoes do quarto não é compativel");
            }
 
-           boolean result=reservationRepository.hasConflictingReservations(roomModel.getId(),reservationDto.checkInDate(), reservationDto.checkOutDate());
+           boolean result=reservationRepository.hasConflictingReservations(roomModel.getId(),reservationDto.getCheckInDate(), reservationDto.getCheckOutDate());
            if(result){
             throw new GeralException("Datas conflitantes!");
            }
            
-           reservationModel=new ReservationModel(reservationModel.getId(),reservationDto);
+           reservationModel=modelMapper.map(reservationDto,ReservationModel.class);
            reservationModel.setTotal_pay(totalPrice(reservationModel.getCheckInDate(), reservationModel.getCheckOutDate(), reservationModel.getRoom().getPrice()));
            
            ReservationModel resultModel=reservationRepository.save(reservationModel);
@@ -132,8 +125,8 @@ public class ReservationServiceIMP implements ReservationService {
              
                EmailModel email=new EmailModel();
                email.setEmailFrom(MailConstants.BASIC_EMAIL);
-               email.setEmailTo(resultDto.client().email());
-               email.setSubject(resultDto.room().hotel().name());
+               email.setEmailTo(resultDto.getClient().getEmail());
+               email.setSubject(resultDto.getRoom().getHotel().getName());
                email.setText(MailConstants.MESSAGE_RESERVATION);
                emailServiceIMP.sendEmail(email,resultDto,MailConstants.RESERVATION);
                

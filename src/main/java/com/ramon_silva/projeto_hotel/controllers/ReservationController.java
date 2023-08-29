@@ -38,7 +38,7 @@ public class ReservationController {
     public ResponseEntity<ReservationDto> create(@Valid @RequestBody ReservationDto reservationDto,
     UriComponentsBuilder uriComponentsBuilder){
         ReservationDto reservationDto2=reservationServiceIMP.createReservation(reservationDto);
-        var uri=uriComponentsBuilder.path("/reserva/{id_reserva}").buildAndExpand(reservationDto2.id()).toUri();
+        var uri=uriComponentsBuilder.path("/reserva/{id_reserva}").buildAndExpand(reservationDto2.getId()).toUri();
         return ResponseEntity.created(uri).body(reservationDto2);
     }
 

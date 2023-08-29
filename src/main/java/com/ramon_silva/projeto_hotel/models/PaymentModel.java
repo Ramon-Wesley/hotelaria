@@ -31,13 +31,7 @@ import lombok.Setter;
 @Setter
 public class PaymentModel {
 
-    public PaymentModel(Long id,PaymentDto paymentDto){
-    this.id=id;
-    this.reservation=new ReservationModel(paymentDto.id(),paymentDto.reservation());
-    this.paymentMethod=paymentDto.paymentMethod();
-    this.status=paymentDto.status();
-    this.total_payment=paymentDto.total_payment();
-    }
+   
  
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
