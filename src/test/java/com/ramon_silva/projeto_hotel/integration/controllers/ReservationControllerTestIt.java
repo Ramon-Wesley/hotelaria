@@ -6,7 +6,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -34,6 +36,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ramon_silva.projeto_hotel.dto.ReservationDatesDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
+import com.ramon_silva.projeto_hotel.dto.Reservation_serviceDto;
+import com.ramon_silva.projeto_hotel.dto.ServicesDto;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.models.AddressModel;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
@@ -42,16 +46,19 @@ import com.ramon_silva.projeto_hotel.models.HotelModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.models.Reservation_serviceModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
+import com.ramon_silva.projeto_hotel.models.ServicesModel;
 import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
 import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
 import com.ramon_silva.projeto_hotel.repositories.RoomRepository;
+import com.ramon_silva.projeto_hotel.repositories.ServicesRepository;
 import com.ramon_silva.projeto_hotel.services.EmailServiceIMP;
 import com.ramon_silva.projeto_hotel.util.AddressCreator;
 import com.ramon_silva.projeto_hotel.util.ClientCreator;
 import com.ramon_silva.projeto_hotel.util.HotelCreator;
 import com.ramon_silva.projeto_hotel.util.ReservationCreator;
 import com.ramon_silva.projeto_hotel.util.RoomCreator;
+import com.ramon_silva.projeto_hotel.util.ServiceCreator;
 
 import jakarta.transaction.Transactional;
 
@@ -79,6 +86,9 @@ public class ReservationControllerTestIt {
     @Autowired
     private HotelRepository hotelRepository;
 
+    @Autowired
+    private ServicesRepository servicesRepository;
+
     @MockBean
     private EmailServiceIMP mockEmailService; 
 
@@ -94,7 +104,12 @@ public class ReservationControllerTestIt {
     private AddressModel addressModel;
     private HotelModel hotelModel;
     private RoomModel roomModel;
-    private Set<Reservation_serviceModel> services=new HashSet<>();
+ 
+
+  
+    private List<ServicesModel> servicesModel=new ArrayList<>();
+    private List<ServicesDto> servicesDto=new ArrayList<>();
+    private Set<Reservation_serviceModel> reservation_serviceModels=new HashSet<>();
     private  ReservationModel reservationModelResult;
 
 private ObjectMapper objectMapper=new ObjectMapper();
@@ -136,7 +151,7 @@ void setUp()
         mockMvc.perform(MockMvcRequestBuilders.post("/reserva")
         .contentType(MediaType.APPLICATION_JSON)
         .content(json)
-        ).andDo(MockMvcResultHandlers.log())
+        ).andDo(MockMvcResultHandlers.print())
          .andExpect(MockMvcResultMatchers.status().isCreated())
          .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists());
 
@@ -192,7 +207,132 @@ void Test_success_get_by_id_reservation() throws Exception{
         long id_reservation=reservationModel.getId();
         mockMvc.perform(MockMvcRequestBuilders.get("/reserva/{id_reserva}",id_reservation)
         .contentType(MediaType.APPLICATION_JSON)
-        )  .andExpect(MockMvcResultMatchers.status().isOk());
+        )  .andExpect(MockMvcResultMatchers.status().isOk())
+        .andDo(MockMvcResultHandlers.print());
+}
+
+@Test
+@DisplayName("Reserva com id inexistente")
+void Test_get_by_id_with_reservation_id_not_exists() throws Exception{
+
+        long id_reservation=99L;
+        mockMvc.perform(MockMvcRequestBuilders.get("/reserva/{id_reserva}",id_reservation)
+        .contentType(MediaType.APPLICATION_JSON)
+        )  .andExpect(MockMvcResultMatchers.status().isNotFound());
+}
+
+@Test
+@DisplayName("Atualizar registro com sucesso")
+void Test_success_update_by_id() throws Exception{
+
+   reservationDto=modelMapper.map(reservationModel,ReservationDto.class);
+   reservationDto.setClient(clientModel);
+   String json=objectMapper.writeValueAsString(reservationDto);
+   Long id_reservation=reservationDto.getId();
+    mockMvc.perform(MockMvcRequestBuilders.put("/reserva/{id_reserva}",id_reservation)
+   .contentType(MediaType.APPLICATION_JSON)
+   .content(json)
+   ).andExpect(MockMvcResultMatchers.status().isOk())
+   .andExpect(MockMvcResultMatchers.content().json(json)) 
+   .andReturn();
+}
+
+@Test
+@DisplayName("Atualizar registro com id inexistente")
+void Test_error_update_with_id_not_exists() throws Exception{
+
+   reservationDto=modelMapper.map(reservationModel,ReservationDto.class);
+   reservationDto.setClient(clientModel);
+   String json=objectMapper.writeValueAsString(reservationDto);
+   Long id_reservation=99L;
+    mockMvc.perform(MockMvcRequestBuilders.put("/reserva/{id_reserva}",id_reservation)
+   .contentType(MediaType.APPLICATION_JSON)
+   .content(json)
+   ).andExpect(MockMvcResultMatchers.status().isNotFound())
+   .andExpect(MockMvcResultMatchers.content().json(json)) 
+   .andReturn();
+}
+@Test
+@DisplayName("Atualizar registro com  dados nulos")
+void Test_error_update_with_dates_null() throws Exception{
+
+
+   reservationDto=new ReservationDto(reservationModel.getId(), null, null, null, null, null, null, null);
+   String json=objectMapper.writeValueAsString(reservationDto);
+   Long id_reservation=99L;
+    mockMvc.perform(MockMvcRequestBuilders.put("/reserva/{id_reserva}",id_reservation)
+   .contentType(MediaType.APPLICATION_JSON)
+   .content(json)
+   ).andExpect(MockMvcResultMatchers.status().isBadRequest())
+   .andReturn();
+}
+
+@Test
+@DisplayName("Adicionar servicos com sucesso!")
+void Test_success_add_services() throws Exception{
+   
+   Long id_reservation=reservationModel.getId();
+   servicesModel.stream().forEach((e)->servicesDto.add(modelMapper.map(e, ServicesDto.class)));
+   
+   String json=objectMapper.writeValueAsString(servicesDto);
+
+   mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_reserva}/servicos", id_reservation)
+   .contentType(MediaType.APPLICATION_JSON)
+   .content(json)
+   ).andExpect(MockMvcResultMatchers.status().isOk());
+}
+
+@Test
+@DisplayName("Adicionar servicos com reserva inexistente!")
+void Test_add_services_with_reservation_not_exists() throws Exception{
+   Long id_reservation=99L;
+   servicesModel.stream().forEach((e)->servicesDto.add(modelMapper.map(e, ServicesDto.class)));
+   
+   String json=objectMapper.writeValueAsString(servicesDto);
+
+   mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_reserva}/servicos", id_reservation)
+   .contentType(MediaType.APPLICATION_JSON)
+   .content(json)
+   ).andExpect(MockMvcResultMatchers.status().isNotFound());
+}
+
+@Test
+@DisplayName("Adicionar servicos inexistentes na reserva!")
+void Test_add_services_not_exists() throws Exception{
+   Long id_reservation=reservationModel.getId();
+   servicesModel.stream().forEach((e)->servicesDto.add(modelMapper.map(e, ServicesDto.class)));
+   ServicesDto serviceDto=new ServicesDto(99L, null, null, null);
+   servicesDto.add(serviceDto);
+   String json=objectMapper.writeValueAsString(servicesDto);
+
+   mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_reserva}/servicos", id_reservation)
+   .contentType(MediaType.APPLICATION_JSON)
+   .content(json)
+   ).andExpect(MockMvcResultMatchers.status().isConflict());
+}
+
+@Test
+@DisplayName("deletar servicos na reserva!")
+void Test_delete_by_id_reservation_services() throws Exception{
+   servicesModel.stream().forEach((e)->reservation_serviceModels
+   .add(new Reservation_serviceModel(reservationModel,e)));
+   reservationModel.setReservation_service(reservation_serviceModels);
+   reservationRepository.save(reservationModel);
+   Long id_reservation=reservationModel.getId();
+   Long id_service=reservationModel.getReservation_service().iterator().next().getId();
+   mockMvc.perform(MockMvcRequestBuilders.delete("/reserva/{id_reserva}/servicos/{id_servico}", id_reservation,id_service)
+   .contentType(MediaType.APPLICATION_JSON)
+   ).andExpect(MockMvcResultMatchers.status().isOk());
+}
+
+@Test
+@DisplayName("deletar servicos inexistente!")
+void Test_delete_by_id_reservation_services_not_exists() throws Exception{
+   Long id_reservation=reservationModel.getId();
+long id_service=99L;
+   mockMvc.perform(MockMvcRequestBuilders.delete("/reserva/{id_reserva}/servicos/{id_servico}", id_reservation,id_service)
+   .contentType(MediaType.APPLICATION_JSON)
+   ).andExpect(MockMvcResultMatchers.status().isConflict());
 }
 
 
@@ -231,8 +371,8 @@ void Test_success_get_by_id_reservation() throws Exception{
   reservationModel=ReservationCreator.newReservationModel();
   reservationModel.setClient(clientModel);
   reservationModel.setRoom(roomModel);
-  reservationModel.setStatus(StatusEnum.PENDING);
   reservationModel=reservationRepository.save(reservationModel);
+  
 
 
      }
@@ -268,7 +408,9 @@ void Test_success_get_by_id_reservation() throws Exception{
   roomModel=roomRepository.save(roomModel);
 
 
-
+   servicesModel = servicesRepository.saveAll(ServiceCreator.getServices());
+   
+   
 
      }
 

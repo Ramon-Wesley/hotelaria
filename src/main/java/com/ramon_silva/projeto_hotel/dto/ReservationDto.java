@@ -44,6 +44,7 @@ public class ReservationDto{
     private LocalDate checkOutDate;
     
 
+    @NotNull
     private StatusEnum status;
 
 

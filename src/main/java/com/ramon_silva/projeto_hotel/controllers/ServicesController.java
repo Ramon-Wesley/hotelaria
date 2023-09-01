@@ -33,7 +33,7 @@ public class ServicesController {
     @PostMapping
     public ResponseEntity<ServicesDto> create(@RequestBody ServicesDto service,UriComponentsBuilder uriBuilder){
         ServicesDto servicesDto=servicesServiceIMP.create(service);
-        var uri=uriBuilder.path("/services/{id}").buildAndExpand(servicesDto.id()).toUri();
+        var uri=uriBuilder.path("/services/{id}").buildAndExpand(servicesDto.getId()).toUri();
         return ResponseEntity.created(uri).body(servicesDto);
         
     }

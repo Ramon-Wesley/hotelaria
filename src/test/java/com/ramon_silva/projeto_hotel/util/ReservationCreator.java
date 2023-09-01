@@ -24,7 +24,7 @@ public class ReservationCreator {
         RoomModel roomModel=RoomCreator.newModelRoom();
         double total_pay=calculateTotalPay(daysDifference, roomModel.getPrice());
         roomModel.setId(1L);
-        return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.CONFIRM,total_pay,Reservation_serviceCreator.getModelReservation_service());
+        return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.CONFIRM,total_pay,null);
     }
 
     public static ReservationModel newReservationModel2(){
@@ -35,7 +35,7 @@ public class ReservationCreator {
         RoomModel roomModel=RoomCreator.newModelRoom2();
         roomModel.setId(2L);
         double total_pay=calculateTotalPay(daysDifference, roomModel.getPrice());
-        return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.PENDING,total_pay ,Reservation_serviceCreator.getModelReservation_service());
+        return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.PENDING,total_pay ,null);
     }
 
      public static ReservationModel newReservationModel3(){
@@ -46,7 +46,7 @@ public class ReservationCreator {
         RoomModel roomModel=RoomCreator.newModelRoom();
         roomModel.setId(1L);
         double total_pay=calculateTotalPay(daysDifference, roomModel.getPrice());
-        return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.PENDING,total_pay ,Reservation_serviceCreator.getModelReservation_service());
+        return new ReservationModel(null, clientModel, roomModel,oneWeekLater, oneWeekFiveDaysLater, StatusEnum.PENDING,total_pay ,null);
     }
         
         private static long calculateDaysDifference(LocalDate startDate, LocalDate endDate) {

@@ -1,14 +1,22 @@
 package com.ramon_silva.projeto_hotel.dto;
 
-import com.ramon_silva.projeto_hotel.models.ServicesModel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record ServicesDto(
-Long id,
-String name,
-String type_service,
-Double price
-) {
-    public ServicesDto(ServicesModel service){
-        this(service.getId(),service.getName(), service.getType_service(), service.getPrice());
-    }
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class ServicesDto{
+private Long id;
+private String name;
+private String type_service;
+private Double price;
+
+    
+
 }

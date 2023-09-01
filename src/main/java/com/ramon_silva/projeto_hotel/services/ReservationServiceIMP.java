@@ -2,6 +2,7 @@ package com.ramon_silva.projeto_hotel.services;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -18,6 +19,7 @@ import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDatesDto;
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.dto.Reservation_serviceDto;
+import com.ramon_silva.projeto_hotel.dto.ServicesDto;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.ClientModel;
@@ -76,7 +78,6 @@ public class ReservationServiceIMP implements ReservationService {
            
            ReservationModel reservationModel=modelMapper.map(reservationDto,ReservationModel.class);
 
-           reservationModel.setStatus(StatusEnum.PENDING);
            reservationModel.setTotal_pay(totalPrice(reservationModel.getCheckInDate(), reservationModel.getCheckOutDate(), reservationModel.getRoom().getPrice()));
            ReservationModel resultModel=reservationRepository.save(reservationModel);
            ReservationDto resultDto=modelMapper.map(resultModel,ReservationDto.class);
@@ -96,24 +97,22 @@ public class ReservationServiceIMP implements ReservationService {
               
               @Override
               public ReservationDto updateReservation(Long id, ReservationDto reservationDto) {
-       ReservationModel reservationModel=reservationRepository.findById(id).orElseThrow(()->
-       new ResourceNotFoundException("Reservas","id",id));
-        ClientModel clientModel=clientRepository.findById(reservationDto.getClient().getId())
-           .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", reservationDto.getClient().getId()));
+ 
+              ReservationModel reservationModel=reservationRepository.findById(id)
+              .orElseThrow(()->new ResourceNotFoundException("Reserva", 
+               "id", id));
+            
+              clientRepository.findById(reservationDto.getClient().getId())
+              .orElseThrow(()->new ResourceNotFoundException("Cliente", "id", reservationDto.getClient().getId()));
            
-           if(!reservationDto.getClient().equals(clientModel)){
-            throw new GeralException("As informações do cliente não é compativel");
-           }
+          
 
-           RoomModel roomModel=roomRepository.findById(reservationDto.getRoom().getId())
-           .orElseThrow(()->new ResourceNotFoundException("quarto", "id",reservationDto.getRoom().getId()));  
+             RoomModel roomModel=roomRepository.findById(reservationDto.getRoom().getId())
+               .orElseThrow(()->new ResourceNotFoundException("quarto", "id",reservationDto.getRoom().getId()));  
            
-           if(!reservationDto.getRoom().equals(roomModel)){
-            throw new GeralException("As informacoes do quarto não é compativel");
-           }
 
-           boolean result=reservationRepository.hasConflictingReservations(roomModel.getId(),reservationDto.getCheckInDate(), reservationDto.getCheckOutDate());
-           if(result){
+           boolean result=reservationRepository.hasConflictingReservationsDatesWithIdNotEquals(id,roomModel.getId(),reservationDto.getCheckInDate(), reservationDto.getCheckOutDate());
+           if(!result){
             throw new GeralException("Datas conflitantes!");
            }
            
@@ -181,12 +180,17 @@ public class ReservationServiceIMP implements ReservationService {
                 }
               
               @Override
-              public void addServices(Long reservation_id,Set<Reservation_serviceDto> reservation_serviceDtos ) {
+              public void addServices(Long reservation_id,List<ServicesDto> servicesDto ) {
 
-                ReservationModel reservationModel=reservationRepository.findById(reservation_id).orElseThrow(()->new ResourceNotFoundException("reserva", "id", reservation_id));
+                ReservationModel reservationModel=reservationRepository.findById(reservation_id)
+                .orElseThrow(()->new ResourceNotFoundException("reserva", "id", reservation_id));
                
-                List<Long> id_services=reservation_serviceDtos.stream()
-                .map(((e)->e.servico().id())).collect(Collectors.toList());
+                if(reservationModel.getStatus()!= StatusEnum.CONFIRM){
+                    throw new GeralException("Confirme a reserva para adicionar servicos! ");
+                }
+
+                List<Long> id_services=servicesDto.stream()
+                .map(((e)->e.getId())).collect(Collectors.toList());
 
                List<ServicesModel> servicesModel=servicesRepository
                .findAllById(id_services);
@@ -194,8 +198,13 @@ public class ReservationServiceIMP implements ReservationService {
                 if( servicesModel.size() != id_services.size()){
                   throw new GeralException("servicos inexistentes! ");
                 }          
-                Set<Reservation_serviceModel> reservation_serviceModel=reservation_serviceDtos.stream()
-                .map((e)->modelMapper.map(e,Reservation_serviceModel.class )).collect(Collectors.toSet());
+
+                Set<Reservation_serviceModel> reservation_serviceModel=new HashSet<>();
+                   servicesModel.stream().forEach((services)->reservation_serviceModel.add(
+                    new Reservation_serviceModel( reservationModel, services)
+                   ));
+                     
+          
                 reservationModel.setReservation_service(reservation_serviceModel);
                
                 reservationRepository.save(reservationModel);
@@ -217,6 +226,9 @@ public class ReservationServiceIMP implements ReservationService {
     @Override
     public void removeServices(Long reservation_id,Long service_id) {
       ReservationModel reservationModel=reservationRepository.findById(reservation_id).orElseThrow(()->new ResourceNotFoundException("reserva", "id", reservation_id));
+     if(reservationModel.getReservation_service().isEmpty()){
+        throw new GeralException("não há serviços vinculados a reserva!");
+      }
       Reservation_serviceModel service=reservationModel
       .getReservation_service().stream()
       .filter(value->value.getId() == service_id)

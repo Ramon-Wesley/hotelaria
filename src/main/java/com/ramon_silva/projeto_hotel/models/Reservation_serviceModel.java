@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
+
 public class Reservation_serviceModel {
     
     @Id
@@ -39,8 +41,12 @@ public class Reservation_serviceModel {
     @NotNull
     private ServicesModel servico;
 
-    @NotNull
+    
     @Column(name = "data_pedido")
     private LocalDateTime service_hour=LocalDateTime.now();
 
+    public Reservation_serviceModel(ReservationModel reservationModel, ServicesModel servicesModel){
+        this.servico=servicesModel;
+        this.reservation=reservationModel;
+    }
 }

@@ -28,13 +28,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ServicesModel {
-    
-    public ServicesModel(Long id,ServicesDto service){
-        this.id=id;
-        this.name=service.name();
-        this.price=service.price();
-        this.type_service=service.type_service();
-    }
+ 
+ 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
