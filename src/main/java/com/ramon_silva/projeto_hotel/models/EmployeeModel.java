@@ -91,17 +91,6 @@ public class EmployeeModel {
     @Column(name="situacao")
     private Boolean situation;
 
-    public EmployeeModel(Long id,EmployeeDto employeeDto){
-        this.id=id;
-        this.name=employeeDto.name();
-        this.phone=employeeDto.phone();
-        this.office=new OfficesModel(employeeDto.office());
-        this.remunaration=employeeDto.remunaration();
-        this.email=employeeDto.email();
-        this.address=new AddressModel(null,employeeDto.address());
-        this.contractDate=employeeDto.contractDate();
-        this.shutdownDate=employeeDto.shutdownDate();
-        this.situation=employeeDto.situation();
-    }
+
     
 }

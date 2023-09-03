@@ -22,11 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+
 import com.ramon_silva.projeto_hotel.controllers.HotelController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -47,6 +50,9 @@ private HotelController hotelController;
 @Mock
 private HotelServiceIMP hotelServiceIMP;
 
+@Autowired
+private ModelMapper modelMapper=new ModelMapper();
+
 private HotelDto hotelDto;
 
 private HotelModel hotelModel;
@@ -61,10 +67,10 @@ public void setUp(){
 void Test_create_hotel_controller_success(){
 
   hotelModel =HotelCreator.newModelHotel();
-  hotelDto=new HotelDto(hotelModel);
+  hotelDto=modelMapper.map(hotelModel,HotelDto.class);
   hotelModel.setId(1L);
   hotelModel.getAddress().setId(1L);
-  HotelDto hotelDto2=new HotelDto(hotelModel);
+  HotelDto hotelDto2=modelMapper.map(hotelModel,HotelDto.class);
   
   when(hotelServiceIMP.create(any(HotelDto.class))).thenReturn(hotelDto2);
 
@@ -72,8 +78,8 @@ void Test_create_hotel_controller_success(){
 
         verify(hotelServiceIMP,times(1)).create(any(HotelDto.class));
          assertNotNull(response.getBody());
-         assertNotNull(response.getBody().id());
-         assertNotNull(response.getBody().address().id());
+         assertNotNull(response.getBody().getId());
+         assertNotNull(response.getBody().getAddress().getId());
          assertEquals(response.getStatusCode(),HttpStatus.CREATED);
 }
 
@@ -81,7 +87,7 @@ void Test_create_hotel_controller_success(){
 @DisplayName("Criar Hotel com cnpj ou email iguais ")
 void Test_create_hotel_with_dates_empty(){
   hotelModel =HotelCreator.newModelHotel();
-  hotelDto=new HotelDto(hotelModel);
+  hotelDto=modelMapper.map(hotelModel,HotelDto.class);
 
 
   when(hotelServiceIMP.create(hotelDto)).thenThrow(GeralException.class);
@@ -97,38 +103,38 @@ void Test_update_hoteis_by_id(){
   hotelModel.setId(1L);
   hotelModel.getAddress().setId(1L);
 
-  hotelDto=new HotelDto(hotelModel);
+  hotelDto=modelMapper.map(hotelModel,HotelDto.class);
 
   hotelModel.setName("mudados");
   hotelModel.setPhone("(11)11111-11111");
   
-  HotelDto hotelDto2=new HotelDto(hotelModel);
+  HotelDto hotelDto2=modelMapper.map(hotelModel,HotelDto.class);
 
   
-  when(hotelServiceIMP.updateById(eq(hotelDto.id()), any(HotelDto.class))).thenReturn(hotelDto2);
+  when(hotelServiceIMP.updateById(eq(hotelDto.getId()), any(HotelDto.class))).thenReturn(hotelDto2);
 
-  ResponseEntity<HotelDto> response=hotelController.updateById(hotelDto.id(), hotelDto2);
+  ResponseEntity<HotelDto> response=hotelController.updateById(hotelDto.getId(), hotelDto2);
     
-  verify(hotelServiceIMP, times(1)).updateById(eq(hotelDto.id()), any(HotelDto.class));
+  verify(hotelServiceIMP, times(1)).updateById(eq(hotelDto.getId()), any(HotelDto.class));
 
   assertEquals(HttpStatus.OK, response.getStatusCode());
-  assertEquals(hotelDto.id(), response.getBody().id());
-  assertNotEquals(hotelDto.phone(), response.getBody().phone());
-  assertNotEquals(hotelDto.name(), response.getBody().name());
+  assertEquals(hotelDto.getId(), response.getBody().getId());
+  assertNotEquals(hotelDto.getPhone(), response.getBody().getPhone());
+  assertNotEquals(hotelDto.getName(), response.getBody().getName());
 
 }
 
 @Test
 @DisplayName("Atualizar Hotels com cnpj ou email ja cadastrados")
-void Test_update_client_by_id_with_cpf_or_email_exists(){
+void Test_update_hotel_by_id_with_cpf_or_email_exists(){
    hotelModel =HotelCreator.newModelHotel();
    hotelModel.setId(1L);
    hotelModel.getAddress().setId(1L);
 
-  hotelDto=new HotelDto(hotelModel);
-  when(hotelServiceIMP.updateById(eq(hotelDto.id()), any(HotelDto.class))).thenThrow(GeralException.class);
-  assertThrows(GeralException.class,()->hotelController.updateById(hotelDto.id(), hotelDto));    
-  verify(hotelServiceIMP, times(1)).updateById(eq(hotelDto.id()), any(HotelDto.class));
+  hotelDto=modelMapper.map(hotelModel,HotelDto.class);
+  when(hotelServiceIMP.updateById(eq(hotelDto.getId()), any(HotelDto.class))).thenThrow(GeralException.class);
+  assertThrows(GeralException.class,()->hotelController.updateById(hotelDto.getId(), hotelDto));    
+  verify(hotelServiceIMP, times(1)).updateById(eq(hotelDto.getId()), any(HotelDto.class));
 
 }
 
@@ -139,7 +145,7 @@ void Test_update_hotel_by_nonexist_id(){
    hotelModel =HotelCreator.newModelHotel();
    hotelModel.setId(1L);
    hotelModel.getAddress().setId(1L);
-  hotelDto=new HotelDto(hotelModel);
+  hotelDto=modelMapper.map(hotelModel,HotelDto.class);
   when(hotelServiceIMP.updateById(eq(id), any(HotelDto.class))).thenThrow(ResourceNotFoundException.class);
   assertThrows(ResourceNotFoundException.class,()->hotelController.updateById(id, hotelDto));    
   verify(hotelServiceIMP, times(1)).updateById(eq(id), any(HotelDto.class));
@@ -178,13 +184,13 @@ void Test_get_hotel_by_id(){
   hotelModel =HotelCreator.newModelHotel();
    hotelModel.setId(1L);
    hotelModel.getAddress().setId(1L);
-  hotelDto=new HotelDto(hotelModel);
+  hotelDto=modelMapper.map(hotelModel,HotelDto.class);
 
-  when(hotelServiceIMP.getById(hotelDto.id())).thenReturn(hotelDto);
+  when(hotelServiceIMP.getById(hotelDto.getId())).thenReturn(hotelDto);
 
-  ResponseEntity<HotelDto> response=hotelController.getById(hotelDto.id());
+  ResponseEntity<HotelDto> response=hotelController.getById(hotelDto.getId());
   
-  verify(hotelServiceIMP,times(1)).getById(hotelDto.id());
+  verify(hotelServiceIMP,times(1)).getById(hotelDto.getId());
   
   assertEquals(HttpStatus.OK,response.getStatusCode());
   assertNotNull(response.getBody());
@@ -218,12 +224,12 @@ void Test_get_all_hoteis(){
    hotelModel.setId(1L);
    hotelModel.getAddress().setId(1L);
 
-   HotelModel clientModel2 =HotelCreator.newModelHotel2();
-   clientModel2.setId(2L);
-   clientModel2.getAddress().setId(2L);
+   HotelModel hotelModel2 =HotelCreator.newModelHotel2();
+   hotelModel2.setId(2L);
+   hotelModel2.getAddress().setId(2L);
 
-        HotelDto hotelDto=new HotelDto(hotelModel);
-        HotelDto hotelDto2=new HotelDto(clientModel2);
+        HotelDto hotelDto=modelMapper.map(hotelModel,HotelDto.class);
+        HotelDto hotelDto2=modelMapper.map(hotelModel2,HotelDto.class);
 
         List<HotelDto> hotelDtos=new ArrayList<>();
         hotelDtos.add(hotelDto);
@@ -235,8 +241,8 @@ void Test_get_all_hoteis(){
         ResponseEntity<PageDto<HotelDto>> response=hotelController.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
         assertEquals(HttpStatus.OK,response.getStatusCode());
-        assertEquals(hotelDtos.size(),response.getBody().getContent().size());
-        assertEquals(hotelDtos.size(),response.getBody().numberOfElements() );
+        assertEquals(hotelDtos.size(),response.getBody().getGetContent().size());
+        assertEquals(hotelDtos.size(),response.getBody().getNumberOfElements() );
         
 }
 
@@ -261,8 +267,8 @@ void Test_get_all_hoteis_empty_list(){
         ResponseEntity<PageDto<HotelDto>> response=hotelController.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
         assertEquals(HttpStatus.OK,response.getStatusCode());
-        assertEquals(hotelDtos.size(),response.getBody().getContent().size());
-        assertEquals(hotelDtos.size(),response.getBody().numberOfElements() );
+        assertEquals(hotelDtos.size(),response.getBody().getGetContent().size());
+        assertEquals(hotelDtos.size(),response.getBody().getNumberOfElements() );
         
 }
 

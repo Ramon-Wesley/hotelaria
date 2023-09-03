@@ -18,7 +18,7 @@ public interface ReservationService {
     public ReservationDto updateReservation(Long id,ReservationDto reservationDto);
     public ReservationDto getReservationById(Long id);
     public PageDto<ReservationDto> getAllReservation(int pageNumber,int pageSize,String sortBy,String sortOrder);
-    public PageDto<Reservation_serviceDto> getAllServicesReservation(Long reservation_id,int pageNumber,int pageSize,String sortBy,String sortOrder);
+    public Set<Reservation_serviceDto> getAllServicesReservation(Long reservation_id);
     public PageDto<Reservation_serviceDto> getAllServicesReservations(int pageNumber,int pageSize,String sortBy,String sortOrder);
     public Reservation_serviceDto getServiceReservationById(Long id_reservation, Long service_id);
     public void addServices(Long reservation_id,List<ServicesDto> reservation_serviceDtos);

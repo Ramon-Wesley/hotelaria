@@ -86,14 +86,10 @@ public class ReservationController {
 
 
     @GetMapping("/{id_reserva}/servicos")
-    public ResponseEntity<PageDto<Reservation_serviceDto>> getAllReservation_service(
-        @PathVariable(name="id_reserva") Long id,
-        @RequestParam(name = "pageNumber",defaultValue = "0")int pageNumber,
-        @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
-        @RequestParam(name = "sortBy",defaultValue = "id")String sortBy,
-        @RequestParam(name = "sortOrder",defaultValue = "desc")String sortOrder
+    public ResponseEntity<Set<Reservation_serviceDto>> getAllReservation_service(
+        @PathVariable(name="id_reserva") Long id
       ){
-        return ResponseEntity.ok().body(reservationServiceIMP.getAllServicesReservation(id, pageNumber, pageSize, sortBy, sortOrder));
+        return ResponseEntity.ok().body(reservationServiceIMP.getAllServicesReservation(id));
       }
 
 

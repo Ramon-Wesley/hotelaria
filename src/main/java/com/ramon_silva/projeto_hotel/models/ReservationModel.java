@@ -45,8 +45,8 @@ public class ReservationModel {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
-    @JoinColumn(name="cliente_id")
-    private ClientModel client;
+    @JoinColumn(name="hospede_id")
+    private GuestModel guest;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY,optional = false)

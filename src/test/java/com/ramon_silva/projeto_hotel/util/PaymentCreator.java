@@ -17,7 +17,7 @@ public class PaymentCreator{
     private EmailReturn emailReturn;
 
     @Autowired
-    private static ModelMapper modelMapper;
+    private static ModelMapper modelMapper=new ModelMapper();
 
     private PaymentCreator(PaymentModel paymentModel, EmailReturn emailReturn) {
         this.paymentModel = paymentModel;
@@ -91,7 +91,7 @@ public class PaymentCreator{
     private static EmailReturn createEmailReturn(PaymentDto resultDto) {
         EmailModel emailModel = new EmailModel();
         emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
-        emailModel.setEmailTo(resultDto.getReservation().getClient().getEmail());
+        emailModel.setEmailTo(resultDto.getReservation().getGuest().getEmail());
         emailModel.setText(MailConstants.MESSAGE_PAYMENT);
         emailModel.setSubject(resultDto.getReservation().getRoom().getHotel().getName());
     

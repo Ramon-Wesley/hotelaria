@@ -3,6 +3,7 @@ package com.ramon_silva.projeto_hotel.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,21 +24,25 @@ public class RoomServiceIMP implements RoomService {
 
     private final RoomRepository roomRepository;
     private final HotelRepository hotelRepository;
+    private final ModelMapper modelMapper;
 
-    private RoomServiceIMP(RoomRepository roomRepository,HotelRepository hotelRepository){
+    private RoomServiceIMP(RoomRepository roomRepository,HotelRepository hotelRepository,ModelMapper modelMapper){
         this.roomRepository=roomRepository;
         this.hotelRepository=hotelRepository;
+        this.modelMapper=modelMapper;
     }
     
     @Override
-    public RoomDto create(RoomDto room,Long hotel_id) {
-        HotelModel hotel=hotelRepository.findById(hotel_id).orElseThrow(()-> new ResourceNotFoundException("Hotel", "id", hotel_id));
+    public RoomDto create(RoomDto room) {
+        HotelModel hotel=hotelRepository.findById(room.getHotel().getId())
+        .orElseThrow(()-> 
+        new ResourceNotFoundException("Hotel", "id", room.getHotel().getId()));
 
-        RoomModel roomModel=new RoomModel(null,room);
+        RoomModel roomModel=modelMapper.map(room,RoomModel.class);
         roomModel.setHotel(hotel);
         RoomModel result=roomRepository.save(roomModel);
 
-        return new RoomDto(result);
+        return modelMapper.map(result,RoomDto.class);
     }
 
     @Override
@@ -45,7 +50,7 @@ public class RoomServiceIMP implements RoomService {
         Sort sort =sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
         Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
         Page<RoomModel> page=roomRepository.findAll(pageable);
-        List<RoomDto> roomDtos=page.getContent().stream().map(RoomDto::new).collect(Collectors.toList());
+        List<RoomDto> roomDtos=page.getContent().stream().map((result)->modelMapper.map(result,RoomDto.class)).collect(Collectors.toList());
         PageDto<RoomDto> pageDto=new PageDto<>(roomDtos,page.getNumber(), page.getNumberOfElements(), page.getSize(),
         page.getTotalPages(), page.getTotalElements());
         return pageDto;
@@ -55,16 +60,16 @@ public class RoomServiceIMP implements RoomService {
     public RoomDto getById(Long id) {
        RoomModel roomModel=roomRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Quartos", "id", id));
 
-       return new RoomDto(roomModel);
+       return modelMapper.map(roomModel,RoomDto.class);
     }
 
     @Override
     public RoomDto updateById(Long id, RoomDto room) {
         roomRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Quartos", "id", id));
 
-        RoomModel roomModel=roomRepository.save(new RoomModel(id,room));
+        RoomModel roomModel=roomRepository.save(modelMapper.map(room,RoomModel.class));
 
-        return new RoomDto(roomModel);
+        return modelMapper.map(roomModel,RoomDto.class);
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.ramon_silva.projeto_hotel.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,15 +21,17 @@ public class AddressServiceIMP implements AddressService{
 
 
     private final AddressRepository addressRepository;
+    private ModelMapper modelMapper;
 
-    private AddressServiceIMP(AddressRepository addressRepository){
+    private AddressServiceIMP(AddressRepository addressRepository,ModelMapper modelMapper){
         this.addressRepository=addressRepository;
+        this.modelMapper=modelMapper;
     }
 
     @Override
     public AddressDto create(AddressDto address) {
-        AddressModel addressRes=addressRepository.save(new AddressModel(null,address));
-        return new AddressDto(addressRes);
+        AddressModel addressResult=addressRepository.save(modelMapper.map(address,AddressModel.class));
+        return modelMapper.map(addressResult,AddressDto.class);
     }
 
     @Override
@@ -37,7 +39,7 @@ public class AddressServiceIMP implements AddressService{
       Sort sort=sortOrder.equalsIgnoreCase("desc")? Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
       Pageable pageable= PageRequest.of(pageNumber, pageSize, sort);
       Page<AddressModel> page=addressRepository.findAll(pageable);
-      List<AddressDto> addressDtos=page.getContent().stream().map(AddressDto::new).collect(Collectors.toList());
+      List<AddressDto> addressDtos=page.getContent().stream().map((address)->modelMapper.map(address,AddressDto.class)).collect(Collectors.toList());
 
       PageDto<AddressDto> pageDto=new PageDto<>(addressDtos, page.getNumber(), page.getNumberOfElements(), page.getSize(),
        page.getTotalPages(), page.getTotalElements());
@@ -50,7 +52,7 @@ public class AddressServiceIMP implements AddressService{
     public AddressDto getById(Long id) {
         AddressModel addressModel=addressRepository.findById(id).orElseThrow(() ->
         new ResourceNotFoundException("Endereço", "id", id) );
-    return new AddressDto(addressModel);
+    return modelMapper.map(addressModel,AddressDto.class);
     }
 
     @Override

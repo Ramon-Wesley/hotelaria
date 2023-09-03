@@ -1,6 +1,8 @@
 package com.ramon_silva.projeto_hotel.services;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -45,32 +47,36 @@ public class PaymentServiceIMP implements PaymentService{
 
     @Override
     public PaymentDto payment(PaymentDto paymentDto,Long reservation_id) {   
-  
-            ReservationModel reservationModel= reservationRepository.findById(reservation_id)
-            .orElseThrow
-            (()->new ResourceNotFoundException("Reserva", "id", reservation_id));
-    
-            boolean existsReservation=paymentRepository.existsByReservationId(reservationModel.getId());
+        Optional<PaymentModel> paymentResult=paymentRepository
+        .findByReservationId(reservation_id);
+        
+        if(paymentResult.isPresent()){
+            throw new GeralException("Essa reserva ja esta paga!");
+        }
 
-            if(existsReservation){
-                throw new GeralException(Constants.RESERVATION_CONFLICT);
+            Optional<ReservationModel> reservationModel=
+            reservationRepository.findById(reservation_id);
+            if(!reservationModel.isPresent()){
+                throw new ResourceNotFoundException("reservas","id",reservation_id);
             }
-
-            Double valueService=reservationModel.getReservation_service().stream()
-            .mapToDouble(res->res.getServico().getPrice()).sum();
+             Double valueService=0.0;
+            if(!Objects.requireNonNull(reservationModel.get().getReservation_service()).isEmpty()){
+                valueService=reservationModel.get().getReservation_service().stream()
+                .mapToDouble(res->res.getServico().getPrice()).sum();
+            }
             
-            if(reservationModel.getStatus() == StatusEnum.CONFIRM ){
+            if(reservationModel.get().getStatus() == StatusEnum.CONFIRM ){
                 PaymentModel paymentModel=new PaymentModel();
-                paymentModel.setReservation(reservationModel);
+                paymentModel.setReservation(reservationModel.get());
                 paymentModel.setPaymentMethod(paymentDto.getPaymentMethod());
                 paymentModel.setStatus(StatusEnum.CONFIRM);
-                paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
+                paymentModel.setTotal_payment(reservationModel.get().getTotal_pay()+valueService);
                 PaymentModel result=paymentRepository.save(paymentModel);
                 PaymentDto resultDto= modelMapper.map(result,PaymentDto.class);
     
                 EmailModel emailModel=new EmailModel();
                 emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
-                emailModel.setEmailTo(resultDto.getReservation().getClient().getEmail());
+                emailModel.setEmailTo(resultDto.getReservation().getGuest().getEmail());
                 emailModel.setText(MailConstants.MESSAGE_PAYMENT);
                 emailModel.setSubject(resultDto.getReservation().getRoom().getHotel().getName());
         
@@ -136,7 +142,7 @@ public class PaymentServiceIMP implements PaymentService{
        
                    EmailModel emailModel=new EmailModel();
                    emailModel.setEmailFrom(MailConstants.BASIC_EMAIL);
-                   emailModel.setEmailTo(resultDto.getReservation().getClient().getEmail());
+                   emailModel.setEmailTo(resultDto.getReservation().getGuest().getEmail());
                    emailModel.setText(MailConstants.MESSAGE_PAYMENT);
                    emailModel.setSubject(resultDto.getReservation().getRoom().getHotel().getName());
            

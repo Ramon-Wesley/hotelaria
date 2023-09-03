@@ -2,7 +2,9 @@ package com.ramon_silva.projeto_hotel;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
+@EnableCaching
 @SpringBootApplication
 public class ProjetoHotelApplication {
 
@@ -11,4 +13,3 @@ public class ProjetoHotelApplication {
 	}
 
 }
-//SELECT * FROM `reservas` WHERE data_de_check_in >= 2023-08-25 and data_de_check_out <= 2023-08-25 

@@ -35,7 +35,7 @@ public class HotelController {
     @Transactional
     public ResponseEntity<HotelDto> create(@RequestBody @Valid HotelDto hoteldto,UriComponentsBuilder uriBuilder){
       HotelDto hotel=hotelIMP.create(hoteldto);
-      var uri=uriBuilder.path("/hotel/{id}").buildAndExpand(hotel.id()).toUri();
+      var uri=uriBuilder.path("/hotel/{id}").buildAndExpand(hotel.getId()).toUri();
      return  ResponseEntity.created(uri).body(hotel); 
     }
 

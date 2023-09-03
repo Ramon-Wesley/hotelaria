@@ -1,44 +1,58 @@
 package com.ramon_silva.projeto_hotel.dto;
 
+import java.io.Serializable;
+
 import org.hibernate.validator.constraints.Length;
 
-import com.ramon_silva.projeto_hotel.models.AddressModel;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 
-public record AddressDto(
- 
-    Long id,
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class AddressDto implements Serializable{  
+    @JsonProperty("id")
+    private Long id;
 
+    @JsonProperty("country")
     @NotBlank
     @Length(min=2)
-     String country,
+     private String country;
     
+     @JsonProperty("state")
     @NotBlank
     @Length(min=2)
-     String state,
+     private String state;
 
+     @JsonProperty("zapcode")
     @NotBlank
     @Length(min = 10)
-     String zapCode,
+     private String zapCode;
 
+     @JsonProperty("city")
     @NotBlank
     @Length(min = 2)
-     String city,
+    private  String city;
 
+    @JsonProperty("neighbothood")
     @NotBlank
-     String neighborhood,
+     private String neighborhood;
     
+     @JsonProperty("number")
     @NotBlank
-     String number,
+     private String number;
 
-     String complemement
-) {
-    public AddressDto (AddressModel address){
-        this(address.getId(), address.getCountry(), address.getState(), 
-        address.getZapCode(), address.getCity(), address.getNeighborhood(), address.getNumber(), 
-        address.getComplemement());
-    }
+     @JsonProperty("complement")
+     private String complemement;
+
 }

@@ -13,58 +13,59 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.ramon_silva.projeto_hotel.dto.ClientDto;
+import com.ramon_silva.projeto_hotel.dto.GuestDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
-import com.ramon_silva.projeto_hotel.services.ClientServiceIMP;
+import com.ramon_silva.projeto_hotel.services.GuestServiceIMP;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
 @RestController
-@RequestMapping("/clientes")
-public class ClientController {
+@RequestMapping("/hospedes")
+public class GuestController {
     
-    private final ClientServiceIMP clientServiceIMP;
-    public ClientController(ClientServiceIMP clientServiceIMP){
-        this.clientServiceIMP=clientServiceIMP;
+    private final GuestServiceIMP guestServiceIMP;
+    public GuestController(GuestServiceIMP guestServiceIMP){
+        this.guestServiceIMP=guestServiceIMP;
     }
 
 
     @PostMapping
     @Transactional
-    public ResponseEntity<ClientDto> create(@RequestBody @Valid ClientDto client,UriComponentsBuilder uriBuilder){
-        ClientDto clientDto=clientServiceIMP.create(client);
-        var uri=uriBuilder.path("/clientes/{id}").buildAndExpand(clientDto.id()).toUri();
-        return ResponseEntity.created(uri).body(clientDto);
+    public ResponseEntity<GuestDto> create(@RequestBody @Valid GuestDto guest,UriComponentsBuilder uriBuilder){
+        GuestDto guestDto=guestServiceIMP.create(guest);
+        var uri=uriBuilder.path("/guestes/{id}").buildAndExpand(guestDto.getId()).toUri();
+        return ResponseEntity.created(uri).body(guestDto);
     }
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<ClientDto> updateById(@PathVariable(name="id")@Positive Long id, @RequestBody @Valid ClientDto client){
-        return ResponseEntity.ok().body(clientServiceIMP.updateById(id, client));
+    public ResponseEntity<GuestDto> updateById(@PathVariable(name="id")@Positive Long id, @RequestBody @Valid GuestDto guest){
+        
+        return ResponseEntity.ok().body(guestServiceIMP.updateById(id, guest));
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Void> deleteById(@PathVariable(name="id") @Positive Long id){
-        clientServiceIMP.deleteById(id);
+        guestServiceIMP.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getById(@PathVariable(name="id") @Positive Long id){
-        return ResponseEntity.ok().body(clientServiceIMP.getById(id));
+    public ResponseEntity<GuestDto> getById(@PathVariable(name="id") @Positive Long id){
+        return ResponseEntity.ok().body(guestServiceIMP.getById(id));
     }
 
     @GetMapping
-    public ResponseEntity<PageDto<ClientDto>> getAll(
+    public ResponseEntity<PageDto<GuestDto>> getAll(
         @RequestParam(name = "pageNumber",defaultValue = "0")int pageNumber,
         @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
         @RequestParam(name = "sortBy",defaultValue = "id")String sortBy,
         @RequestParam(name = "sortOrder",defaultValue = "desc")String sortOrder
 
     ){
-        return ResponseEntity.ok().body(clientServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder));
+        return ResponseEntity.ok().body(guestServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder));
     }
 }

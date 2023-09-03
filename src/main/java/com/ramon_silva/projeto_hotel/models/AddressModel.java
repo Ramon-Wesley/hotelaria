@@ -27,16 +27,7 @@ import lombok.Setter;
 public class AddressModel {
 
 
-    public AddressModel(Long id,AddressDto address){
-        this.id=id;
-        this.country=address.country();
-        this.state=address.state();
-        this.zapCode=address.zapCode();
-        this.city=address.city();
-        this.neighborhood=address.neighborhood();
-        this.number=address.number();
-        this.complemement=address.complemement();
-    }
+   
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

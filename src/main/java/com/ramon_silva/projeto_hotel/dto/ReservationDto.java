@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
-import com.ramon_silva.projeto_hotel.models.ClientModel;
+import com.ramon_silva.projeto_hotel.models.GuestModel;
 import com.ramon_silva.projeto_hotel.models.Reservation_serviceModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
 
@@ -26,13 +26,13 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class ReservationDto{
 
-      private Long id;
+    private Long id;
 
     @NotNull
-    private ClientModel client;
+    private GuestDto guest;
 
     @NotNull
-    private RoomModel room;
+    private RoomDto room;
 
     
     @Future

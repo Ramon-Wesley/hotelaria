@@ -3,6 +3,7 @@ package com.ramon_silva.projeto_hotel.services;
 
 import java.io.ByteArrayOutputStream;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -30,25 +31,27 @@ public class EmailServiceIMP  implements EmailService{
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
     private final EmailRepository emailRepository;
+    private final ModelMapper modelMapper;
 
     private EmailServiceIMP(JavaMailSender javaMailSender,
-    TemplateEngine templateEngine,EmailRepository emailRepository){
+    TemplateEngine templateEngine,EmailRepository emailRepository,ModelMapper modelMapper){
         this.javaMailSender=javaMailSender;
         this.templateEngine=templateEngine;
         this.emailRepository=emailRepository;
+        this.modelMapper=modelMapper;
     }
     
     @Override
     public void sendEmail(EmailModel emailModel,Object object,String typeEmail){
      try {
-         EmailDto emailDto=new EmailDto(emailModel);
+         EmailDto emailDto=modelMapper.map(emailModel,EmailDto.class);
 
          MimeMessage mimeMessage=javaMailSender.createMimeMessage();
          MimeMessageHelper helper=new MimeMessageHelper(mimeMessage, true, "utf-8");
 
          Context context=new Context();
-         context.setVariable("name_email", emailDto.owerRef());
-         context.setVariable("text", emailDto.text());
+         context.setVariable("name_email", emailDto.getOwerRef());
+         context.setVariable("text", emailDto.getText());
 
          if(typeEmail != MailConstants.CANCEL){
              String emailBody= this.generatedTemplate(context, typeEmail,object);
@@ -57,9 +60,9 @@ public class EmailServiceIMP  implements EmailService{
             }
 
          String email=templateEngine.process("EmailTemplate",context);
-         helper.setTo(emailDto.emailTo());
-         helper.setFrom(emailDto.emailFrom());
-         helper.setSubject(emailDto.subject());
+         helper.setTo(emailDto.getEmailTo());
+         helper.setFrom(emailDto.getEmailFrom());
+         helper.setSubject(emailDto.getSubject());
          helper.setText(email,true);
          javaMailSender.send(mimeMessage);
          emailModel.setStatusEmail(StatusEmailEnum.SEND);

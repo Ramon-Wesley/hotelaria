@@ -7,6 +7,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,6 +43,9 @@ private MockMvc mockMvc;
 @Autowired
 private HotelRepository hotelRepository;
 
+@Autowired
+private ModelMapper modelMapper;
+
 private ObjectMapper objectJson=new ObjectMapper();
 
 private HotelDto hotelDto;
@@ -68,7 +72,7 @@ public void setDown(){
     @Test
     @DisplayName("Rota para salvar um novo HOTEL!")
     void Test_create_new_hotel() throws Exception {
-        hotelDto=new HotelDto(HotelCreator.newModelHotel2());
+        hotelDto=modelMapper.map(HotelCreator.newModelHotel2(),HotelDto.class);
         String hotelJson = objectJson.writeValueAsString(hotelDto);
 
         this.mockMvc.perform(MockMvcRequestBuilders.post("/hotel")
@@ -76,8 +80,8 @@ public void setDown(){
                  .content(hotelJson))
                  .andExpect(MockMvcResultMatchers.status().isCreated())
                  .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
-                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(hotelDto.name()))  
-                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(hotelDto.email()))  
+                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(hotelDto.getName()))  
+                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(hotelDto.getEmail()))  
                  .andDo(MockMvcResultHandlers.print());
       
     }
@@ -85,7 +89,7 @@ public void setDown(){
 
     @Test
     @DisplayName("Tentar criar um hotel com os dados vazios ou nulos")
-    void Test_create_new_client_with_dates_null_or_empty() throws Exception {
+    void Test_create_new_hotel_with_dates_null_or_empty() throws Exception {
         hotelDto=new HotelDto(null, null, null, null, null, null, 0, null);
         String hotelInvalidJson=objectJson.writeValueAsString(hotelDto);
   
@@ -99,7 +103,7 @@ public void setDown(){
     @Test
     @DisplayName("Tentar criar um novo hotel com um email ou um cnpj ja cadastrado")
     void Test_create_new_hotel_with_exists_email_or_with_cnpj() throws Exception{
-     hotelDto=new HotelDto(HotelCreator.newModelHotel());
+     hotelDto=modelMapper.map(HotelCreator.newModelHotel(),HotelDto.class);;
      String hotelJson=objectJson.writeValueAsString(hotelDto);
    
 
@@ -123,10 +127,10 @@ public void setDown(){
         hotelModel.setPhone(HotelCreator.newModelHotel2().getPhone());
         hotelModel.setEmail("emailEmaill@gmail.com");
 
-        HotelDto hotelDto2=new HotelDto(hotel);
+        HotelDto hotelDto2=modelMapper.map(hotel,HotelDto.class);;
         String hotelJson=objectJson.writeValueAsString(hotelDto2);
 
-        this.mockMvc.perform(MockMvcRequestBuilders.put("/hotel/{id}", hotelDto2.id())
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/hotel/{id}", hotelDto2.getId())
         .content(hotelJson)
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
@@ -145,10 +149,10 @@ public void setDown(){
         hotelModel.setCnpj(HotelCreator.newModelHotel3().getCnpj());
         hotelModel.setEmail(HotelCreator.newModelHotel3().getEmail());
 
-        HotelDto hotelDto2=new HotelDto(hotelModel);
+        HotelDto hotelDto2=modelMapper.map(hotelModel,HotelDto.class);;
         String hotelJson=objectJson.writeValueAsString(hotelDto2);
 
-        this.mockMvc.perform(MockMvcRequestBuilders.put("/hotel/{id}", hotelDto2.id())
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/hotel/{id}", hotelDto2.getId())
         .content(hotelJson)
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isConflict());
@@ -162,7 +166,7 @@ public void setDown(){
         HotelModel hotelModel=HotelCreator.newModelHotel2();
         hotelModel.setId(3L);
         hotelModel.getAddress().setId(3L);
-          hotelDto=new HotelDto(hotelModel);
+          hotelDto=modelMapper.map(hotelModel,HotelDto.class);;
           
           String hotelJson=objectJson.writeValueAsString(hotelDto);
 
@@ -180,7 +184,7 @@ public void setDown(){
         String hotelInvalidJson=objectJson.writeValueAsString(hotelDto);
 
     
-        this.mockMvc.perform(MockMvcRequestBuilders.put("/hotel/{id}",hotelDto.id())
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/hotel/{id}",hotelDto.getId())
         .contentType(MediaType.APPLICATION_JSON)
         .content(hotelInvalidJson))
         .andExpect(MockMvcResultMatchers.status().isBadRequest());
@@ -199,7 +203,7 @@ public void setDown(){
 
     @Test
     @DisplayName("Deletar registro inexistente")
-    void Test_delete_hotel_by_id_with_id_nonexistent() throws Exception{
+    void Test_delete_hotel_by_id_with_id_notxistent() throws Exception{
     Long id=99L;
 
       this.mockMvc.perform(MockMvcRequestBuilders.delete("/hotel/{id}",id)
@@ -224,7 +228,7 @@ public void setDown(){
 
     @Test
     @DisplayName("Tentar pegar dados de um hotel com id inexistente")
-    void Test_get_hotel_by_nonexist_id() throws Exception{
+    void Test_get_hotel_by_notxist_id() throws Exception{
       Long id= 99L;
 
       this.mockMvc.perform(MockMvcRequestBuilders.get("/hotel/{id}", id)

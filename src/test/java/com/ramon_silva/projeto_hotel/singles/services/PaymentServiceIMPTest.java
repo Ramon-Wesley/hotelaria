@@ -64,7 +64,7 @@ public class PaymentServiceIMPTest {
     private  EmailServiceIMP emailServiceIMP;
 
     @Autowired
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper=new ModelMapper();
 
    
 
@@ -83,6 +83,7 @@ public class PaymentServiceIMPTest {
         paymentCreator.getPaymentModel().getPaymentMethod(),
         paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
         
+        when(paymentRepository.findByReservationId(reservationModel.getId())).thenReturn(Optional.empty());
         when(reservationRepository.findById(reservationModel.getId())).thenReturn(Optional.of(reservationModel));
         when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator.getPaymentModel());
 
@@ -341,8 +342,8 @@ void Test_update_by_id_payment_error(){
        PageDto<PaymentDto> page=paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
         verify(paymentRepository,times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
-        assertEquals(2, page.totalElments());
-        assertEquals(1, page.totalPages());
+        assertEquals(2, page.getTotalElments());
+        assertEquals(1, page.getTotalPages());
 
     }
 
@@ -365,8 +366,8 @@ void Test_update_by_id_payment_error(){
         PageDto<PaymentDto> page=paymentServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
          verify(paymentRepository,times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
-          assertEquals(0, page.totalElments());
-        assertEquals(1, page.totalPages());
+          assertEquals(0, page.getTotalElments());
+        assertEquals(1, page.getTotalPages());
     }
 
     @Test

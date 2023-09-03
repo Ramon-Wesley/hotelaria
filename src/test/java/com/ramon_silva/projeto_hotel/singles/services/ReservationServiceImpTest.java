@@ -3,10 +3,12 @@ package com.ramon_silva.projeto_hotel.singles.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
-import com.ramon_silva.projeto_hotel.models.ClientModel;
+import com.ramon_silva.projeto_hotel.models.GuestModel;
 import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
-import com.ramon_silva.projeto_hotel.repositories.ClientRepository;
+import com.ramon_silva.projeto_hotel.repositories.GuestRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
 import com.ramon_silva.projeto_hotel.repositories.Reservation_serviceRepository;
 import com.ramon_silva.projeto_hotel.repositories.RoomRepository;
@@ -43,7 +45,7 @@ public class ReservationServiceImpTest {
     private ReservationRepository reservationRepository;
 
     @Mock
-    private  ClientRepository clientRepository;
+    private  GuestRepository guestRepository;
     
     @Mock
     private  RoomRepository roomRepository;
@@ -56,45 +58,46 @@ public class ReservationServiceImpTest {
     
     @Mock
     private  EmailServiceIMP emailServiceIMP;
-     
-    private ModelMapper modelMapper;
+
+
+    @MockBean
+    private ModelMapper modelMapper=new ModelMapper();
 
     private ReservationModel reservationModel;
 
     private ReservationDto reservationDto;
 
-    private ClientModel clientModel;
+    private GuestModel guestModel;
 
     private RoomModel roomModel;
 
-@BeforeEach
-void setup(){
-    modelMapper=new ModelMapper();
-}
+
 
     @Test
     @DisplayName("Realizar a reserva com sucesso!")
     void Test_create_reservation_success(){
     reservationModel=ReservationCreator.newReservationModel();
     roomModel=reservationModel.getRoom();
-    clientModel=reservationModel.getClient();
-
+    roomModel.setId(1L);
+    guestModel=reservationModel.getGuest();
+    guestModel.setId(1L);
     reservationModel.setId(1L);
 
     ReservationDto reservationDtoMapper= modelMapper.map(reservationModel,ReservationDto.class);
     
-    when(clientRepository.findById(clientModel.getId())).thenReturn(Optional.of(clientModel));
+    when(guestRepository.findById(guestModel.getId())).thenReturn(Optional.of(guestModel));
     when(roomRepository.findById(roomModel.getId())).thenReturn(Optional.of(roomModel));
+    when(reservationRepository.hasConflictingReservations(anyLong(), any(LocalDate.class), any(LocalDate.class))).thenReturn(false);
     when(reservationRepository.save(any(ReservationModel.class))).thenReturn(reservationModel);
    
     reservationDto=reservationServiceIMP.createReservation(reservationDtoMapper);
 
-    verify(clientRepository,times(1)).findById(clientModel.getId());
+    verify(guestRepository,times(1)).findById(guestModel.getId());
     verify(roomRepository,times(1)).findById(roomModel.getId());
     verify(reservationRepository,times(1)).save(any(ReservationModel.class));
 
     assertNotNull(reservationDto.getId());
-    assertEquals(clientModel.getId(),reservationDto.getClient().getId());
+    assertEquals(guestModel.getId(),reservationDto.getGuest().getId());
     assertEquals(roomModel.getId(),reservationDto.getRoom().getId());
     }
 }

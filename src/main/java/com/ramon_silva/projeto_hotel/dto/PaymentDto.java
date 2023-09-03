@@ -28,20 +28,10 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class PaymentDto {
     private Long id;
-
-
-    private ReservationModel reservation;
-
-    
-
+    private ReservationDto reservation;
     @NotNull  
     private PaymentMethodEnum paymentMethod;
-
-
     private LocalDate payment_day=LocalDate.now();
-
-
     private StatusEnum status;
-
     private double total_payment;
 }

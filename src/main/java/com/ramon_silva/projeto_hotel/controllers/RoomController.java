@@ -21,7 +21,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
 @RestController
-@RequestMapping
+@RequestMapping("/quartos")
 public class RoomController {
     
     private RoomServiceIMP roomserviceIMP;
@@ -29,19 +29,19 @@ public class RoomController {
       this.roomserviceIMP=roomServiceIMP;
     }
 
-    @PostMapping("/{hotel_id}/quartos")
+    
     @Transactional
-    public ResponseEntity<RoomDto> create(@PathVariable(name = "hotel_id") @Positive Long hotel_id,@RequestBody @Valid RoomDto roomDto,UriComponentsBuilder uriComponentsBuilder){
-        var uri=uriComponentsBuilder.path("{hotel_id}/quartos/{id}").buildAndExpand(hotel_id,roomDto.id()).toUri();
-        return ResponseEntity.created(uri).body(roomserviceIMP.create(roomDto,hotel_id));
+    public ResponseEntity<RoomDto> create(@RequestBody @Valid RoomDto roomDto,UriComponentsBuilder uriComponentsBuilder){
+        var uri=uriComponentsBuilder.path("quartos/{id}").buildAndExpand(roomDto.getId()).toUri();
+        return ResponseEntity.created(uri).body(roomserviceIMP.create(roomDto));
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable(name="id") Long id){
         roomserviceIMP.deleteById(id);
         return ResponseEntity.ok().build();
     }
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @Transactional
     public ResponseEntity<RoomDto> updateById(@PathVariable(name = "id") @Positive Long id,@RequestBody @Valid RoomDto roomDto){
 
@@ -59,7 +59,7 @@ public class RoomController {
         return ResponseEntity.ok().body(roomserviceIMP.getAll(hotel,pageNumber, pageSize, sortBy, sortOrder));
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<RoomDto> getById(@PathVariable(name = "id") Long id){
         return ResponseEntity.ok().body(roomserviceIMP.getById(id));
     }

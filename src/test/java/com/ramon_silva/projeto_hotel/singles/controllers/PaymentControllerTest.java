@@ -47,7 +47,7 @@ public class PaymentControllerTest {
     private PaymentServiceIMP paymentServiceIMP;
 
     @Autowired 
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper=new ModelMapper();
 
     private PaymentDto paymentDto;
 
@@ -233,7 +233,7 @@ public class PaymentControllerTest {
         ResponseEntity<PageDto<PaymentDto>> response=paymentController.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
         assertEquals(HttpStatus.OK,response.getStatusCode());
-        assertEquals(numberOfElements,response.getBody().getContent().size());
+        assertEquals(numberOfElements,response.getBody().getGetContent().size());
         assertNotEquals(paymentList,paymentList2);
 
         verify(paymentServiceIMP,times(1)).getAll(pageNumber, pageSize, sortBy, sortOrder);
@@ -261,7 +261,7 @@ public class PaymentControllerTest {
         ResponseEntity<PageDto<PaymentDto>> response=paymentController.getAll(pageNumber, pageSize, sortBy, sortOrder);
 
         assertEquals(HttpStatus.OK,response.getStatusCode());
-        assertEquals(numberOfElements,response.getBody().getContent().size());
+        assertEquals(numberOfElements,response.getBody().getGetContent().size());
         
 
         verify(paymentServiceIMP,times(1)).getAll(pageNumber, pageSize, sortBy, sortOrder);

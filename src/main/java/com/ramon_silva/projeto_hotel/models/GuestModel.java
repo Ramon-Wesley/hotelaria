@@ -3,7 +3,7 @@ package com.ramon_silva.projeto_hotel.models;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.br.CPF;
 
-import com.ramon_silva.projeto_hotel.dto.ClientDto;
+import com.ramon_silva.projeto_hotel.dto.GuestDto;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -25,23 +25,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "clientes")
+@Table(name = "hospedes")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ClientModel {
-
-
-    public ClientModel(Long id,ClientDto client){
-        this.id=id;
-        this.name=client.name();
-        this.cpf=client.cpf();
-        this.email=client.email();
-        this.phone=client.phone();
-        this.address=new AddressModel(client.address().id(),client.address());
-    };
+public class GuestModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,7 +59,6 @@ public class ClientModel {
     @NotNull
     @Column(name="telefone")
     private String phone;
-
 
     @NotNull
     @OneToOne(   

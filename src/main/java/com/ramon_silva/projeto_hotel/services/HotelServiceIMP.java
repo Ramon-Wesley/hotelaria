@@ -3,7 +3,7 @@ package com.ramon_silva.projeto_hotel.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,20 +22,22 @@ public class HotelServiceIMP implements HotelService {
 
     
     private final HotelRepository hotelRepository;
+    private final ModelMapper modelMapper;
 
 
-    private HotelServiceIMP(HotelRepository hotelRepository){
+    private HotelServiceIMP(HotelRepository hotelRepository,ModelMapper modelMapper){
 
         this.hotelRepository=hotelRepository;
+        this.modelMapper=modelMapper;
     }
 
     @Override
     public HotelDto create(HotelDto hotel) {
-        boolean existsCnpj=hotelRepository.existsByCnpj(hotel.cnpj());
+        boolean existsCnpj=hotelRepository.existsByCnpj(hotel.getCnpj());
 
         if(!existsCnpj){
-            HotelModel hotelModel=hotelRepository.save(new HotelModel(null,hotel));
-            return new HotelDto(hotelModel);
+            HotelModel hotelModel=hotelRepository.save(modelMapper.map(hotel,HotelModel.class));
+            return modelMapper.map(hotelModel,HotelDto.class);
         }
         throw new GeralException("Cnpj já cadastrado!");
     }
@@ -45,7 +47,7 @@ public class HotelServiceIMP implements HotelService {
      Sort sort=sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
      Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
      Page<HotelModel> page=hotelRepository.findAll(pageable);
-     List<HotelDto> hotelDtos=page.getContent().stream().map(HotelDto::new).collect(Collectors.toList());
+     List<HotelDto> hotelDtos=page.getContent().stream().map((e)->modelMapper.map(e,HotelDto.class)).collect(Collectors.toList());
      PageDto<HotelDto> result = new PageDto<>(hotelDtos, page.getNumber(), page.getNumberOfElements(), page.getSize(),
      page.getTotalPages(), page.getTotalElements());
      return result;
@@ -56,7 +58,7 @@ public class HotelServiceIMP implements HotelService {
      HotelModel hotelModel=hotelRepository.findById(id)
      .orElseThrow(()-> new ResourceNotFoundException("Hotel", "id", id));
 
-     return new HotelDto(hotelModel);
+     return modelMapper.map(hotelModel,HotelDto.class);
     }
 
     @Override
@@ -65,10 +67,11 @@ public class HotelServiceIMP implements HotelService {
      hotelRepository.findById(id).orElseThrow(
         ()-> new ResourceNotFoundException("Hotel", "id", id));
 
-        boolean existsCnpj=hotelRepository.existsByCnpjAndIdNot(hotel.cnpj(),id);
+        boolean existsCnpj=hotelRepository.existsByCnpjAndIdNot(hotel.getCnpj(),id);
         if(!existsCnpj){
-            HotelModel result= hotelRepository.save(new HotelModel(id,hotel));
-            return new HotelDto(result);
+            hotel.setId(id);
+            HotelModel result= hotelRepository.save(modelMapper.map(hotel,HotelModel.class));
+            return modelMapper.map(result,HotelDto.class);
         }
         throw new GeralException("Cnpj já cadastrado!");
     }

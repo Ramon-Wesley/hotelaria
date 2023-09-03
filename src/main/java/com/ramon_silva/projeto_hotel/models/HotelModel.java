@@ -39,16 +39,7 @@ import lombok.Setter;
 public class HotelModel {
 
 
-    public HotelModel(Long id,HotelDto hotel){
-        this.id=hotel.id();
-        this.name=hotel.name();
-        this.cnpj=hotel.cnpj();
-        this.email=hotel.email();
-        this.phone=hotel.phone();
-        this.address=new AddressModel(null,hotel.address());
-        this.classification=hotel.classification();
-        this.description=hotel.description();
-    };
+   
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

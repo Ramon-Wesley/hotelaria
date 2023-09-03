@@ -5,30 +5,40 @@ import com.ramon_silva.projeto_hotel.models.RoomModel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record RoomDto(
 
-     Long id,
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class RoomDto{
 
-     HotelDto hotel,
+    private Long id;
+
+     @NotNull
+     private HotelDto hotel;
 
      @NotBlank
-     String number_room,
+     private String number_room;
 
 
      @NotNull
-     TypeRoomEnum type_room,
+     private TypeRoomEnum type_room;
 
     
-     String description,
+     private String description;
 
      @NotNull
      @Positive
-     Double price
+     private Double price;
 
 
-) {
-    public RoomDto(RoomModel roomModel){
-     this(roomModel.getId(),new HotelDto(roomModel.getHotel()), roomModel.getNumber_room(), roomModel.getType_room(),roomModel.getDescription(), roomModel.getPrice());
-    }
+
+    
 }

@@ -24,7 +24,7 @@ boolean hasConflictingReservations(
     "WHERE id != :id " +
     "AND quarto_id = :quarto_id"+
     "AND data_de_check_in <= :checkOut " +
-    "AND data_de_check_out >= :checkIn",nativeQuery=true)
+    "AND data_de_check_out >= :checkIn LIMIT 1",nativeQuery=true)
 boolean hasConflictingReservationsDatesWithIdNotEquals(
 @Param("id") Long reservation,
 @Param("quarto_id") Long room,

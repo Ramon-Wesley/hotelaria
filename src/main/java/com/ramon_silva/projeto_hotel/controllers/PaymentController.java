@@ -27,7 +27,7 @@ public class PaymentController {
         this.paymentServiceIMP=paymentServiceIMP;
     }
 
-    @PostMapping("/{reservation_id}")
+    @PostMapping("/reserva/{reservation_id}")
     public ResponseEntity<PaymentDto> payment(
         @PathVariable(name = "reservation_id")Long id,
         @RequestBody @Valid PaymentDto paymentDto,
