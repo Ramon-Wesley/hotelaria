@@ -62,7 +62,7 @@ public void setUp(){
 }
 
 @Test
-@DisplayName("Gueste criado com sucesso")
+@DisplayName("hospede criado com sucesso")
 void Test_create_guest_controller_success(){
 
   guestModel =GuestCreator.newGuestModel();

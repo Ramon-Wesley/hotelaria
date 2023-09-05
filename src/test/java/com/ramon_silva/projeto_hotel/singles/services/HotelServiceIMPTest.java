@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,7 +48,12 @@ public class HotelServiceIMPTest {
     private HotelRepository hotelRepository;
 
     @Autowired
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper=new ModelMapper();
+
+    @Mock
+    private ModelMapper modelMapper2;
+    
+
 
     private HotelModel hotelModel;
     private HotelDto hotelDto;
@@ -56,10 +62,13 @@ public class HotelServiceIMPTest {
     void Test_create_hotel_sucess(){
      hotelModel=HotelCreator.newModelHotel();
      hotelDto=modelMapper.map(hotelModel,HotelDto.class);
-     hotelModel.setId(1L);
-
+     
      when(hotelRepository.existsByCnpj(hotelDto.getCnpj())).thenReturn(false);
+     when(modelMapper2.map(eq(hotelDto), eq(HotelModel.class))).thenReturn(hotelModel);
+     hotelModel.setId(1L);
      when(hotelRepository.save(any(HotelModel.class))).thenReturn(hotelModel);
+     hotelDto.setId(1L);
+     when(modelMapper2.map(eq(hotelModel), eq(HotelDto.class))).thenReturn(hotelDto);
 
      hotelDto=hotelServiceIMP.create(hotelDto);
 
@@ -88,9 +97,10 @@ public class HotelServiceIMPTest {
     void Test_get_hotel_by_id(){
         hotelModel=HotelCreator.newModelHotel();
         hotelModel.setId(1L);
-   
+        hotelDto=modelMapper.map(hotelModel, HotelDto.class);
         long id=hotelModel.getId();
         when(hotelRepository.findById(id)).thenReturn(Optional.of(hotelModel));
+        when(modelMapper2.map(eq(hotelModel), eq(HotelDto.class))).thenReturn(hotelDto);
         hotelDto=hotelServiceIMP.getById(id);
 
         verify(hotelRepository,times(1)).findById(id);
@@ -155,7 +165,10 @@ public class HotelServiceIMPTest {
 
         when(hotelRepository.findById(id)).thenReturn(Optional.of(hotelModel));
         when(hotelRepository.existsByCnpjAndIdNot(hotelDto.getCnpj(), id)).thenReturn(false);
+        when(modelMapper2.map(eq(hotelDto),eq(HotelModel.class))).thenReturn(hotelModel2);
         when(hotelRepository.save(any(HotelModel.class))).thenReturn(hotelModel2);
+        when(modelMapper2.map(eq(hotelModel2),eq(HotelDto.class))).thenReturn(hotelDto);
+
 
         hotelDto=hotelServiceIMP.updateById(id, hotelDto);
 

@@ -22,7 +22,7 @@ boolean hasConflictingReservations(
 
 @Query(value = "SELECT COUNT(*) > 0 FROM reservas  " +
     "WHERE id != :id " +
-    "AND quarto_id = :quarto_id"+
+    "AND quarto_id = :quarto_id "+
     "AND data_de_check_in <= :checkOut " +
     "AND data_de_check_out >= :checkIn LIMIT 1",nativeQuery=true)
 boolean hasConflictingReservationsDatesWithIdNotEquals(

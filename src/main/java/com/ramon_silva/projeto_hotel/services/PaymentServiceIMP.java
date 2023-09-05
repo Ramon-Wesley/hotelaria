@@ -117,26 +117,26 @@ public class PaymentServiceIMP implements PaymentService{
             PaymentModel paymentModel=paymentRepository.findById(id)
              .orElseThrow(
                ()->new ResourceNotFoundException("Pagamento", "id", id));
-               
-               ReservationModel reservationModel=reservationRepository.findById(paymentDto.getReservation().getId()).orElseThrow(
-               ()->new ResourceNotFoundException("Reserva", "id", id));
 
-               boolean existsReservation=paymentRepository.existsByReservationIdAndIdNot(reservationModel.getId(), id);
+               if(!paymentModel.getReservation().getId().equals(paymentDto.getReservation().getId())){
+                   ReservationModel reservationModel=reservationRepository.findById(paymentDto.getReservation().getId()).orElseThrow(
+                       ()->new ResourceNotFoundException("Reserva", "id", id));
+                  paymentModel.setReservation(reservationModel);
+                    }
+
+               boolean existsReservation=paymentRepository.existsByReservationIdAndIdNot(paymentModel.getReservation().getId(), id);
 
             if(existsReservation){
                 throw new GeralException(Constants.RESERVATION_CONFLICT);
             }
 
-               Double valueService= reservationModel.getReservation_service().stream()
+               Double valueService= paymentModel.getReservation().getReservation_service().stream()
                .mapToDouble(res->res.getServico().getPrice()).sum();
-               
-               if(reservationModel.getStatus() == StatusEnum.CONFIRM){
-                 
-                   paymentModel.setReservation(reservationModel);
-                   paymentModel.setPaymentMethod(paymentDto.getPaymentMethod());
-                   paymentModel.setPayment_day(paymentDto.getPayment_day());
-                   paymentModel.setStatus(StatusEnum.CONFIRM);
-                   paymentModel.setTotal_payment(reservationModel.getTotal_pay()+valueService);
+               paymentDto.setId(id);
+               if(paymentModel.getReservation().getStatus() == StatusEnum.CONFIRM){
+                   paymentModel=modelMapper.map(paymentDto, PaymentModel.class);
+             
+                   paymentModel.setTotal_payment(paymentModel.getReservation().getTotal_pay()+valueService);
                    PaymentModel result=paymentRepository.save(paymentModel);
                    PaymentDto resultDto= modelMapper.map(result,PaymentDto.class);
        

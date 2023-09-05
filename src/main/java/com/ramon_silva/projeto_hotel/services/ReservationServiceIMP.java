@@ -114,7 +114,7 @@ public class ReservationServiceIMP implements ReservationService {
            
 
            boolean result=reservationRepository.hasConflictingReservationsDatesWithIdNotEquals(id,roomModel.getId(),reservationDto.getCheckInDate(), reservationDto.getCheckOutDate());
-           if(!result){
+           if(result){
             throw new GeralException("Datas conflitantes!");
            }
            reservationDto.setId(id);          
@@ -190,7 +190,8 @@ public class ReservationServiceIMP implements ReservationService {
               public void addServices(Long reservation_id,List<ServicesDto> servicesDto ) {
 
                 ReservationModel reservationModel=reservationRepository.findById(reservation_id)
-                .orElseThrow(()->new ResourceNotFoundException("reserva", "id", reservation_id));
+                .orElseThrow(()->new ResourceNotFoundException
+                ("reserva", "id", reservation_id));
                
                 if(reservationModel.getStatus()!= StatusEnum.CONFIRM){
                     throw new GeralException("Confirme a reserva para adicionar servicos! ");

@@ -34,8 +34,7 @@ public class GuestServiceIMP implements GuestService{
       this.modelMapper=modelMapper;
     }
     
-    @CacheEvict(value = "guests",allEntries = true)
-    @Override
+   @Override
     public GuestDto create(GuestDto guestdto) {
         boolean existsDuplicated=guestRepository.existsByEmailAndCpf(guestdto.getEmail(), guestdto.getCpf());
         if(!existsDuplicated){
@@ -50,7 +49,6 @@ public class GuestServiceIMP implements GuestService{
      
     
 
-    @Cacheable(value = "guests", key = "'all-' + #pageNumber + '-' + #pageSize + '-' + #sortBy + '-' + #sortOrder")
     @Override
     public PageDto<GuestDto> getAll(int pageNumber,int pageSize,String sortBy,String sortOrder){
       Sort sort=sortOrder.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
@@ -64,7 +62,6 @@ public class GuestServiceIMP implements GuestService{
       return pageDto;
     }
 
-    @Cacheable(value = "guests",key = "#id")
     @Override
     public GuestDto getById(Long id) {
         GuestModel guestModel=guestRepository.findById(id)
@@ -73,7 +70,6 @@ public class GuestServiceIMP implements GuestService{
         return modelMapper.map(guestModel,GuestDto.class);
     }
 
-    @CachePut(value = "guests",key = "#id")
     @Override
     public GuestDto updateById(Long id, GuestDto guest) {
     
@@ -92,7 +88,6 @@ public class GuestServiceIMP implements GuestService{
         return  modelMapper.map(guestModel, GuestDto.class);
     }
 
-    @CacheEvict(value = "guests",key = "#id")
     @Override
     public void deleteById(Long id) {
       GuestModel guest = guestRepository.findById(id)

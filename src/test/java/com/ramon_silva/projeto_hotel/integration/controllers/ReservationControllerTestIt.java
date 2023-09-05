@@ -106,20 +106,21 @@ public class ReservationControllerTestIt {
     private AddressModel addressModel;
     private HotelModel hotelModel;
     private RoomModel roomModel;
- 
-
-  
+    
     private List<ServicesModel> servicesModel=new ArrayList<>();
     private List<ServicesDto> servicesDto=new ArrayList<>();
     private Set<Reservation_serviceModel> reservation_serviceModels=new HashSet<>();
     private  ReservationModel reservationModelResult;
-
-private ObjectMapper objectMapper=new ObjectMapper();
-@BeforeEach
-@Transactional
-void setUp()
-{
-  
+    
+    
+    private ObjectMapper objectMapper=new ObjectMapper();
+    
+    
+    
+    @BeforeEach
+    @Transactional
+    void setUp()
+    {
     objectMapper.registerModule(new JavaTimeModule()); 
     objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     SaveReservation(reservationRepository, guestRepository, roomRepository, hotelRepository);
@@ -128,7 +129,7 @@ void setUp()
     reservationModelResult=new ReservationModel(null, guestModel, 
     roomModel,
     LocalDate.now().plusYears(1), LocalDate.now().plusYears(1).plusDays(2), null, null, null);
-    
+    servicesDto=new ArrayList<>();
 }
 
 @AfterEach
@@ -137,10 +138,6 @@ void setDown()
 {
 reservation_serviceModels=new HashSet<>();
   reservationRepository.deleteAll();
-  servicesRepository.deleteAll();
-  hotelRepository.deleteAll();
-  guestRepository.deleteAll();
-  roomRepository.deleteAll(); 
 }
     @Test
     @DisplayName("Erro ao salvar uma reserva com datas conflitantes em um mesmo quarto")
@@ -249,7 +246,8 @@ void Test_success_update_by_id() throws Exception{
    reservationDto.setGuest(modelMapper.map(guestModel,GuestDto.class));
    String json=objectMapper.writeValueAsString(reservationDto);
    Long id_reservation=reservationDto.getId();
-    mockMvc.perform(MockMvcRequestBuilders.put("/reserva/{id_reserva}",id_reservation)
+    mockMvc.perform(MockMvcRequestBuilders.put("/reserva/{id_reserva}"
+    ,id_reservation)
    .contentType(MediaType.APPLICATION_JSON)
    .content(json)
    ).andExpect(MockMvcResultMatchers.status().isOk())
@@ -295,7 +293,7 @@ void Test_success_add_services() throws Exception{
       (e)->servicesDto.add(modelMapper.map(e, ServicesDto.class)));
    
    String json=objectMapper.writeValueAsString(servicesDto);
-   System.out.println(json);
+   System.out.println("SERVICOS PRESTADOS AGORA: "+json);
    mockMvc.perform(MockMvcRequestBuilders.post("/reserva/{id_reserva}/servicos", id_reservation)
    .contentType(MediaType.APPLICATION_JSON)
    .content(json)
