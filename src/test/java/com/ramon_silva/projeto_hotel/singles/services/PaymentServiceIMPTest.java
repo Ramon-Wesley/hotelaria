@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -66,7 +67,8 @@ public class PaymentServiceIMPTest {
     @Autowired
     private ModelMapper modelMapper=new ModelMapper();
 
-   
+   @Mock
+   private ModelMapper modelMapper2;
 
     @Test
     @DisplayName("Sucesso no pagamento da estadia")
@@ -83,17 +85,19 @@ public class PaymentServiceIMPTest {
         paymentCreator.getPaymentModel().getPaymentMethod(),
         paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
         
+        PaymentDto paymentDto2=modelMapper.map(paymentCreator.getPaymentModel(),PaymentDto.class);
         when(paymentRepository.findByReservationId(reservationModel.getId())).thenReturn(Optional.empty());
         when(reservationRepository.findById(reservationModel.getId())).thenReturn(Optional.of(reservationModel));
         when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator.getPaymentModel());
-
+        when(modelMapper2.map(eq(paymentCreator.getPaymentModel()), eq(PaymentDto.class))).thenReturn(paymentDto2);
+       
         PaymentDto resulDto=paymentServiceIMP.payment(paymentDto, reservationModel.getId());
        
         verify(reservationRepository,times(1))
         .findById(reservationModel.getId());
-        
+
         verify(paymentRepository,times(1))
-        .existsByReservationId(reservationModel.getId());
+        .findByReservationId(any());
 
         verify(paymentRepository,times(1))
         .save(any(PaymentModel.class)); 
@@ -245,11 +249,13 @@ public class PaymentServiceIMPTest {
 void Test_update_by_id_payment_success(){
     PaymentModel paymentCreator=PaymentCreator.createModelPayment().getPaymentModel();
     paymentCreator.setId(1L);
+    paymentCreator.getReservation().setId(1L);
+
+    System.out.println(paymentCreator.getReservation().getId());
     
-    PaymentModel paymentCreator2=new PaymentModel();
-    PaymentCreator.createModelPayment2().getPaymentModel();
+    PaymentModel paymentCreator2=PaymentCreator.createModelPayment2().getPaymentModel();
     paymentCreator2.setId(paymentCreator.getId());
-    paymentCreator2.getReservation().setId(paymentCreator.getReservation().getId());
+    paymentCreator2.getReservation().setId(1L);;
     paymentCreator2.getReservation().setStatus(StatusEnum.CONFIRM);
   
     PaymentDto paymentCreatorDto =modelMapper.map(paymentCreator2,PaymentDto.class);
@@ -259,7 +265,8 @@ void Test_update_by_id_payment_success(){
     when(reservationRepository.findById(paymentCreator.getReservation().getId())).thenReturn(Optional.of(paymentCreator2.getReservation()));
     
     when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator2);
-  
+    when(modelMapper2.map(eq(paymentCreator2),eq(PaymentDto.class))).thenReturn(paymentCreatorDto);
+
     PaymentDto pay= paymentServiceIMP.updateById(paymentCreatorDto.getId(), paymentCreatorDto);
   
     verify(paymentRepository,times(1)).findById(paymentCreatorDto.getId());

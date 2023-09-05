@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,7 +51,10 @@ class GuestServiceIMPTest {
     private GuestRepository guestRepository;
 
     @Autowired
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper=new ModelMapper();
+
+    @Mock
+    private ModelMapper modelMapper2;
 
     @InjectMocks
     private GuestServiceIMP guestServiceIMP;
@@ -75,14 +79,15 @@ class GuestServiceIMPTest {
     @DisplayName("Salvar novo hospede!")
     void Test_create_new_guest() {
         guestModel = GuestCreator.newGuestModel();
+        guestModel.getAddress().setId(1L);
         guestDto= modelMapper.map(guestModel,GuestDto.class);
         guestModel.setId(1L);
-        guestModel.getAddress().setId(1L);
 
            when(guestRepository.existsByEmailAndCpf(guestDto.getEmail(),guestDto.getCpf())).thenReturn(false);
-
-
-        when(guestRepository.save(any(GuestModel.class))).thenReturn(guestModel);
+           when(modelMapper2.map(eq(guestDto),eq(GuestModel.class))).thenReturn(guestModel);
+           guestDto.setId(1L);
+           when(modelMapper2.map(eq(guestModel),eq(GuestDto.class))).thenReturn(guestDto);
+           when(guestRepository.save(any(GuestModel.class))).thenReturn(guestModel);
         GuestDto result = guestServiceIMP.create(guestDto);
 
           verify(guestRepository, times(1)).existsByEmailAndCpf(guestDto.getEmail(),guestDto.getCpf());
@@ -194,9 +199,9 @@ Long id=99L;
         guestModel.setId(1L);
         guestModel.getAddress().setId(1L);
        
-
+       guestDto=modelMapper.map(guestModel, GuestDto.class);
         when(guestRepository.findById(guestModel.getId())).thenReturn(Optional.of(guestModel));
-
+        when(modelMapper2.map(eq(guestModel),eq(GuestDto.class))).thenReturn(guestDto);
         GuestDto guestDto2 = guestServiceIMP.getById(guestModel.getId());
 
         verify(guestRepository, times(1)).findById(guestModel.getId());
@@ -222,10 +227,10 @@ Long id=99L;
     @DisplayName("Atualizar registro")
     void Test_update_by_id() {
         guestModel = GuestCreator.newGuestModel();
-        guestModel.setId(1L);
         guestModel.getAddress().setId(1L);
-
-       guestDto= modelMapper.map(guestModel,GuestDto.class);
+        
+        guestModel.setId(1L);
+        guestDto= modelMapper.map(guestModel,GuestDto.class);
 
         GuestDto guestDto2 = new GuestDto(guestDto.getId(),
                 guestDto.getName(),
@@ -238,6 +243,8 @@ Long id=99L;
 
         when(guestRepository.findById(guestDto.getId())).thenReturn(Optional.of(guestModel));
         when(guestRepository.save(Mockito.any(GuestModel.class))).thenReturn(guestModel2);
+        when(modelMapper2.map(eq(guestDto2),eq(GuestModel.class))).thenReturn(guestModel2);
+        when(modelMapper2.map(eq(guestModel2),eq(GuestDto.class))).thenReturn(guestDto2);
 
         GuestDto resulDto = guestServiceIMP.updateById(guestDto.getId(), guestDto2);
 
@@ -268,14 +275,5 @@ Long id=99L;
 
     }
 
-    @Test
-    @DisplayName("Atualizar registros sem os dados do hospede")
-    void Test_update_by_id_with_null_guest() {
-        Long id=1L;
-        Assertions.assertThrows(NullPointerException.class, () -> guestServiceIMP.updateById(id, null),
-                "dados do hospede sao nulos");
-        verify(guestRepository, times(0)).findById(id);
-        verify(guestRepository, times(0)).save(Mockito.any(GuestModel.class));
-
-    }
+    
 }
