@@ -49,8 +49,11 @@ class GuestServiceIMPTest {
     @Mock
     private GuestRepository guestRepository;
 
+    @Mock
+    private ModelMapper modelMapper2;
+    
     @Autowired
-    private ModelMapper modelMapper;
+    private ModelMapper modelMapper=new ModelMapper();
 
     @InjectMocks
     private GuestServiceIMP guestServiceIMP;

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,9 +61,11 @@ public class ReservationServiceImpTest {
     private  EmailServiceIMP emailServiceIMP;
 
 
-    @MockBean
-    private ModelMapper modelMapper=new ModelMapper();
+    @Mock
+    private ModelMapper modelMapper;
 
+    @Autowired
+    private ModelMapper modelMapper2=new ModelMapper();
     private ReservationModel reservationModel;
 
     private ReservationDto reservationDto;
@@ -81,14 +84,18 @@ public class ReservationServiceImpTest {
     roomModel.setId(1L);
     guestModel=reservationModel.getGuest();
     guestModel.setId(1L);
-    reservationModel.setId(1L);
-
-    ReservationDto reservationDtoMapper= modelMapper.map(reservationModel,ReservationDto.class);
     
+    ReservationDto reservationDtoMapper= modelMapper2.map(reservationModel,ReservationDto.class);
+    System.out.println(reservationDtoMapper.getGuest().getId());
+    
+    reservationModel.setId(1L);
     when(guestRepository.findById(guestModel.getId())).thenReturn(Optional.of(guestModel));
     when(roomRepository.findById(roomModel.getId())).thenReturn(Optional.of(roomModel));
     when(reservationRepository.hasConflictingReservations(anyLong(), any(LocalDate.class), any(LocalDate.class))).thenReturn(false);
     when(reservationRepository.save(any(ReservationModel.class))).thenReturn(reservationModel);
+    when(modelMapper.map(eq(reservationDtoMapper), eq(ReservationModel.class))).thenReturn(reservationModel);
+    reservationDtoMapper.setId(1L); 
+    when(modelMapper.map(eq(reservationModel), eq(ReservationDto.class))).thenReturn(reservationDtoMapper); 
    
     reservationDto=reservationServiceIMP.createReservation(reservationDtoMapper);
 
