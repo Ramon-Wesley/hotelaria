@@ -3,10 +3,8 @@ package com.ramon_silva.projeto_hotel.singles.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -17,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +34,7 @@ import com.ramon_silva.projeto_hotel.services.EmailServiceIMP;
 import com.ramon_silva.projeto_hotel.services.PaymentServiceIMP;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
-import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
+import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
@@ -81,7 +78,8 @@ public class PaymentServiceIMPTest {
         paymentCreator.getPaymentModel().setId(1L);
         
 
-        PaymentDto paymentDto= new PaymentDto(null, null, 
+        PaymentDto paymentDto= new PaymentDto(null,
+        modelMapper.map(reservationModel,ReservationDto.class), 
         paymentCreator.getPaymentModel().getPaymentMethod(),
         paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
         
@@ -91,7 +89,7 @@ public class PaymentServiceIMPTest {
         when(paymentRepository.save(any(PaymentModel.class))).thenReturn(paymentCreator.getPaymentModel());
         when(modelMapper2.map(eq(paymentCreator.getPaymentModel()), eq(PaymentDto.class))).thenReturn(paymentDto2);
        
-        PaymentDto resulDto=paymentServiceIMP.payment(paymentDto, reservationModel.getId());
+        PaymentDto resulDto=paymentServiceIMP.create(paymentDto);
        
         verify(reservationRepository,times(1))
         .findById(reservationModel.getId());
@@ -124,7 +122,7 @@ public class PaymentServiceIMPTest {
         
         when(paymentRepository.findByReservationId(reservation_id)).thenReturn(Optional.of(paymentCreator.getPaymentModel()));
         
-        assertThrows(GeralException.class,()-> paymentServiceIMP.payment(paymentDto, reservation_id));
+        assertThrows(GeralException.class,()-> paymentServiceIMP.create(paymentDto));
        
      
         
@@ -151,14 +149,14 @@ public class PaymentServiceIMPTest {
         PaymentCreator paymentCreator=PaymentCreator.createModelPayment();
       
 
-        PaymentDto paymentDto= new PaymentDto(null, null, 
+        PaymentDto paymentDto= new PaymentDto(null,  modelMapper.map(reservationModel,ReservationDto.class), 
         paymentCreator.getPaymentModel().getPaymentMethod(),
         paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
         
         when(reservationRepository.findById(reservationModel.getId())).thenReturn(Optional.of(reservationModel));
        
 
-        assertThrows(GeralException.class,()->paymentServiceIMP.payment(paymentDto, reservationModel.getId())); 
+        assertThrows(GeralException.class,()->paymentServiceIMP.create(paymentDto)); 
        
         verify(reservationRepository,times(1))
         .findById(reservationModel.getId());
@@ -175,31 +173,7 @@ public class PaymentServiceIMPTest {
         
     }
 
-    @Test
-    @DisplayName("Tentar fazer o pagamento com dados nulos")
-    void test_payment_error_dates_null() {
-
-        ReservationModel reservationModel=new ReservationModel();
-        PaymentDto paymentDto= new PaymentDto(null, null, null, null, null, 0);
-        
-        when(reservationRepository.findById(reservationModel.getId())).thenThrow(ResourceNotFoundException.class);
-       
-       assertThrows(ResourceNotFoundException.class,()->paymentServiceIMP.payment(paymentDto, reservationModel.getId())); 
-       
-        verify(reservationRepository,times(1))
-        .findById(reservationModel.getId());
-
-        verify(emailServiceIMP,never())
-        .sendEmail(
-            any(EmailModel.class),
-            any(PaymentDto.class),
-            any(String.class)
-            );
-
-        verify(paymentRepository,never())
-        .save(any(PaymentModel.class)); 
-        
-    }
+   
 
  @Test
     @DisplayName("Tentar fazer o pagamento com id do reserva invalido")
@@ -208,14 +182,14 @@ public class PaymentServiceIMPTest {
         Long reservation_id =99l;
         PaymentCreator paymentCreator=PaymentCreator.createModelPayment();
         
-        PaymentDto paymentDto= new PaymentDto(null, null, 
+        PaymentDto paymentDto= new PaymentDto(null, modelMapper.map(ReservationCreator.newReservationModel2(),ReservationDto.class), 
         paymentCreator.getPaymentModel().getPaymentMethod(),
         paymentCreator.getPaymentModel().getPayment_day(),null, 0.0);
-        
+        paymentDto.getReservation().setId(reservation_id);
         when(reservationRepository.findById(reservation_id)).thenThrow(ResourceNotFoundException.class);
        
 
-       assertThrows(ResourceNotFoundException.class,()->paymentServiceIMP.payment(paymentDto, reservation_id)); 
+       assertThrows(ResourceNotFoundException.class,()->paymentServiceIMP.create(paymentDto)); 
        
         verify(reservationRepository,times(1))
         .findById(reservation_id);
@@ -294,7 +268,7 @@ void Test_update_by_id_payment_error(){
         PaymentDto paymentDto=modelMapper.map(paymentCreator,PaymentDto.class);
         when(paymentRepository.findById(paymentCreator.getId())).thenReturn(Optional.of(paymentCreator));
        when(modelMapper2.map(eq(paymentCreator),eq(PaymentDto.class))).thenReturn(paymentDto);
-        PaymentDto paymentDtoResult=paymentServiceIMP.getPaymentById(paymentCreator.getId());
+        PaymentDto paymentDtoResult=paymentServiceIMP.getById(paymentCreator.getId());
  
         verify(paymentRepository,times(1)).findById(paymentCreator.getId());
         
@@ -309,7 +283,7 @@ void Test_update_by_id_payment_error(){
         Long id=99L;
       
         when(paymentRepository.findById(id)).thenThrow(ResourceNotFoundException.class);
-        assertThrows(ResourceNotFoundException.class, ()->paymentServiceIMP.getPaymentById(id));
+        assertThrows(ResourceNotFoundException.class, ()->paymentServiceIMP.getById(id));
         verify(paymentRepository,times(1)).findById(id);
     }
 
@@ -369,7 +343,7 @@ void Test_update_by_id_payment_error(){
         Long id=99L;
       
         when(paymentRepository.findById(id)).thenThrow(ResourceNotFoundException.class);
-        assertThrows(ResourceNotFoundException.class, ()->paymentServiceIMP.deletePaymentById(id));
+        assertThrows(ResourceNotFoundException.class, ()->paymentServiceIMP.deleteById(id));
    
         verify(paymentRepository,times(1)).findById(id);
         verify(paymentRepository,never()).deleteById(id);
@@ -383,7 +357,7 @@ void Test_update_by_id_payment_error(){
       
         when(paymentRepository.findById(paymentCreator.getId())).thenReturn(Optional.of(paymentCreator));
         
-        paymentServiceIMP.deletePaymentById(paymentCreator.getId());
+        paymentServiceIMP.deleteById(paymentCreator.getId());
 
         verify(paymentRepository,times(1)).findById(paymentCreator.getId());
         verify(paymentRepository,times(1)).deleteById(paymentCreator.getId());

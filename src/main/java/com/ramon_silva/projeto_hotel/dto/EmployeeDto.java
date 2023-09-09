@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import org.hibernate.validator.constraints.Length;
 
-import com.ramon_silva.projeto_hotel.models.EmployeeModel;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;

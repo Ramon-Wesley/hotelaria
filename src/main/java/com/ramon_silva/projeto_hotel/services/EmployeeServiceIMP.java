@@ -15,9 +15,10 @@ import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.EmployeeModel;
 import com.ramon_silva.projeto_hotel.repositories.EmployeeRepository;
+import com.ramon_silva.projeto_hotel.services.interfaces.IEmployeeService;
 
 @Service
-public class EmployeeServiceIMP implements EmployeeService {
+public class EmployeeServiceIMP implements IEmployeeService {
 
     
     private final EmployeeRepository employeeRepository;

@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.models.GuestModel;
@@ -60,7 +58,6 @@ public class ReservationServiceImpTest {
     @Mock
     private  EmailServiceIMP emailServiceIMP;
 
-
     @Mock
     private ModelMapper modelMapper;
 
@@ -97,7 +94,7 @@ public class ReservationServiceImpTest {
     reservationDtoMapper.setId(1L); 
     when(modelMapper.map(eq(reservationModel), eq(ReservationDto.class))).thenReturn(reservationDtoMapper); 
    
-    reservationDto=reservationServiceIMP.createReservation(reservationDtoMapper);
+    reservationDto=reservationServiceIMP.create(reservationDtoMapper);
 
     verify(guestRepository,times(1)).findById(guestModel.getId());
     verify(roomRepository,times(1)).findById(roomModel.getId());

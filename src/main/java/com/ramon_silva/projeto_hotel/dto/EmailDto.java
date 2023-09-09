@@ -1,7 +1,5 @@
 package com.ramon_silva.projeto_hotel.dto;
 
-import com.ramon_silva.projeto_hotel.models.EmailModel;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 

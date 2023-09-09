@@ -19,12 +19,13 @@ import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.GuestModel;
 import com.ramon_silva.projeto_hotel.repositories.GuestRepository;
+import com.ramon_silva.projeto_hotel.services.interfaces.IGuestService;
 
 
 
 
 @Service
-public class GuestServiceIMP implements GuestService{
+public class GuestServiceIMP implements IGuestService{
 
     private final GuestRepository guestRepository;
     private final ModelMapper modelMapper;

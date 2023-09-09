@@ -2,7 +2,9 @@ package com.ramon_silva.projeto_hotel.enums;
 
 public enum UsersEnum {
     ADMIN("admin"),
-    USER("user");
+    HOTEL("hotel"),
+    USER("user")
+    ;
 
     private String role;
 

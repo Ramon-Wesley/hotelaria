@@ -15,9 +15,10 @@ import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.AddressModel;
 import com.ramon_silva.projeto_hotel.repositories.AddressRepository;
+import com.ramon_silva.projeto_hotel.services.interfaces.IAddressService;
 
 @Service
-public class AddressServiceIMP implements AddressService{
+public class AddressServiceIMP implements IAddressService{
 
 
     private final AddressRepository addressRepository;
@@ -62,7 +63,7 @@ public class AddressServiceIMP implements AddressService{
     }
 
     @Override
-    public AddressDto deleteById(Long id) {
+    public void deleteById(Long id) {
        
         throw new UnsupportedOperationException("Unimplemented method 'deleteById'");
     }

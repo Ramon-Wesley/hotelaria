@@ -40,6 +40,7 @@ public class AuthenticationController {
 
         var token=tokenService.GeneratedToken((UsersModel)auth.getPrincipal());
         return ResponseEntity.ok(new LoginResponseDto(token));
+        
     }
 
     @PostMapping("/registrar")

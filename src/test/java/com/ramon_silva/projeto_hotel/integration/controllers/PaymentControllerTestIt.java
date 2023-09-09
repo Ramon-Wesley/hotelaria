@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
+import com.ramon_silva.projeto_hotel.dto.ReservationDto;
 import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 import com.ramon_silva.projeto_hotel.models.AddressModel;
@@ -139,7 +140,8 @@ void setDown(){
     void Test_payment_success() throws Exception {
   
           paymentDto=new PaymentDto
-          (null, null, 
+          (null,
+          modelMapper.map(reservationModelPayment,ReservationDto.class), 
           PaymentMethodEnum.MONEY,
            null, null, 0);        
           String json=objectMapper.writeValueAsString(paymentDto);
@@ -163,7 +165,7 @@ void setDown(){
       reservationModel.setStatus(StatusEnum.PENDING);
       reservationRepository.save(reservationModel);
 
-          paymentDto=new PaymentDto(null, null, PaymentMethodEnum.MONEY, null, null, 0);        
+          paymentDto=new PaymentDto(null, modelMapper.map(reservationModel,ReservationDto.class), PaymentMethodEnum.MONEY, null, null, 0);        
           String json=objectMapper.writeValueAsString(paymentDto);
           Long reservation_id=reservationModel.getId();
           mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/reserva/{id_reservation}", reservation_id)
@@ -178,7 +180,7 @@ void setDown(){
     @DisplayName("erro ao realizar um pagamento com uma reserva ja paga")
     void Test_payment_error_with_reservation_pay() throws Exception{
      
-          paymentDto=new PaymentDto(null, null, PaymentMethodEnum.MONEY, null, null, 0);        
+          paymentDto=new PaymentDto(null, modelMapper.map(reservationModel, ReservationDto.class), PaymentMethodEnum.MONEY, null, null, 0);        
           String json=objectMapper.writeValueAsString(paymentDto);
           Long reservation_id=reservationModelPayment.getId();
           mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/reserva/{id_reservation}", reservation_id)
@@ -204,7 +206,7 @@ void setDown(){
           .post("/pagamento/reserva/{id_reservation}", reservation_id)
               .contentType(MediaType.APPLICATION_JSON)
               .content(json))
-              .andExpect(MockMvcResultMatchers.status().isNotFound());     
+              .andExpect(MockMvcResultMatchers.status().isBadRequest());     
            verify(emailService,times(0)).sendEmail(any(EmailModel.class), any(Object.class), anyString());
      
     }

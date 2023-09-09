@@ -28,6 +28,8 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class PaymentDto {
     private Long id;
+
+    @NotNull
     private ReservationDto reservation;
     @NotNull  
     private PaymentMethodEnum paymentMethod;

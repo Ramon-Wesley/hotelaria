@@ -22,12 +22,13 @@ import com.ramon_silva.projeto_hotel.models.ReservationModel;
 import com.ramon_silva.projeto_hotel.repositories.PaymentRepository;
 import com.ramon_silva.projeto_hotel.repositories.ReservationRepository;
 import com.ramon_silva.projeto_hotel.repositories.Reservation_serviceRepository;
+import com.ramon_silva.projeto_hotel.services.interfaces.IPaymentService;
 import com.ramon_silva.projeto_hotel.util.Constants;
 import com.ramon_silva.projeto_hotel.util.MailConstants;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 
 @Service
-public class PaymentServiceIMP implements PaymentService{
+public class PaymentServiceIMP implements IPaymentService{
 
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
@@ -46,20 +47,20 @@ public class PaymentServiceIMP implements PaymentService{
 
 
     @Override
-    public PaymentDto payment(PaymentDto paymentDto,Long reservation_id) {   
+    public PaymentDto create(PaymentDto paymentDto) {
+        Long reservation_id=paymentDto.getReservation().getId();   
+        Optional<ReservationModel> reservationModel=
+        reservationRepository.findById(reservation_id);
+        if(!reservationModel.isPresent()){
+            throw new ResourceNotFoundException("reservas","id",reservation_id);
+        }
+
         Optional<PaymentModel> paymentResult=paymentRepository
         .findByReservationId(reservation_id);
-        
         if(paymentResult.isPresent()){
             throw new GeralException("Essa reserva ja esta paga!");
         }
-
-            Optional<ReservationModel> reservationModel=
-            reservationRepository.findById(reservation_id);
-            if(!reservationModel.isPresent()){
-                throw new ResourceNotFoundException("reservas","id",reservation_id);
-            }
-             Double valueService=0.0;
+            Double valueService=0.0;
             if(!Objects.requireNonNull(reservationModel.get().getReservation_service()).isEmpty()){
                 valueService=reservationModel.get().getReservation_service().stream()
                 .mapToDouble(res->res.getServico().getPrice()).sum();
@@ -88,7 +89,7 @@ public class PaymentServiceIMP implements PaymentService{
     
 
     @Override
-    public PaymentDto getPaymentById(Long id) { 
+    public PaymentDto getById(Long id) { 
        
         PaymentModel payment=paymentRepository.findById(id)
         .orElseThrow(()->
@@ -100,7 +101,7 @@ public class PaymentServiceIMP implements PaymentService{
     }
 
     @Override
-    public void deletePaymentById(Long id) {
+    public void deleteById(Long id) {
        
             paymentRepository.findById(id)
             .orElseThrow

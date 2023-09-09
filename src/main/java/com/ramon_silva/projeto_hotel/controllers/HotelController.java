@@ -20,6 +20,7 @@ import com.ramon_silva.projeto_hotel.services.HotelServiceIMP;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/hotel")
@@ -41,7 +42,7 @@ public class HotelController {
 
     @DeleteMapping("/{id}")
     @Transactional
-     public ResponseEntity<Void> deleteById(@PathVariable(name="id") Long id){
+     public ResponseEntity<Void> deleteById(@PathVariable(name="id") @Positive Long id){
     hotelIMP.deleteById(id);
      return ResponseEntity.ok().build(); 
     }
@@ -64,7 +65,7 @@ public class HotelController {
     }
 
     @GetMapping("/{id}") 
-     public ResponseEntity<HotelDto> getById(@PathVariable(name = "id") Long id){
+     public ResponseEntity<HotelDto> getById(@PathVariable(name = "id") @Positive Long id){
       return new ResponseEntity<HotelDto>(hotelIMP.getById(id),HttpStatus.OK); 
     }
 }

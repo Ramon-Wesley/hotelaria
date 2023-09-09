@@ -17,36 +17,41 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class ConfigurationSecurity {
-    
+
     @Autowired
     SecurityFilter securityFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-        .csrf(csrf->csrf.disable())
-        .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(authorize->
-        authorize.
-        requestMatchers(HttpMethod.POST, "/login")
-        .permitAll().
-        requestMatchers(HttpMethod.POST, "/login/registrar")
-        .permitAll()
-        .requestMatchers(HttpMethod.POST,"/usuario")
-        .hasRole("ADMIN")
-        .anyRequest().permitAll()
-        )
-        .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)        
-        .build();
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize ->
+                         authorize.requestMatchers(HttpMethod.GET, "/hotel/*")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/login/*")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/hospedes")
+                        .hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/hotel")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/hotel/{id}")
+                        .hasAnyRole("ADMIN", "HOTEL")
+                        .requestMatchers(HttpMethod.DELETE, "/hotel/{id}")
+                        .hasAnyRole("ADMIN", "HOTEL")
+                        .anyRequest().authenticated())
+                .cors(cors -> cors.disable())
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

@@ -31,4 +31,5 @@ boolean hasConflictingReservationsDatesWithIdNotEquals(
 @Param("checkIn") LocalDate checkIn,
 @Param("checkOut") LocalDate checkOut);
 
+
  }

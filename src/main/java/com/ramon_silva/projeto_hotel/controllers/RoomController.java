@@ -23,44 +23,49 @@ import jakarta.validation.constraints.Positive;
 @RestController
 @RequestMapping("/quartos")
 public class RoomController {
-    
+
     private RoomServiceIMP roomserviceIMP;
-    public RoomController(RoomServiceIMP roomServiceIMP){
-      this.roomserviceIMP=roomServiceIMP;
+
+    public RoomController(RoomServiceIMP roomServiceIMP) {
+        this.roomserviceIMP = roomServiceIMP;
     }
 
-    
+    @PostMapping
     @Transactional
-    public ResponseEntity<RoomDto> create(@RequestBody @Valid RoomDto roomDto,UriComponentsBuilder uriComponentsBuilder){
-        var uri=uriComponentsBuilder.path("quartos/{id}").buildAndExpand(roomDto.getId()).toUri();
+    public ResponseEntity<RoomDto> create(@RequestBody @Valid RoomDto roomDto,
+            UriComponentsBuilder uriComponentsBuilder) {
+        var uri = uriComponentsBuilder.path("quartos/{id}").buildAndExpand(roomDto.getId()).toUri();
         return ResponseEntity.created(uri).body(roomserviceIMP.create(roomDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable(name="id") Long id){
+    @Transactional
+    public ResponseEntity<Void> deleteById(@PathVariable(name = "id") @Positive Long id) {
         roomserviceIMP.deleteById(id);
         return ResponseEntity.ok().build();
     }
+
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<RoomDto> updateById(@PathVariable(name = "id") @Positive Long id,@RequestBody @Valid RoomDto roomDto){
+    public ResponseEntity<RoomDto> updateById(@PathVariable(name = "id") @Positive Long id,
+            @RequestBody @Valid RoomDto roomDto) {
 
-        return ResponseEntity.ok().body(roomserviceIMP.updateById(id,roomDto));
+        return ResponseEntity.ok().body(roomserviceIMP.updateById(id, roomDto));
     }
+
     @GetMapping
     public ResponseEntity<PageDto<RoomDto>> getAll(
-        @RequestParam(name="hotel",defaultValue = "") String hotel,
-        @RequestParam(name = "pageNumber",defaultValue = "0")int pageNumber,
-        @RequestParam(name = "pageSize",defaultValue = "10")int pageSize,
-        @RequestParam(name = "sortBy",defaultValue = "id")String sortBy,
-        @RequestParam(name = "sortOrder",defaultValue = "desc")String sortOrder
+            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = "desc") String sortOrder
 
-    ){
-        return ResponseEntity.ok().body(roomserviceIMP.getAll(hotel,pageNumber, pageSize, sortBy, sortOrder));
+    ) {
+        return ResponseEntity.ok().body(roomserviceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RoomDto> getById(@PathVariable(name = "id") Long id){
+    public ResponseEntity<RoomDto> getById(@PathVariable(name = "id") @Positive Long id) {
         return ResponseEntity.ok().body(roomserviceIMP.getById(id));
     }
 

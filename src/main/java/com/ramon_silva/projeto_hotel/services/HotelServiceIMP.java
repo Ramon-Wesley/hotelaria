@@ -16,9 +16,10 @@ import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.HotelModel;
 import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
+import com.ramon_silva.projeto_hotel.services.interfaces.IHotelService;
 
 @Service
-public class HotelServiceIMP implements HotelService {
+public class HotelServiceIMP implements IHotelService {
 
     
     private final HotelRepository hotelRepository;

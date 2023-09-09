@@ -15,6 +15,7 @@ import com.ramon_silva.projeto_hotel.dto.ServicesDto;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.ServicesModel;
 import com.ramon_silva.projeto_hotel.repositories.ServicesRepository;
+import com.ramon_silva.projeto_hotel.services.interfaces.ServicesService;
 
 
 @Service

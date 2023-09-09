@@ -17,10 +17,11 @@ import com.ramon_silva.projeto_hotel.models.HotelModel;
 import com.ramon_silva.projeto_hotel.models.RoomModel;
 import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
 import com.ramon_silva.projeto_hotel.repositories.RoomRepository;
+import com.ramon_silva.projeto_hotel.services.interfaces.IRoomService;
 
 
 @Service
-public class RoomServiceIMP implements RoomService {
+public class RoomServiceIMP implements IRoomService {
 
     private final RoomRepository roomRepository;
     private final HotelRepository hotelRepository;
@@ -46,7 +47,7 @@ public class RoomServiceIMP implements RoomService {
     }
 
     @Override
-    public PageDto<RoomDto> getAll(String hotel,int pageNumber, int pageSize, String sortBy, String sortOrder) {
+    public PageDto<RoomDto> getAll(int pageNumber, int pageSize, String sortBy, String sortOrder) {
         Sort sort =sortOrder.equalsIgnoreCase("desc")?Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
         Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
         Page<RoomModel> page=roomRepository.findAll(pageable);

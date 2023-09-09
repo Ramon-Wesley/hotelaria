@@ -1,9 +1,7 @@
 package com.ramon_silva.projeto_hotel.models;
 
-
 import java.time.LocalDate;
 
-import com.ramon_silva.projeto_hotel.dto.PaymentDto;
 import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
 
@@ -31,33 +29,28 @@ import lombok.Setter;
 @Setter
 public class PaymentModel {
 
-   
- 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY,optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "reserva_id")
     private ReservationModel reservation;
 
-    
     @Enumerated
     @NotNull
     @Column(name = "metodo_de_pagamento")
     private PaymentMethodEnum paymentMethod;
 
-    
-    
-    @Column(name="data_do_pagamento")
-    private LocalDate payment_day=LocalDate.now();
+    @Column(name = "data_do_pagamento")
+    private LocalDate payment_day = LocalDate.now();
 
     @Enumerated
     @NotNull
     private StatusEnum status;
 
     @NotNull
-    @Column(name="total_do_pagamento")
+    @Column(name = "total_do_pagamento")
     private double total_payment;
 }

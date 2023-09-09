@@ -62,13 +62,13 @@ public class PaymentControllerTest {
         paymentModel.setId(1L);
         PaymentDto payment=modelMapper.map(paymentModel,PaymentDto.class);
         Long reservation_id=paymentDto.getReservation().getId();
-        when(paymentServiceIMP.payment(any(PaymentDto.class),anyLong())).thenReturn(payment);
+        when(paymentServiceIMP.create(any(PaymentDto.class))).thenReturn(payment);
 
          ResponseEntity<PaymentDto> response= paymentController.payment(reservation_id, payment, uriBuilder);
 
          assertEquals(HttpStatus.CREATED,response.getStatusCode());
          assertNotNull(response.getBody().getId());
-         verify(paymentServiceIMP,times(1)).payment(any(PaymentDto.class),anyLong());
+         verify(paymentServiceIMP,times(1)).create(any(PaymentDto.class));
 
     }
     
@@ -80,11 +80,11 @@ public class PaymentControllerTest {
         paymentModel.setId(1L);
         PaymentDto payment=modelMapper.map(paymentModel,PaymentDto.class);
         Long reservation_id=paymentDto.getReservation().getId();
-        when(paymentServiceIMP.payment(any(PaymentDto.class),anyLong())).thenThrow(GeralException.class);
+        when(paymentServiceIMP.create(any(PaymentDto.class))).thenThrow(GeralException.class);
 
         assertThrows(GeralException.class,()->paymentController.payment(reservation_id, payment, uriBuilder));
 
-         verify(paymentServiceIMP,times(1)).payment(any(PaymentDto.class),anyLong());
+         verify(paymentServiceIMP,times(1)).create(any(PaymentDto.class));
 
     }
 
@@ -96,11 +96,11 @@ public class PaymentControllerTest {
         paymentModel.setId(1L);
         PaymentDto payment=modelMapper.map(paymentModel,PaymentDto.class);
         Long reservation_id=99L;
-        when(paymentServiceIMP.payment(any(PaymentDto.class),anyLong())).thenThrow(ResourceNotFoundException.class);
+        when(paymentServiceIMP.create(any(PaymentDto.class))).thenThrow(ResourceNotFoundException.class);
 
         assertThrows(ResourceNotFoundException.class,()->paymentController.payment(reservation_id, payment, uriBuilder));
 
-         verify(paymentServiceIMP,times(1)).payment(any(PaymentDto.class),anyLong());
+         verify(paymentServiceIMP,times(1)).create(any(PaymentDto.class));
 
     }
 
@@ -111,7 +111,7 @@ public class PaymentControllerTest {
         ResponseEntity<Void> result=paymentController.deleteById(id);
 
         assertEquals(HttpStatus.OK,result.getStatusCode());
-        verify(paymentServiceIMP,times(1)).deletePaymentById(id);
+        verify(paymentServiceIMP,times(1)).deleteById(id);
                  
 
     }
@@ -120,12 +120,12 @@ public class PaymentControllerTest {
     @DisplayName("Deletar um pagamento inexistente")
     void Test_delete_payment_by_id_notExists(){
         Long id=99L;
-        doThrow(ResourceNotFoundException.class).when(paymentServiceIMP).deletePaymentById(id);
+        doThrow(ResourceNotFoundException.class).when(paymentServiceIMP).deleteById(id);
 
     
         assertThrows(ResourceNotFoundException.class,()->paymentController.deleteById(id));
 
-        verify(paymentServiceIMP,times(1)).deletePaymentById(id);
+        verify(paymentServiceIMP,times(1)).deleteById(id);
                 
     }
 
@@ -177,13 +177,13 @@ public class PaymentControllerTest {
         paymentModel.setId(1L);
         paymentDto=modelMapper.map(paymentModel,PaymentDto.class);
         Long id=paymentDto.getId();
-        when(paymentServiceIMP.getPaymentById(id)).thenReturn(paymentDto);
+        when(paymentServiceIMP.getById(id)).thenReturn(paymentDto);
         ResponseEntity<PaymentDto> result=paymentController.getById(id);
 
         assertEquals(HttpStatus.OK,result.getStatusCode());
         assertEquals(id,result.getBody().getId());
         assertEquals(paymentDto,result.getBody());
-        verify(paymentServiceIMP,times(1)).getPaymentById(id);
+        verify(paymentServiceIMP,times(1)).getById(id);
                  
 
     }
@@ -193,11 +193,11 @@ public class PaymentControllerTest {
     void Test_get_payment_notExist_by_id(){
    
         Long id=99L;
-        when(paymentServiceIMP.getPaymentById(id)).thenThrow(ResourceNotFoundException.class);
+        when(paymentServiceIMP.getById(id)).thenThrow(ResourceNotFoundException.class);
         
         assertThrows(ResourceNotFoundException.class, ()->paymentController.getById(id));
 
-        verify(paymentServiceIMP,times(1)).getPaymentById(id);
+        verify(paymentServiceIMP,times(1)).getById(id);
                 
     }
 

@@ -20,12 +20,13 @@ import com.ramon_silva.projeto_hotel.enums.StatusEmailEnum;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.models.EmailModel;
 import com.ramon_silva.projeto_hotel.repositories.EmailRepository;
+import com.ramon_silva.projeto_hotel.services.interfaces.IEmailService;
 import com.ramon_silva.projeto_hotel.util.MailConstants;
 
 import jakarta.mail.internet.MimeMessage;
 
 @Service
-public class EmailServiceIMP  implements EmailService{
+public class EmailServiceIMP  implements IEmailService{
 
 
     private final JavaMailSender javaMailSender;
