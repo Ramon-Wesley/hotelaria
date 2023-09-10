@@ -29,17 +29,7 @@ public class ConfigurationSecurity {
                 .authorizeHttpRequests(authorize ->
                          authorize.requestMatchers(HttpMethod.GET, "/hotel/*")
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/login/*")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/hospedes")
-                        .hasRole("USER")
-                        .requestMatchers(HttpMethod.POST, "/hotel")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/hotel/{id}")
-                        .hasAnyRole("ADMIN", "HOTEL")
-                        .requestMatchers(HttpMethod.DELETE, "/hotel/{id}")
-                        .hasAnyRole("ADMIN", "HOTEL")
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .cors(cors -> cors.disable())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -1,7 +1,8 @@
 package com.ramon_silva.projeto_hotel.models;
 
-
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.validator.constraints.Length;
@@ -38,8 +39,6 @@ import lombok.Setter;
 @Setter
 public class HotelModel {
 
-
-   
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -50,20 +49,19 @@ public class HotelModel {
     private String name;
 
     @CNPJ
-    @Column(name = "cnpj",unique = true)
+    @Column(name = "cnpj", unique = true)
     private String cnpj;
 
     @NotBlank
-    @NotNull 
+    @NotNull
     @Email
-    @Column(name="email", unique=true)
+    @Column(name = "email", unique = true)
     private String email;
-    
+
     @NotBlank
     @NotNull
-    @Column(name="telefone")
+    @Column(name = "telefone")
     private String phone;
-
 
     @Column(name = "descricao")
     private String description;
@@ -74,15 +72,13 @@ public class HotelModel {
     @Column(name = "classificacao")
     private int classification;
 
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RoomModel> rooms = new HashSet<>();
 
-    @OneToMany(mappedBy ="hotel",cascade = CascadeType.ALL,orphanRemoval = true)
-    private Set<RoomModel> rooms= new HashSet<>();
-
-    @OneToOne(   
-     optional = false,
-     fetch = FetchType.LAZY,
-     orphanRemoval = true,
-     cascade = CascadeType.ALL)
+    @OneToOne(optional = false, fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")
     private AddressModel address;
+
+    @OneToMany(mappedBy = "hotel", orphanRemoval = true, cascade = CascadeType.ALL)
+    List<HotelImage> hotelImages = new ArrayList<>();
 }
