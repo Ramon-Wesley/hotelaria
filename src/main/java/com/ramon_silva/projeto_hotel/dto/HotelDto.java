@@ -1,11 +1,13 @@
 package com.ramon_silva.projeto_hotel.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Map;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.br.CNPJ;
 
+import com.ramon_silva.projeto_hotel.models.HotelImage;
 import com.ramon_silva.projeto_hotel.models.HotelModel;
 
 import jakarta.validation.constraints.Email;
@@ -32,7 +34,6 @@ public class HotelDto{
 
     private Long id;
 
-
     @NotBlank
     @Length(min = 2)
     private String name;
@@ -44,18 +45,16 @@ public class HotelDto{
     @Email
     private String email;
     
-   @NotBlank
+    @NotBlank
     private String phone;
     
     private String description;
 
-    @Min(1)
-    @Max(5)
     @NotNull
-    private int classification;
+    private String classification;
 
     private AddressDto address;
 
-    private List<HotelImageDto> hotelImageDtos;
+    List<HotelImageDto> hotelImages;
 
     }

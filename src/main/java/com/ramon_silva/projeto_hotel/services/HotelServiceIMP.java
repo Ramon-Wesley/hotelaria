@@ -17,7 +17,9 @@ import com.ramon_silva.projeto_hotel.dto.HotelImageDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
+import com.ramon_silva.projeto_hotel.models.HotelImage;
 import com.ramon_silva.projeto_hotel.models.HotelModel;
+import com.ramon_silva.projeto_hotel.repositories.HotelImageRepository;
 import com.ramon_silva.projeto_hotel.repositories.HotelRepository;
 import com.ramon_silva.projeto_hotel.services.interfaces.IHotelService;
 import com.ramon_silva.projeto_hotel.util.UploadUtil;
@@ -26,36 +28,22 @@ import com.ramon_silva.projeto_hotel.util.UploadUtil;
 public class HotelServiceIMP implements IHotelService {
 
     private final HotelRepository hotelRepository;
+    private final HotelImageRepository hotelImageRepository;
     private final ModelMapper modelMapper;
-    private UploadUtil uploadUtil;
 
-    private HotelServiceIMP(HotelRepository hotelRepository, ModelMapper modelMapper) {
+    private HotelServiceIMP(HotelRepository hotelRepository, ModelMapper modelMapper,
+            HotelImageRepository hotelImageRepository) {
 
         this.hotelRepository = hotelRepository;
         this.modelMapper = modelMapper;
+        this.hotelImageRepository = hotelImageRepository;
     }
 
     @Override
-    public HotelDto create(HotelDto hotel, List<MultipartFile> files) {
+    public HotelDto create(HotelDto hotel) {
         boolean existsCnpj = hotelRepository.existsByCnpj(hotel.getCnpj());
 
         if (!existsCnpj) {
-            if (files.size() > 0) {
-                HotelImageDto hotelImageDtos = new HotelImageDto();
-            
-                files.stream().forEach((e) -> {
-                    try {
-                        if (uploadUtil.uploadLoadImage(e, "hotel") == true) {
-                            hotelImageDtos.setHotel(hotel);
-                            hotelImageDtos.setImageUrl(e.getOriginalFilename());
-                            hotel.getHotelImageDtos().add(hotelImageDtos);
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                });
-            }
-
             HotelModel hotelModel = hotelRepository.save(modelMapper.map(hotel, HotelModel.class));
             return modelMapper.map(hotelModel, HotelDto.class);
         }
@@ -84,7 +72,7 @@ public class HotelServiceIMP implements IHotelService {
     }
 
     @Override
-    public HotelDto updateById(Long id, HotelDto hotel, List<MultipartFile> files) {
+    public HotelDto updateById(Long id, HotelDto hotel) {
 
         hotelRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Hotel", "id", id));
@@ -103,6 +91,48 @@ public class HotelServiceIMP implements IHotelService {
         hotelRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Hotel", "id", id));
         hotelRepository.deleteById(id);
+    }
+
+    @Override
+    public void addImage(Long id, List<MultipartFile> file) {
+        HotelModel hotelResult = hotelRepository.findById(id)
+                .orElseThrow(() ->
+                 new ResourceNotFoundException("hotel", "id", id));
+        HotelDto hotel = modelMapper.map(hotelResult, HotelDto.class);
+        List<HotelImage> hotelImageModels = new ArrayList();
+        if (file != null && !file.isEmpty()) {
+            file.stream().forEach((e) -> {
+                try {
+                    HotelImageDto hotelImageDtos = new HotelImageDto();
+                    if (UploadUtil.uploadLoadImage(e, "hotel",hotel.getName())) {
+                        hotelImageDtos.setImageUrl(hotel.getName()+"-"+e.getOriginalFilename());
+                        hotelImageDtos.setHotel(hotel);
+                        hotelImageModels.add(modelMapper.map(hotelImageDtos, HotelImage.class));
+
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+        }
+
+        if (hotelImageModels.size() > 0) {
+
+            hotelImageRepository.saveAll(hotelImageModels);
+        }
+
+    }
+
+    @Override
+    public void removeImage(Long id, List<String> file) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removeImage'");
+    }
+
+    @Override
+    public PageDto<HotelDto> getAll(Long id, int pageNumber, int pageSize, String sortBy, String sortOrder) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAll'");
     }
 
 }

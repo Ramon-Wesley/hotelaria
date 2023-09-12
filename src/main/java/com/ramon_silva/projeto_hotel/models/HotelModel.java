@@ -66,11 +66,9 @@ public class HotelModel {
     @Column(name = "descricao")
     private String description;
 
-    @Min(1)
-    @Max(5)
     @NotNull
     @Column(name = "classificacao")
-    private int classification;
+    private String classification;
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RoomModel> rooms = new HashSet<>();
@@ -79,6 +77,6 @@ public class HotelModel {
     @JoinColumn(name = "endereco_id")
     private AddressModel address;
 
-    @OneToMany(mappedBy = "hotel", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hotel", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<HotelImage> hotelImages = new ArrayList<>();
 }

@@ -13,13 +13,13 @@ public class UploadUtil {
     private UploadUtil() {
     }
 
-    public static boolean uploadLoadImage(MultipartFile image, String folderName) {
+    public static boolean uploadLoadImage(MultipartFile image, String folderName,String name) {
         boolean sucess = false;
 
-        if (image.isEmpty()) {
-            String archiveName = image.getOriginalFilename();
+        if (!image.isEmpty()) {
+            String archiveName = name+"-"+ image.getOriginalFilename();
             try {
-                String folderUploadLocation = "/home/ramon/projeto_spring/hotelaria2/src/main/resources/images/img-uploads-"
+                String folderUploadLocation = "./src/main/resources/images/img-upload-"
                         + folderName;
 
                 File file = new File(folderUploadLocation);
@@ -36,13 +36,12 @@ public class UploadUtil {
                 sucess = true;
 
             } catch (Exception e) {
-             e.printStackTrace();
+                e.printStackTrace();
             }
         }
 
         return sucess;
     }
-    
 
     public static boolean removeImage(String folderName, String pathName) {
         boolean success = false;

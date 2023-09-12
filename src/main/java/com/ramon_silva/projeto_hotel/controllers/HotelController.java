@@ -20,6 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.ramon_silva.projeto_hotel.dto.HotelDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.services.HotelServiceIMP;
+import com.ramon_silva.projeto_hotel.util.UploadUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,13 +42,17 @@ public class HotelController {
   @PostMapping
   @Transactional
   public ResponseEntity<HotelDto> create(@RequestBody @Valid HotelDto hoteldto,
-      @RequestParam("file") List<MultipartFile> images,
       UriComponentsBuilder uriBuilder) {
 
-    HotelDto hotel = hotelIMP.create(hoteldto, images);
+    HotelDto hotel = hotelIMP.create(hoteldto);
     var uri = uriBuilder.path("/hotel/{id}").buildAndExpand(hotel.getId()).toUri();
     return ResponseEntity.created(uri).body(hotel);
   }
+@PostMapping("{id_hotel}/imagens")
+public ResponseEntity<Void> addImage(@PathVariable("id_hotel")Long id,@RequestParam("file")List<MultipartFile> file){
+  hotelIMP.addImage(id, file);
+  return ResponseEntity.ok().build();
+}
 
   @DeleteMapping("/{id}")
   @Transactional
@@ -59,9 +64,9 @@ public class HotelController {
   @PutMapping("/{id}")
   @Transactional
   public ResponseEntity<HotelDto> updateById(@PathVariable(name = "id") Long id,
-      @Valid @RequestBody HotelDto hotel, @RequestParam("file") List<MultipartFile> images) {
+      @Valid @RequestBody HotelDto hotel) {
 
-    return ResponseEntity.ok().body(hotelIMP.updateById(id, hotel, images));
+    return ResponseEntity.ok().body(hotelIMP.updateById(id, hotel));
   }
 
   @GetMapping
