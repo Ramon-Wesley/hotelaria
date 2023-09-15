@@ -34,7 +34,6 @@ public class ReservationDto{
     @NotNull
     private RoomDto room;
 
-    
     @Future
     @NotNull
     private LocalDate checkInDate;
@@ -43,16 +42,11 @@ public class ReservationDto{
     @NotNull
     private LocalDate checkOutDate;
     
-
     @NotNull
     private StatusEnum status;
 
-
-
     private Double total_pay;
     
-
-
     private Set<Reservation_serviceModel> reservation_service=new HashSet<>();
 
 }

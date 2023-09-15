@@ -14,7 +14,7 @@ public interface ReservationRepository extends JpaRepository<ReservationModel, L
     @Query(value = "SELECT COUNT(*) > 0 FROM reservas  " +
     "WHERE quarto_id = :quarto_id " +
     "AND data_de_check_in <= :checkOut " +
-    "AND data_de_check_out >= :checkIn",nativeQuery=true)
+    "AND data_de_check_out >= :checkIn LIMIT 1" ,nativeQuery=true)
 boolean hasConflictingReservations(
 @Param("quarto_id") Long room,
 @Param("checkIn") LocalDate checkIn,

@@ -103,37 +103,41 @@ public class ReservationServiceIMP implements IReservationService {
     ReservationModel reservationModel = reservationRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Reserva",
             "id", id));
+if(! reservationModel.getStatus().equals(StatusEnum.PAY) ||reservationModel.getStatus().equals(StatusEnum.CANCELED) ){
 
-    guestRepository.findById(reservationDto.getGuest().getId())
-        .orElseThrow(() -> new ResourceNotFoundException("hospede", "id", reservationDto.getGuest().getId()));
+  guestRepository.findById(reservationDto.getGuest().getId())
+  .orElseThrow(() -> new ResourceNotFoundException("hospede", "id", reservationDto.getGuest().getId()));
+  
+  RoomModel roomModel = roomRepository.findById(reservationDto.getRoom().getId())
+  .orElseThrow(() -> new ResourceNotFoundException("quarto", "id", reservationDto.getRoom().getId()));
 
-    RoomModel roomModel = roomRepository.findById(reservationDto.getRoom().getId())
-        .orElseThrow(() -> new ResourceNotFoundException("quarto", "id", reservationDto.getRoom().getId()));
-
-    boolean result = reservationRepository.hasConflictingReservationsDatesWithIdNotEquals(id, roomModel.getId(),
-        reservationDto.getCheckInDate(), reservationDto.getCheckOutDate());
-    if (result) {
-      throw new GeralException("Datas conflitantes!");
-    }
-    reservationDto.setId(id);
-    reservationModel = modelMapper.map(reservationDto, ReservationModel.class);
-    reservationModel.setTotal_pay(totalPrice(reservationModel.getCheckInDate(), reservationModel.getCheckOutDate(),
-        reservationModel.getRoom().getPrice()));
-
-    ReservationModel resultModel = reservationRepository.save(reservationModel);
-    ReservationDto resultDto = modelMapper.map(resultModel, ReservationDto.class);
-
-    EmailModel email = new EmailModel();
-    email.setEmailFrom(MailConstants.BASIC_EMAIL);
-    email.setEmailTo(resultDto.getGuest().getEmail());
-    email.setSubject(resultDto.getRoom().getHotel().getName());
-    email.setText(MailConstants.MESSAGE_RESERVATION);
-    emailServiceIMP.sendEmail(email, resultDto, MailConstants.RESERVATION);
-
-    return resultDto;
+  boolean result = reservationRepository.hasConflictingReservationsDatesWithIdNotEquals(id, roomModel.getId(),
+  reservationDto.getCheckInDate(), reservationDto.getCheckOutDate());
+  if (result) {
+    throw new GeralException("Datas conflitantes!");
   }
+  reservationDto.setId(id);
+  reservationModel = modelMapper.map(reservationDto, ReservationModel.class);
+  reservationModel.setTotal_pay(totalPrice(reservationModel.getCheckInDate(), reservationModel.getCheckOutDate(),
+  reservationModel.getRoom().getPrice()));
+  
+  ReservationModel resultModel = reservationRepository.save(reservationModel);
+  ReservationDto resultDto = modelMapper.map(resultModel, ReservationDto.class);
+  
+  EmailModel email = new EmailModel();
+  email.setEmailFrom(MailConstants.BASIC_EMAIL);
+  email.setEmailTo(resultDto.getGuest().getEmail());
+  email.setSubject(resultDto.getRoom().getHotel().getName());
+  email.setText(MailConstants.MESSAGE_RESERVATION);
+  emailServiceIMP.sendEmail(email, resultDto, MailConstants.RESERVATION);
+  
+  return resultDto;
+}else{
+  throw new GeralException("Reserva não pode ser alterada!");
+}
+}
 
-  @Override
+@Override
   public ReservationDto getById(Long id) {
 
     ReservationModel reservation = reservationRepository.findById(id)
@@ -189,6 +193,7 @@ public class ReservationServiceIMP implements IReservationService {
   @Override
   public void addServices(Long reservation_id, List<ServicesDto> servicesDto) {
 
+
     ReservationModel reservationModel = reservationRepository.findById(reservation_id)
         .orElseThrow(() -> new ResourceNotFoundException("reserva", "id", reservation_id));
 
@@ -200,10 +205,11 @@ public class ReservationServiceIMP implements IReservationService {
         .map(((e) -> e.getId())).collect(Collectors.toList());
 
     List<ServicesModel> servicesModel = servicesRepository
-        .findAllById(id_services);
+        .findAllByIdInAndActive(id_services,true);
+        
 
     if (servicesModel.size() != id_services.size()) {
-      throw new GeralException("servicos inexistentes! ");
+      throw new GeralException("Há servicos inexitentes ou desativados! ");
     }
 
     Set<Reservation_serviceModel> reservation_serviceModel = new HashSet<>();
@@ -259,9 +265,17 @@ public class ReservationServiceIMP implements IReservationService {
 
   @Override
   public void deleteById(Long id) {
-    reservationRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("reserva", "id", id));
-    reservationRepository.deleteById(id);
+    
+   Optional<ReservationModel> reservation= reservationRepository.findById(id);
+   if(reservation.isPresent()){
+    if(!reservation.get().getStatus().equals(StatusEnum.PAY)){
+      reservationRepository.deleteById(id);
+    }else{
+      throw new GeralException("Reserva paga não pode ser apagada!");
+    }
+   }else{
+    throw new ResourceNotFoundException("reserva", "id", id);
+   }
   }
 
 }

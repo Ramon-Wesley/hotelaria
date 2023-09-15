@@ -31,6 +31,7 @@ public class RoomDto{
      @NotNull
      private TypeRoomEnum type_room;
 
+     private Boolean active=true;
     
      private String description;
 

@@ -24,10 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AddressModel {
-
-
-   
+public class AddressModel {   
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,8 +44,8 @@ public class AddressModel {
     @NotBlank
     @NotNull
     @Column(name = "CEP")
-    @Length(min = 10)
-    private String zapCode;
+    @Length(min = 9)
+    private String zipCode;
 
     @NotNull        
     @NotBlank
@@ -67,6 +64,6 @@ public class AddressModel {
     private String number;
 
     @Column(name = "complemento")
-    private String complemement;
+    private String complement;
     
 }

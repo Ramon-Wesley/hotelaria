@@ -69,4 +69,6 @@ public class GuestModel {
     @JoinColumn(name = "endereco_id")
     private AddressModel address;
     
+    @Column(name="ativo")
+    private Boolean active=true;
 }

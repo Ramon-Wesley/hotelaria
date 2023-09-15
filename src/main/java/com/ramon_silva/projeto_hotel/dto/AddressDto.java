@@ -34,17 +34,17 @@ public class AddressDto implements Serializable{
     @Length(min=2)
      private String state;
 
-     @JsonProperty("zapcode")
+     @JsonProperty("zipCode")
     @NotBlank
-    @Length(min = 10)
-     private String zapCode;
+    @Length(min = 9)
+     private String zipCode;
 
      @JsonProperty("city")
     @NotBlank
     @Length(min = 2)
     private  String city;
 
-    @JsonProperty("neighbothood")
+    @JsonProperty("neighborhood")
     @NotBlank
      private String neighborhood;
     

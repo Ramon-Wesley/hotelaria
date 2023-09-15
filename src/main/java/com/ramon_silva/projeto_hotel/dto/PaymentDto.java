@@ -12,14 +12,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,9 +30,13 @@ public class PaymentDto {
 
     @NotNull
     private ReservationDto reservation;
-    @NotNull  
+    @NotNull
     private PaymentMethodEnum paymentMethod;
-    private LocalDate payment_day=LocalDate.now();
+    @NotNull
+    @NotBlank
+    private LocalDate payment_day = LocalDate.now();
+     @NotNull
+    @NotBlank
     private StatusEnum status;
     private double total_payment;
 }

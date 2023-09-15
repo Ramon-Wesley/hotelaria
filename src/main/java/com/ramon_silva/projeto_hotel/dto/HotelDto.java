@@ -55,6 +55,8 @@ public class HotelDto{
 
     private AddressDto address;
 
-    List<HotelImageDto> hotelImages;
+    private Boolean active=true;
+    
+    private List<HotelImageDto> hotelImages=new ArrayList();
 
     }

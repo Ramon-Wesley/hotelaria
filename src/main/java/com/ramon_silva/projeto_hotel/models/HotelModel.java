@@ -77,6 +77,9 @@ public class HotelModel {
     @JoinColumn(name = "endereco_id")
     private AddressModel address;
 
-    @OneToMany(mappedBy = "hotel", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<HotelImage> hotelImages = new ArrayList<>();
+    @OneToMany(mappedBy = "hotelModel", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<HotelImage> hotelImages = new ArrayList<>();
+    
+    @Column(name="ativo")
+    private Boolean active=true;
 }

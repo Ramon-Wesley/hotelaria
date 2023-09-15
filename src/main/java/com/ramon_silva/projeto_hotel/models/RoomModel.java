@@ -57,12 +57,15 @@ public class RoomModel {
     @Column(name = "descricao")
     private String description;
 
+
+    @Column(name = "ativo")
+    private Boolean active=true;
     @NotNull
     @Positive
     @Column(name = "preco")
     private Double price;
 
     @OneToMany(mappedBy = "room",orphanRemoval = true,cascade = CascadeType.ALL)
-    List<RoomImage> roomImages=new ArrayList<>();
+     private List<RoomImage> roomImages=new ArrayList<>();
 
 }

@@ -74,7 +74,7 @@ public class ReservationModel {
     private Double total_pay;
     
 
-    @OneToMany(mappedBy = "reservation")
+    @OneToMany(mappedBy = "reservation",fetch = FetchType.LAZY)
     private Set<Reservation_serviceModel> reservation_service=new HashSet<>();
 
 }

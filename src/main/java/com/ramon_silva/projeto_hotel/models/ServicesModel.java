@@ -44,6 +44,9 @@ public class ServicesModel {
     @Column(name = "tipo_servico")
     private String type_service;
 
+    @Column(name = "ativo")
+    private Boolean active=true;
+    
     @Column(name="preco")
     @NotNull
     private Double price;

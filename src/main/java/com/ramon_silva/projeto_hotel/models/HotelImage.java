@@ -1,6 +1,7 @@
 package com.ramon_silva.projeto_hotel.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,8 +31,8 @@ public class HotelImage {
     @NotNull
     private String imageUrl;
 
-    @ManyToOne
-    @JoinColumn(name = "hotel_id")
-    private HotelModel hotel;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hotel_id",nullable = false)
+    private HotelModel hotelModel;
 
 }

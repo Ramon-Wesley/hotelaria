@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
+import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
 import com.ramon_silva.projeto_hotel.services.PaymentServiceIMP;
 
 import jakarta.transaction.Transactional;
@@ -34,10 +35,9 @@ public class PaymentController {
     @Transactional
     public ResponseEntity<PaymentDto> payment(
             @PathVariable(name = "reservation_id") @Positive Long id,
-            @RequestBody @Valid PaymentDto paymentDto,
+            @RequestBody PaymentMethodEnum paymentDto,
             UriComponentsBuilder uriComponentsBuilder) {
-        paymentDto.getReservation().setId(id);
-        PaymentDto paymentDto2 = paymentServiceIMP.create(paymentDto);
+        PaymentDto paymentDto2 = paymentServiceIMP.create(id,paymentDto);
         var uri = uriComponentsBuilder.path("/pagamento/{payment_id}").buildAndExpand(paymentDto2.getId()).toUri();
         return ResponseEntity.created(uri).body(paymentDto2);
     }

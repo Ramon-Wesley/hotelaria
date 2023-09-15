@@ -1,6 +1,7 @@
 package com.ramon_silva.projeto_hotel.enums;
 
 public enum StatusEnum {
+    PAY("pago"),
     CONFIRM("confirmado"),
     PENDING("pendente"),
     CANCELED("cancelado");
