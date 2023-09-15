@@ -1,7 +1,10 @@
 package com.ramon_silva.projeto_hotel.services;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -57,9 +60,12 @@ public class HotelServiceIMP implements IHotelService {
         Page<HotelModel> page = hotelRepository.findAll(pageable);
         List<HotelDto> hotelDtos = page.getContent().stream().map((e) -> modelMapper.map(e, HotelDto.class))
                 .collect(Collectors.toList());
-        PageDto<HotelDto> result = new PageDto<>(hotelDtos, page.getNumber(), page.getNumberOfElements(),
-                page.getSize(),
-                page.getTotalPages(), page.getTotalElements());
+        PageDto<HotelDto> result = new PageDto<>(
+            hotelDtos,
+             page.getNumber(), 
+             page.getNumberOfElements(),
+             page.getSize(),
+             page.getTotalPages(), page.getTotalElements());
         return result;
     }
 
@@ -94,7 +100,7 @@ public class HotelServiceIMP implements IHotelService {
     }
 
     @Override
-    public void addImage(Long id, List<MultipartFile> file) {
+    public void addImage(long id,List<MultipartFile> file) {
         HotelModel hotelResult = hotelRepository.findById(id)
                 .orElseThrow(() ->
                  new ResourceNotFoundException("hotel", "id", id));
@@ -124,15 +130,41 @@ public class HotelServiceIMP implements IHotelService {
     }
 
     @Override
-    public void removeImage(Long id, List<String> file) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'removeImage'");
+    public void removeImageById(Long id, Long file) {
+        HotelModel hotel=hotelRepository.findById(id).orElseThrow(()->new 
+        ResourceNotFoundException("hotel", "id", id));
+       Optional<HotelImage> hotelImage=hotel.getHotelImages().stream()
+       .filter((e)->e.getId() == file).findFirst();
+       
+       if(hotelImage.isPresent()){
+           if(UploadUtil.removeImage("hotel", hotelImage.get().getImageUrl())){
+               hotelImageRepository.deleteById(file);
+           }else{
+               throw new GeralException("Não foi possivel deletar o registro!");
+           }
+       }else{
+           throw new ResourceNotFoundException("hotelImagem", "id", file);
+       }
+      
     }
 
     @Override
-    public PageDto<HotelDto> getAll(Long id, int pageNumber, int pageSize, String sortBy, String sortOrder) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+    public PageDto<HotelImageDto> getAllImages(Long id, int pageNumber, int pageSize,String sortBy, String sortOrder) {
+        Sort sort=sortOrder.equalsIgnoreCase("desc")? Sort.by(sortBy).descending():Sort.by(sortBy).ascending();
+        Pageable pageable=PageRequest.of(pageNumber, pageSize, sort);
+        Page<HotelImage> page=hotelImageRepository.findAllByHotelId(id,pageable);
+        List<HotelImageDto> hotelImageDtos=page.getContent().stream().map((e)->modelMapper.map(e, HotelImageDto.class)).toList();
+        PageDto<HotelImageDto> result=new PageDto<>(hotelImageDtos, 
+        page.getNumber(), 
+        page.getNumberOfElements(),
+        page.getSize(),
+        page.getTotalPages(), 
+        page.getTotalElements());
+
+        return result;
     }
 
+
 }
+
+

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.dto.PaymentDto;
-import com.ramon_silva.projeto_hotel.dto.PaymentMethodDto;
 import com.ramon_silva.projeto_hotel.infra.errors.GeralException;
 import com.ramon_silva.projeto_hotel.infra.errors.ResourceNotFoundException;
 import com.ramon_silva.projeto_hotel.models.EmailModel;
@@ -109,29 +108,32 @@ public class PaymentServiceIMP implements IPaymentService {
 
     @Override
     public PaymentDto updateById(Long id, PaymentDto paymentDto) {
-
-        PaymentModel paymentModel = paymentRepository.findById(id)
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("Pagamento", "id", id));
-
         ReservationModel reservationModel2 = new ReservationModel();
+
+        PaymentModel paymentModel = paymentRepository
+        .findById(id)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Pagamento",
+                         "id", id));
+
 
         if (!paymentModel.getReservation().getId().equals(paymentDto.getReservation().getId())) {
             ReservationModel reservationModel = reservationRepository.findById(paymentDto.getReservation().getId())
                     .orElseThrow(
                             () -> new ResourceNotFoundException("Reserva", "id", id));
 
-            reservationModel2 = paymentModel.getReservation();
+                            boolean existsReservation = paymentRepository
+                                    .existsByReservationIdAndIdNot(paymentModel.getReservation().getId(), id);
+
+                            if (existsReservation) {
+                                throw new GeralException(Constants.RESERVATION_CONFLICT);
+                            }
+            reservationModel2 = paymentModel   
+            .getReservation();
 
             paymentModel.setReservation(reservationModel);
         }
 
-        boolean existsReservation = paymentRepository
-                .existsByReservationIdAndIdNot(paymentModel.getReservation().getId(), id);
-
-        if (existsReservation) {
-            throw new GeralException(Constants.RESERVATION_CONFLICT);
-        }
 
         Double valueService = paymentModel.getReservation()
         .getReservation_service().stream()
