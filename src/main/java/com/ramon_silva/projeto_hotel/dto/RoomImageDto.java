@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class HotelImageDto {
+public class RoomImageDto {
 
     private Long id;
 
@@ -22,5 +22,5 @@ public class HotelImageDto {
     private String imageUrl;
 
     @NotNull
-    private HotelDto entity;
+    private RoomDto entity;
 }

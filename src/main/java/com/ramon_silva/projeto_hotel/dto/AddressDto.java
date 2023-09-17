@@ -1,10 +1,7 @@
 package com.ramon_silva.projeto_hotel.dto;
 
-import java.io.Serializable;
 
 import org.hibernate.validator.constraints.Length;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -13,46 +10,37 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
-public class AddressDto implements Serializable{  
-    @JsonProperty("id")
+public class AddressDto{
+
     private Long id;
 
-    @JsonProperty("country")
-    @NotBlank
-    @Length(min=2)
-     private String country;
-    
-     @JsonProperty("state")
-    @NotBlank
-    @Length(min=2)
-     private String state;
-
-     @JsonProperty("zipCode")
-    @NotBlank
-    @Length(min = 9)
-     private String zipCode;
-
-     @JsonProperty("city")
     @NotBlank
     @Length(min = 2)
-    private  String city;
+    private String country;
 
-    @JsonProperty("neighborhood")
     @NotBlank
-     private String neighborhood;
-    
-     @JsonProperty("number")
-    @NotBlank
-     private String number;
+    @Length(min = 2)
+    private String state;
 
-     @JsonProperty("complement")
-     private String complemement;
+    @NotBlank
+    @Length(min = 9)
+    private String zipCode;
+
+    @NotBlank
+    @Length(min = 2)
+    private String city;
+
+    @NotBlank
+    private String neighborhood;
+
+    @NotBlank
+    private String number;
+
+    private String complemement;
 
 }

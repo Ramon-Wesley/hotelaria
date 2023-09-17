@@ -158,7 +158,7 @@ public class HotelServiceIMPTest {
         long id=hotelModel.getId();
 
         HotelModel hotelModel2=HotelCreator.newModelHotel2();
-        hotelModel2.setClassification(1);
+        hotelModel2.setClassification("1");
         hotelModel2.setId(1L);
         hotelDto=modelMapper.map(hotelModel2,HotelDto.class);
 

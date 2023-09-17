@@ -49,7 +49,7 @@ public class RoomModel {
     @Column(name = "numero")
     private String number_room;
 
-    @Enumerated
+
     @NotNull
     @Column(name = "tipo_de_quarto")
     private TypeRoomEnum type_room;

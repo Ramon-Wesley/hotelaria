@@ -38,7 +38,6 @@ public class PaymentModel {
     @JoinColumn(name = "reserva_id")
     private ReservationModel reservation;
 
-    @Enumerated
     @NotNull
     @Column(name = "metodo_de_pagamento")
     private PaymentMethodEnum paymentMethod;
@@ -46,7 +45,6 @@ public class PaymentModel {
     @Column(name = "data_do_pagamento")
     private LocalDate payment_day = LocalDate.now();
 
-    @Enumerated
     @NotNull
     private StatusEnum status;
 

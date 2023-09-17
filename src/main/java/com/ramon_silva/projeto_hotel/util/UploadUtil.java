@@ -17,7 +17,6 @@ public class UploadUtil {
         boolean sucess = false;
 
         if (!image.isEmpty()) {
-            String archiveName = name+"-"+ image.getOriginalFilename();
             try {
                 String folderUploadLocation = "./src/main/resources/images/img-upload-"
                         + folderName;
@@ -27,7 +26,7 @@ public class UploadUtil {
                     file.mkdirs();
                 }
 
-                File serverFile = new File(file.getAbsolutePath() + File.separator + archiveName);
+                File serverFile = new File(file.getAbsolutePath() + File.separator + name);
 
                 BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
 
@@ -47,8 +46,7 @@ public class UploadUtil {
         boolean success = false;
 
         try {
-            String folderUploadLocation = "/home/ramon/projeto_spring/hotelaria2/src/main/resources/images/img-uploads-"
-                    + folderName + "/" + pathName;
+            String folderUploadLocation = "./src/main/resources/images/img-upload-"+folderName+"/"+pathName;
             File file = new File(folderUploadLocation);
 
             if (file.exists()) {
@@ -58,7 +56,7 @@ public class UploadUtil {
                     throw new GeralException("Falha ao excluir o arquivo " + pathName);
                 }
             } else {
-                throw new GeralException("Arquivo " + pathName + " não encontrado");
+                throw new GeralException("Arquivo " + folderUploadLocation + " não encontrado");
             }
         } catch (Exception e) {
             throw new GeralException("Erro ao excluir o arquivo " + pathName + ": " + e.getMessage());

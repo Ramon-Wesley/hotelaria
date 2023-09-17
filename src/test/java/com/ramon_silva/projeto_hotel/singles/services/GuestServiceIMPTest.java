@@ -52,10 +52,9 @@ class GuestServiceIMPTest {
 
     @Mock
     private ModelMapper modelMapper2;
-    
-    @Autowired
-    private ModelMapper modelMapper=new ModelMapper();
 
+    @Autowired
+    private ModelMapper modelMapper = new ModelMapper();
 
     @InjectMocks
     private GuestServiceIMP guestServiceIMP;
@@ -63,17 +62,17 @@ class GuestServiceIMPTest {
     @Test
     @DisplayName("Salvar hospede com email ou cpf ja cadastrado")
     void Test_saving_guest_with_existing_email() {
-        guestModel =GuestCreator.newGuestModel();
-   
-        guestDto = modelMapper.map(guestModel,GuestDto.class);
+        guestModel = GuestCreator.newGuestModel();
 
-        when(guestRepository.existsByEmailAndCpf(guestDto.getEmail(),guestDto.getCpf())).thenReturn(true);
+        guestDto = modelMapper.map(guestModel, GuestDto.class);
+
+        when(guestRepository.existsByEmailAndCpf(guestDto.getEmail(), guestDto.getCpf())).thenReturn(true);
 
         assertThrows(GeralException.class, () -> guestServiceIMP.create(guestDto), "Email ja cadastrado!");
 
         verify(guestRepository, never()).save(guestModel);
-        verify(guestRepository, times(1)).existsByEmailAndCpf(guestDto.getEmail(),guestDto.getCpf());
-        
+        verify(guestRepository, times(1)).existsByEmailAndCpf(guestDto.getEmail(), guestDto.getCpf());
+
     }
 
     @Test
@@ -81,23 +80,22 @@ class GuestServiceIMPTest {
     void Test_create_new_guest() {
         guestModel = GuestCreator.newGuestModel();
         guestModel.getAddress().setId(1L);
-        guestDto= modelMapper.map(guestModel,GuestDto.class);
+        guestDto = modelMapper.map(guestModel, GuestDto.class);
         guestModel.setId(1L);
 
-           when(guestRepository.existsByEmailAndCpf(guestDto.getEmail(),guestDto.getCpf())).thenReturn(false);
-           when(modelMapper2.map(eq(guestDto),eq(GuestModel.class))).thenReturn(guestModel);
-           guestDto.setId(1L);
-           when(modelMapper2.map(eq(guestModel),eq(GuestDto.class))).thenReturn(guestDto);
-           when(guestRepository.save(any(GuestModel.class))).thenReturn(guestModel);
+        when(guestRepository.existsByEmailAndCpf(guestDto.getEmail(), guestDto.getCpf())).thenReturn(false);
+        when(modelMapper2.map(eq(guestDto), eq(GuestModel.class))).thenReturn(guestModel);
+        guestDto.setId(1L);
+        when(modelMapper2.map(eq(guestModel), eq(GuestDto.class))).thenReturn(guestDto);
+        when(guestRepository.save(any(GuestModel.class))).thenReturn(guestModel);
         GuestDto result = guestServiceIMP.create(guestDto);
 
-          verify(guestRepository, times(1)).existsByEmailAndCpf(guestDto.getEmail(),guestDto.getCpf());
+        verify(guestRepository, times(1)).existsByEmailAndCpf(guestDto.getEmail(), guestDto.getCpf());
 
-        verify(guestRepository,times(1)).save(Mockito.any(GuestModel.class));
-       
+        verify(guestRepository, times(1)).save(Mockito.any(GuestModel.class));
+
         assertNotNull(result.getId());
         assertNotNull(result.getAddress().getId());
-        
 
     }
 
@@ -106,15 +104,15 @@ class GuestServiceIMPTest {
     void Test_creating_guest_with_empty_data() {
         Assertions.assertThrows(NullPointerException.class, () -> guestServiceIMP.create(null),
                 "Gueste não pode ser nulo");
-                verify(guestRepository,never()).save(any(GuestModel.class));
-        verify(guestRepository, never()).existsByEmailAndCpf(anyString(),anyString());
-        
+        verify(guestRepository, never()).save(any(GuestModel.class));
+        verify(guestRepository, never()).existsByEmailAndCpf(anyString(), anyString());
+
     }
 
     @Test
     @DisplayName("Deletar o hospede pelo id!")
     void Test_deleting_guest_by_id() {
-        
+
         guestModel = GuestCreator.newGuestModel();
         guestModel.setId(1L);
         guestModel.getAddress().setId(1L);
@@ -131,7 +129,7 @@ class GuestServiceIMPTest {
     @Test
     @DisplayName("Deletar o hospede com um id inválido!")
     void Test_deleting_guest_with_invalid_ID() {
-Long id=99L;
+        Long id = 99L;
         when(guestRepository.findById(id))
                 .thenThrow(ResourceNotFoundException.class);
 
@@ -151,7 +149,7 @@ Long id=99L;
         String sortBy = "name";
         String sortOrder = "asc";
 
-        GuestModel  guest1 = GuestCreator.newGuestModel();
+        GuestModel guest1 = GuestCreator.newGuestModel();
         guest1.setId(1L);
         guest1.getAddress().setId(1L);
 
@@ -199,10 +197,10 @@ Long id=99L;
         guestModel = GuestCreator.newGuestModel();
         guestModel.setId(1L);
         guestModel.getAddress().setId(1L);
-       
-       guestDto=modelMapper.map(guestModel, GuestDto.class);
+
+        guestDto = modelMapper.map(guestModel, GuestDto.class);
         when(guestRepository.findById(guestModel.getId())).thenReturn(Optional.of(guestModel));
-        when(modelMapper2.map(eq(guestModel),eq(GuestDto.class))).thenReturn(guestDto);
+        when(modelMapper2.map(eq(guestModel), eq(GuestDto.class))).thenReturn(guestDto);
         GuestDto guestDto2 = guestServiceIMP.getById(guestModel.getId());
 
         verify(guestRepository, times(1)).findById(guestModel.getId());
@@ -214,7 +212,7 @@ Long id=99L;
     @DisplayName("Tentar pegar um usuario que nao existe pelo id")
     void Test_getting_by_id_not_found_guest() {
 
-        Long id=99L;
+        Long id = 99L;
         when(guestRepository.findById(id)).thenThrow(ResourceNotFoundException.class);
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> guestServiceIMP.getById(id),
@@ -229,23 +227,23 @@ Long id=99L;
     void Test_update_by_id() {
         guestModel = GuestCreator.newGuestModel();
         guestModel.getAddress().setId(1L);
-        
+
         guestModel.setId(1L);
-        guestDto= modelMapper.map(guestModel,GuestDto.class);
+        guestDto = modelMapper.map(guestModel, GuestDto.class);
 
         GuestDto guestDto2 = new GuestDto(guestDto.getId(),
                 guestDto.getName(),
                 GuestCreator.newGuestModel2().getCpf(),
                 GuestCreator.newGuestModel2().getEmail(),
-                 guestDto.getPhone(),
-                guestDto.getAddress());
+                guestDto.getPhone(),
+                guestDto.getAddress(), true);
 
-        GuestModel guestModel2 =  modelMapper.map(guestDto2,GuestModel.class);
+        GuestModel guestModel2 = modelMapper.map(guestDto2, GuestModel.class);
 
         when(guestRepository.findById(guestDto.getId())).thenReturn(Optional.of(guestModel));
         when(guestRepository.save(Mockito.any(GuestModel.class))).thenReturn(guestModel2);
-        when(modelMapper2.map(eq(guestDto2),eq(GuestModel.class))).thenReturn(guestModel2);
-        when(modelMapper2.map(eq(guestModel2),eq(GuestDto.class))).thenReturn(guestDto2);
+        when(modelMapper2.map(eq(guestDto2), eq(GuestModel.class))).thenReturn(guestModel2);
+        when(modelMapper2.map(eq(guestModel2), eq(GuestDto.class))).thenReturn(guestDto2);
 
         GuestDto resulDto = guestServiceIMP.updateById(guestDto.getId(), guestDto2);
 
@@ -261,12 +259,12 @@ Long id=99L;
     @Test
     @DisplayName("Atualizar registro com id invalido")
     void Test_update_by_invalid_id() {
-        Long id =99L;
+        Long id = 99L;
         guestModel = GuestCreator.newGuestModel();
         guestModel.setId(1L);
         guestModel.getAddress().setId(1L);
 
-        guestDto= modelMapper.map(guestModel,GuestDto.class);
+        guestDto = modelMapper.map(guestModel, GuestDto.class);
         when(guestRepository.findById(id)).thenThrow(ResourceNotFoundException.class);
         Assertions.assertThrows(ResourceNotFoundException.class, () -> guestServiceIMP.updateById(id, guestDto),
                 "Id invalido");
@@ -276,5 +274,4 @@ Long id=99L;
 
     }
 
-    
 }

@@ -1,10 +1,11 @@
 package com.ramon_silva.projeto_hotel.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,13 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ramon_silva.projeto_hotel.dto.HotelDto;
+import com.ramon_silva.projeto_hotel.dto.HotelImageDto;
 import com.ramon_silva.projeto_hotel.dto.PageDto;
 import com.ramon_silva.projeto_hotel.services.HotelServiceIMP;
-import com.ramon_silva.projeto_hotel.util.UploadUtil;
+import com.ramon_silva.projeto_hotel.util.HotelImageConstants;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -48,11 +47,6 @@ public class HotelController {
     var uri = uriBuilder.path("/hotel/{id}").buildAndExpand(hotel.getId()).toUri();
     return ResponseEntity.created(uri).body(hotel);
   }
-@PostMapping("{id_hotel}/imagens")
-public ResponseEntity<Void> addImage(@PathVariable("id_hotel")Long id,@RequestParam("file")List<MultipartFile> file){
-  hotelIMP.addImage(id, file);
-  return ResponseEntity.ok().build();
-}
 
   @DeleteMapping("/{id}")
   @Transactional
@@ -81,5 +75,38 @@ public ResponseEntity<Void> addImage(@PathVariable("id_hotel")Long id,@RequestPa
   @GetMapping("/{id}")
   public ResponseEntity<HotelDto> getById(@PathVariable(name = "id") @Positive Long id) {
     return new ResponseEntity<HotelDto>(hotelIMP.getById(id), HttpStatus.OK);
+  }
+
+  @PostMapping("{id_hotel}/imagens")
+  public ResponseEntity<Void> addImage(@PathVariable("id_hotel") Long id,
+      @RequestParam(value = HotelImageConstants.BANNER,required=false) MultipartFile banner,
+      @RequestParam(value = HotelImageConstants.COMMON_AREA,required=false) MultipartFile commom_area,
+      @RequestParam(value = HotelImageConstants.FRONT_DESK,required=false) MultipartFile front_desk,
+      @RequestParam(value = HotelImageConstants.OTHER,required=false) MultipartFile other) {
+    Map<String, MultipartFile> files = new HashMap();
+    files.put(HotelImageConstants.BANNER, banner);
+    files.put(HotelImageConstants.COMMON_AREA, commom_area);
+    files.put(HotelImageConstants.FRONT_DESK, front_desk);
+    files.put(HotelImageConstants.OTHER, other);
+    hotelIMP.addImages(id, files);
+    return ResponseEntity.ok().build();
+  }
+
+  @DeleteMapping("/{id_hotel}/imagens/{id_imagem}")
+  @Transactional
+  public ResponseEntity<Void> deleteImagemById(@PathVariable(name = "id_hotel") @Positive Long id,
+      @PathVariable(name = "id_imagem") Long id_imagem) {
+    hotelIMP.removeImageById(id, id_imagem);
+    return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("{id_hotel}/imagens")
+  public ResponseEntity<PageDto<HotelImageDto>> getAllImages(
+      @PathVariable(name = "id_hotel") Long id,
+      @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
+      @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
+      @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+      @RequestParam(name = "sortOrder", defaultValue = "desc") String sortOrder) {
+    return ResponseEntity.ok().body(hotelIMP.getAllImages(id, pageNumber, pageSize, sortBy, sortOrder));
   }
 }

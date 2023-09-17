@@ -139,12 +139,8 @@ void setDown(){
     @DisplayName("Sucesso ao realizar um pagamento de reserva")
     void Test_payment_success() throws Exception {
   
-          paymentDto=new PaymentDto
-          (null,
-          modelMapper.map(reservationModelPayment,ReservationDto.class), 
-          PaymentMethodEnum.MONEY,
-           null, null, 0);        
-          String json=objectMapper.writeValueAsString(paymentDto);
+              
+          String json=objectMapper.writeValueAsString(PaymentMethodEnum.BANKER_TRANSFER);
           Long reservation_id=reservationModel.getId();
           System.out.println(json);
           mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/reserva/{reservation_id}", reservation_id)
@@ -165,8 +161,7 @@ void setDown(){
       reservationModel.setStatus(StatusEnum.PENDING);
       reservationRepository.save(reservationModel);
 
-          paymentDto=new PaymentDto(null, modelMapper.map(reservationModel,ReservationDto.class), PaymentMethodEnum.MONEY, null, null, 0);        
-          String json=objectMapper.writeValueAsString(paymentDto);
+         String json=objectMapper.writeValueAsString(PaymentMethodEnum.DEBIT);
           Long reservation_id=reservationModel.getId();
           mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/reserva/{id_reservation}", reservation_id)
               .contentType(MediaType.APPLICATION_JSON)
@@ -180,8 +175,7 @@ void setDown(){
     @DisplayName("erro ao realizar um pagamento com uma reserva ja paga")
     void Test_payment_error_with_reservation_pay() throws Exception{
      
-          paymentDto=new PaymentDto(null, modelMapper.map(reservationModel, ReservationDto.class), PaymentMethodEnum.MONEY, null, null, 0);        
-          String json=objectMapper.writeValueAsString(paymentDto);
+          String json=objectMapper.writeValueAsString(PaymentMethodEnum.BANKER_TRANSFER);
           Long reservation_id=reservationModelPayment.getId();
           mockMvc.perform(MockMvcRequestBuilders.post("/pagamento/reserva/{id_reservation}", reservation_id)
               .contentType(MediaType.APPLICATION_JSON)

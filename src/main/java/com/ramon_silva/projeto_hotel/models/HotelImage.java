@@ -1,5 +1,6 @@
 package com.ramon_silva.projeto_hotel.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,12 +28,18 @@ public class HotelImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
+    @NotBlank
+    @Column(name = "tipo")
+    private String type;
+
     @NotBlank
     @NotNull
+    @Column(name = "imagem_url")
     private String imageUrl;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hotel_id",nullable = false)
-    private HotelModel hotelModel;
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "hotel_id", nullable = false)
+    private HotelModel hotel;
 
 }

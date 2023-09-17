@@ -64,7 +64,7 @@ public class ReservationModel {
     @Column(name="data_de_check_out",nullable = false)
     private LocalDate checkOutDate;
     
-    @Enumerated
+
     @NotNull
     private StatusEnum status;
 

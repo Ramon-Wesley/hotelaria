@@ -1,21 +1,16 @@
 package com.ramon_silva.projeto_hotel.dto;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import java.util.Map;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.br.CNPJ;
 
-import com.ramon_silva.projeto_hotel.models.HotelImage;
-import com.ramon_silva.projeto_hotel.models.HotelModel;
+import com.ramon_silva.projeto_hotel.models.RoomModel;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -23,14 +18,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @EqualsAndHashCode
-public class HotelDto{
+public class HotelDto {
 
     private Long id;
 
@@ -44,19 +37,20 @@ public class HotelDto{
     @NotBlank
     @Email
     private String email;
-    
+
     @NotBlank
     private String phone;
-    
+
     private String description;
 
     @NotNull
     private String classification;
 
+    @NotNull
     private AddressDto address;
 
-    private Boolean active=true;
-    
-    private List<HotelImageDto> hotelImages=new ArrayList();
+    private Boolean active = true;
 
-    }
+   
+
+}

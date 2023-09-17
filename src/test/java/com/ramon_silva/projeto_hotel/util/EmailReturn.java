@@ -3,9 +3,12 @@ package com.ramon_silva.projeto_hotel.util;
 import com.ramon_silva.projeto_hotel.models.EmailModel;
 
 public class EmailReturn {
-    private  EmailModel emailModel;
-    private  Object paymentDto;
-    private  String mailConstants;
+    private EmailModel emailModel;
+    private Object paymentDto;
+    private String mailConstants;
+
+    private EmailReturn() {
+    }
 
     public EmailModel getEmailModel() {
         return emailModel;
@@ -35,7 +38,6 @@ public class EmailReturn {
         this.emailModel = emailModel;
         this.paymentDto = paymentDto;
         this.mailConstants = payment;
-    } 
+    }
 
-    
 }
