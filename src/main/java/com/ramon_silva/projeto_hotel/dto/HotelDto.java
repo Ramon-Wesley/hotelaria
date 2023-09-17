@@ -1,51 +1,56 @@
 package com.ramon_silva.projeto_hotel.dto;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.br.CNPJ;
 
-import com.ramon_silva.projeto_hotel.models.HotelModel;
+import com.ramon_silva.projeto_hotel.models.RoomModel;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record HotelDto(
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class HotelDto {
 
-    Long id,
-
+    private Long id;
 
     @NotBlank
     @Length(min = 2)
-    String name,
+    private String name;
 
     @CNPJ
-    String cnpj,
+    private String cnpj;
 
     @NotBlank
     @Email
-    String email,
-    
+    private String email;
+
     @NotBlank
-    String phone,
-    
-    String description,
+    private String phone;
 
-    @Min(1)
-    @Max(5)
+    private String description;
+
     @NotNull
-    int classification,
+    private String classification;
 
-    AddressDto address
+    @NotNull
+    private AddressDto address;
 
-    ) {
-    
-      public HotelDto(HotelModel hotel){
-            this(hotel.getId(), hotel.getName(),hotel.getCnpj(),hotel.getEmail(),hotel.getPhone(), hotel.getDescription(), hotel.getClassification(),new AddressDto(hotel.getAddress()));
-        }
+    private Boolean active = true;
 
+   
 
-
-    }
+}

@@ -1,9 +1,13 @@
 package com.ramon_silva.projeto_hotel.models;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ramon_silva.projeto_hotel.dto.RoomDto;
 import com.ramon_silva.projeto_hotel.enums.TypeRoomEnum;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -13,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,14 +35,6 @@ import lombok.Setter;
 @Getter
 public class RoomModel {
 
-    public RoomModel(Long id,RoomDto roomDto){
-        this.id=id;
-        this.number_room=roomDto.number_room();
-        this.type_room=roomDto.type_room();
-        this.description=roomDto.description();
-        this.price=roomDto.price();
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -52,7 +49,7 @@ public class RoomModel {
     @Column(name = "numero")
     private String number_room;
 
-    @Enumerated
+
     @NotNull
     @Column(name = "tipo_de_quarto")
     private TypeRoomEnum type_room;
@@ -60,8 +57,15 @@ public class RoomModel {
     @Column(name = "descricao")
     private String description;
 
+
+    @Column(name = "ativo")
+    private Boolean active=true;
     @NotNull
     @Positive
     @Column(name = "preco")
     private Double price;
+
+    @OneToMany(mappedBy = "room",orphanRemoval = true,cascade = CascadeType.ALL)
+     private List<RoomImage> roomImages=new ArrayList<>();
+
 }

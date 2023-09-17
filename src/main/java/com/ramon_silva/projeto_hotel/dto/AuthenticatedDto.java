@@ -4,15 +4,29 @@ import org.hibernate.validator.constraints.Length;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record AuthenticatedDto(
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class AuthenticatedDto{
     @NotBlank
     @Length(min = 2)
-    String login,
+    private String login;
 
     @NotBlank
     @Length(min = 8)
-    String password
+    private String password;
 
-) {
+
     
 }

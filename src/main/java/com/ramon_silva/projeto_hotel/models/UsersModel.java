@@ -1,4 +1,5 @@
 package com.ramon_silva.projeto_hotel.models;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -32,13 +33,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
-public class UsersModel implements UserDetails{
-    
+public class UsersModel implements UserDetails {
 
-    public UsersModel(String login, String password, UsersEnum role){
-        this.login=login;
-        this.password=password;
-        this.role=role;
+    public UsersModel(String login, String password, UsersEnum role) {
+        this.login = login;
+        this.password = password;
+        this.role = role;
     }
 
     @Id
@@ -48,33 +48,35 @@ public class UsersModel implements UserDetails{
     @NotBlank
     @NotNull
     @Length(min = 2)
-    @Column(name="login",unique = true)
+    @Column(name = "login", unique = true)
     private String login;
 
     @NotBlank
     @NotNull
     @Length(min = 8)
-    @Column(name="senha")
+    @Column(name = "senha")
     private String password;
 
-    
-    
     @Enumerated
-    @Column(name="tipo_usuario")
+    @Column(name = "tipo_usuario")
     @NotNull
     private UsersEnum role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(this.role == UsersEnum.ADMIN) return List.of
-        (
-        new SimpleGrantedAuthority("ROLE_ADMIN"),
-        new SimpleGrantedAuthority("ROLE_USER")
-        );
-        else return  List.of(
-          new SimpleGrantedAuthority("ROLE_USER")
-        );
-       
+        if (this.role == UsersEnum.ADMIN)
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_USER"),
+                    new SimpleGrantedAuthority("ROLE_HOTEL"));
+        else if (this.role == UsersEnum.HOTEL)
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_USER"),
+                    new SimpleGrantedAuthority("ROLE_HOTEL"));
+        else
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_USER"));
+
     }
 
     @Override
@@ -84,23 +86,23 @@ public class UsersModel implements UserDetails{
 
     @Override
     public boolean isAccountNonExpired() {
-       
-    return true;
-}
+
+        return true;
+    }
 
     @Override
     public boolean isAccountNonLocked() {
-    return true;
- }
+        return true;
+    }
 
     @Override
     public boolean isCredentialsNonExpired() {
-    return true;
- }
+        return true;
+    }
 
     @Override
     public boolean isEnabled() {
-     
-    return true;
- }
+
+        return true;
+    }
 }

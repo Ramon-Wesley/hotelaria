@@ -35,21 +35,22 @@ public class AuthenticationController {
     
     @PostMapping
     public ResponseEntity<?> login(@RequestBody @Valid AuthenticatedDto data){
-        var usernamePassword= new UsernamePasswordAuthenticationToken(data.login(), data.password());
+        var usernamePassword= new UsernamePasswordAuthenticationToken(data.getLogin(), data.getPassword());
         var auth=this.authenticationManager.authenticate(usernamePassword);
 
         var token=tokenService.GeneratedToken((UsersModel)auth.getPrincipal());
         return ResponseEntity.ok(new LoginResponseDto(token));
+        
     }
 
     @PostMapping("/registrar")
     public ResponseEntity<?> register(@RequestBody @Valid UsersDto data){
-        if(this.userRepository.findByLogin(data.login()) != null){
+        if(this.userRepository.findByLogin(data.getLogin()) != null){
             return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
         }else{
-            String hashPass= new BCryptPasswordEncoder().encode(data.password());
+            String hashPass= new BCryptPasswordEncoder().encode(data.getPassword());
             
-            UsersModel user= new UsersModel(data.login(),hashPass,data.role());
+            UsersModel user= new UsersModel(data.getLogin(),hashPass,data.getRole());
             this.userRepository.save(user);
             return ResponseEntity.ok().build();
         }

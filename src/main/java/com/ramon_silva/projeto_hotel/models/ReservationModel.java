@@ -16,14 +16,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,18 +35,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
 public class ReservationModel {
  
-
-    public ReservationModel(Long id,ReservationDto reservationDto){
-        this.id=id;
-        this.checkInDate=reservationDto.checkInDate();
-        this.checkOutDate=reservationDto.checkOutDate();
-        this.total_pay=reservationDto.total_pay();
-        this.status=reservationDto.status();
-        this.client=new ClientModel(reservationDto.client().id(),reservationDto.client());
-        this.room=new RoomModel(id, reservationDto.room());
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,8 +45,8 @@ public class ReservationModel {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
-    @JoinColumn(name="cliente_id")
-    private ClientModel client;
+    @JoinColumn(name="hospede_id")
+    private GuestModel guest;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
@@ -72,7 +64,7 @@ public class ReservationModel {
     @Column(name="data_de_check_out",nullable = false)
     private LocalDate checkOutDate;
     
-    @Enumerated
+
     @NotNull
     private StatusEnum status;
 
@@ -81,10 +73,8 @@ public class ReservationModel {
     @NotNull
     private Double total_pay;
     
-   @ManyToMany
-   @JoinTable(name = "reserva_servico",
-   joinColumns = @JoinColumn(name="reserva_id"),
-   inverseJoinColumns = @JoinColumn(name="servico_id"))
- private Set<ServicesModel> services=new HashSet<>();
+
+    @OneToMany(mappedBy = "reservation",fetch = FetchType.LAZY)
+    private Set<Reservation_serviceModel> reservation_service=new HashSet<>();
 
 }

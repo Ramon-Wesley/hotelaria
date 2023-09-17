@@ -1,27 +1,32 @@
 package com.ramon_silva.projeto_hotel.dto;
 
-import com.ramon_silva.projeto_hotel.models.EmailModel;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record EmailDto(
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class EmailDto {
 
     @NotBlank
-    String owerRef,
+    private String owerRef;
     @NotBlank
     @Email
-    String emailFrom,
+    private String emailFrom;
     @NotBlank
     @Email
-    String emailTo,
+    private String emailTo;
     @NotBlank
-    String subject,
+    private String subject;
     @NotBlank
-    String text
-) {
-    public EmailDto(EmailModel email){
-        this(email.getOwerRef(), email.getEmailFrom(),email.getEmailTo(),email.getSubject(), 
-        email.getText());
-    }
+    private String text;
+
 }

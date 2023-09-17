@@ -1,44 +1,46 @@
 package com.ramon_silva.projeto_hotel.dto;
 
+
 import org.hibernate.validator.constraints.Length;
 
-import com.ramon_silva.projeto_hotel.models.AddressModel;
-
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class AddressDto{
 
-
-public record AddressDto(
- 
-    Long id,
-
-    @NotBlank
-    @Length(min=2)
-     String country,
-    
-    @NotBlank
-    @Length(min=2)
-     String state,
-
-    @NotBlank
-    @Length(min = 10)
-     String zapCode,
+    private Long id;
 
     @NotBlank
     @Length(min = 2)
-     String city,
+    private String country;
 
     @NotBlank
-     String neighborhood,
-    
-    @NotBlank
-     String number,
+    @Length(min = 2)
+    private String state;
 
-     String complemement
-) {
-    public AddressDto (AddressModel address){
-        this(address.getId(), address.getCountry(), address.getState(), 
-        address.getZapCode(), address.getCity(), address.getNeighborhood(), address.getNumber(), 
-        address.getComplemement());
-    }
+    @NotBlank
+    @Length(min = 9)
+    private String zipCode;
+
+    @NotBlank
+    @Length(min = 2)
+    private String city;
+
+    @NotBlank
+    private String neighborhood;
+
+    @NotBlank
+    private String number;
+
+    private String complemement;
+
 }

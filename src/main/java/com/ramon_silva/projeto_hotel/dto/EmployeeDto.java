@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import org.hibernate.validator.constraints.Length;
 
-import com.ramon_silva.projeto_hotel.models.EmployeeModel;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
@@ -12,46 +11,51 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record EmployeeDto(
 
-     Long id,
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class EmployeeDto{
+
+     private Long id;
     
     @NotBlank
     @Length(min = 2)
-     String name,
+     private String name;
     
     @NotBlank
     @Email
-     String email,
+     private String email;
     
     @NotBlank
-     String phone,
+     private String phone;
     
      @NotNull
-     AddressDto address,
+     private AddressDto address;
     
     
-     OfficeDto office,
+     private OfficeDto office;
 
     @Min(0)
-     double remunaration,
+     private double remunaration;
     
     @Future
     @NotBlank
-     LocalDate contractDate,
+     private LocalDate contractDate;
     
     @Future
-     LocalDate shutdownDate,
+     private LocalDate shutdownDate;
     
     @NotNull
-     boolean situation
-
-) {
- 
-     public EmployeeDto(EmployeeModel employeeModel){
-          this(employeeModel.getId(), employeeModel.getName(), employeeModel.getEmail(), 
-          employeeModel.getPhone(), new AddressDto(employeeModel.getAddress()), 
-          new OfficeDto(employeeModel.getOffice()), employeeModel.getRemunaration(), employeeModel.getContractDate(),
-          employeeModel.getShutdownDate(),employeeModel.getSituation());
-     }
+     private boolean situation;
 }

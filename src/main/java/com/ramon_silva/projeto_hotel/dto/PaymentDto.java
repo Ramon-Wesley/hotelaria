@@ -4,37 +4,34 @@ import java.time.LocalDate;
 
 import com.ramon_silva.projeto_hotel.enums.PaymentMethodEnum;
 import com.ramon_silva.projeto_hotel.enums.StatusEnum;
-import com.ramon_silva.projeto_hotel.models.PaymentModel;
 
-
-import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record PaymentDto(
-     
-     Long id,
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class PaymentDto {
+    private Long id;
 
-     
-     ReservationDto reservation,
+    @NotNull
+    private ReservationDto reservation;
 
-     @Enumerated
-     @NotNull
-     PaymentMethodEnum paymentMethod,
+    @NotNull
+    private PaymentMethodEnum paymentMethod;
 
-  
-     
-     LocalDate payment_day,
+    @NotNull
+    private LocalDate payment_day = LocalDate.now();
 
-     @Enumerated
-     StatusEnum status,
+    @NotNull
+    private StatusEnum status;
 
-     
-     double total_payment
-
-
-) {
-    public PaymentDto(PaymentModel paymentModel){
-     this(paymentModel.getId(),new ReservationDto(paymentModel.getReservation()), paymentModel.getPaymentMethod(), 
-     paymentModel.getPayment_day(), paymentModel.getStatus(),paymentModel.getTotal_payment());
-    }
+    private double total_payment;
 }

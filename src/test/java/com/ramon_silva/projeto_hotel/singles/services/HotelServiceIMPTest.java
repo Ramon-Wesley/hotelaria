@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -44,21 +47,32 @@ public class HotelServiceIMPTest {
     @Mock
     private HotelRepository hotelRepository;
 
+    @Autowired
+    private ModelMapper modelMapper=new ModelMapper();
+
+    @Mock
+    private ModelMapper modelMapper2;
+    
+
+
     private HotelModel hotelModel;
     private HotelDto hotelDto;
     @Test
     @DisplayName("Criar um hotel com sucesso!")
     void Test_create_hotel_sucess(){
      hotelModel=HotelCreator.newModelHotel();
-     hotelDto=new HotelDto(hotelModel);
+     hotelDto=modelMapper.map(hotelModel,HotelDto.class);
+     
+     when(hotelRepository.existsByCnpj(hotelDto.getCnpj())).thenReturn(false);
+     when(modelMapper2.map(eq(hotelDto), eq(HotelModel.class))).thenReturn(hotelModel);
      hotelModel.setId(1L);
-
-     when(hotelRepository.existsByCnpj(hotelDto.cnpj())).thenReturn(false);
      when(hotelRepository.save(any(HotelModel.class))).thenReturn(hotelModel);
+     hotelDto.setId(1L);
+     when(modelMapper2.map(eq(hotelModel), eq(HotelDto.class))).thenReturn(hotelDto);
 
      hotelDto=hotelServiceIMP.create(hotelDto);
 
-     verify(hotelRepository,times(1)).existsByCnpj(hotelDto.cnpj());
+     verify(hotelRepository,times(1)).existsByCnpj(hotelDto.getCnpj());
      verify(hotelRepository,times(1)).save(any(HotelModel.class));
     }
 
@@ -66,15 +80,15 @@ public class HotelServiceIMPTest {
     @DisplayName("Criar um hotel com cnpj ja cadastrado!")
     void Test_create_hotel_with_cnpj_exists(){
      hotelModel=HotelCreator.newModelHotel();
-     hotelDto=new HotelDto(hotelModel);
+     hotelDto=modelMapper.map(hotelModel,HotelDto.class);
      hotelModel.setId(1L);
 
-     when(hotelRepository.existsByCnpj(hotelDto.cnpj())).thenReturn(true);
+     when(hotelRepository.existsByCnpj(hotelDto.getCnpj())).thenReturn(true);
   
 
     assertThrows(GeralException.class,()-> hotelServiceIMP.create(hotelDto));
 
-     verify(hotelRepository,times(1)).existsByCnpj(hotelDto.cnpj());
+     verify(hotelRepository,times(1)).existsByCnpj(hotelDto.getCnpj());
      verify(hotelRepository,never()).save(any(HotelModel.class));
     }
 
@@ -83,14 +97,15 @@ public class HotelServiceIMPTest {
     void Test_get_hotel_by_id(){
         hotelModel=HotelCreator.newModelHotel();
         hotelModel.setId(1L);
-   
+        hotelDto=modelMapper.map(hotelModel, HotelDto.class);
         long id=hotelModel.getId();
         when(hotelRepository.findById(id)).thenReturn(Optional.of(hotelModel));
+        when(modelMapper2.map(eq(hotelModel), eq(HotelDto.class))).thenReturn(hotelDto);
         hotelDto=hotelServiceIMP.getById(id);
 
         verify(hotelRepository,times(1)).findById(id);
-        assertEquals(hotelModel.getId(), hotelDto.id());
-        assertNotNull(hotelDto.cnpj());
+        assertEquals(hotelModel.getId(), hotelDto.getId());
+        assertNotNull(hotelDto.getCnpj());
     }
 
     @Test
@@ -143,22 +158,25 @@ public class HotelServiceIMPTest {
         long id=hotelModel.getId();
 
         HotelModel hotelModel2=HotelCreator.newModelHotel2();
-        hotelModel2.setClassification(1);
+        hotelModel2.setClassification("1");
         hotelModel2.setId(1L);
-        hotelDto=new HotelDto(hotelModel2);
+        hotelDto=modelMapper.map(hotelModel2,HotelDto.class);
 
 
         when(hotelRepository.findById(id)).thenReturn(Optional.of(hotelModel));
-        when(hotelRepository.existsByCnpjAndIdNot(hotelDto.cnpj(), id)).thenReturn(false);
+        when(hotelRepository.existsByCnpjAndIdNot(hotelDto.getCnpj(), id)).thenReturn(false);
+        when(modelMapper2.map(eq(hotelDto),eq(HotelModel.class))).thenReturn(hotelModel2);
         when(hotelRepository.save(any(HotelModel.class))).thenReturn(hotelModel2);
+        when(modelMapper2.map(eq(hotelModel2),eq(HotelDto.class))).thenReturn(hotelDto);
+
 
         hotelDto=hotelServiceIMP.updateById(id, hotelDto);
 
         verify(hotelRepository,times(1)).findById(id);
-        verify(hotelRepository,times(1)).existsByCnpjAndIdNot(hotelDto.cnpj(), id);
+        verify(hotelRepository,times(1)).existsByCnpjAndIdNot(hotelDto.getCnpj(), id);
         verify(hotelRepository,times(1)).save(any(HotelModel.class));
-        assertEquals(id, hotelDto.id());
-        assertNotEquals(hotelModel.getClassification(), hotelDto.classification());
+        assertEquals(id, hotelDto.getId());
+        assertNotEquals(hotelModel.getClassification(), hotelDto.getClassification());
 
     }
 
@@ -167,7 +185,7 @@ public class HotelServiceIMPTest {
     void Test_update_hotel_by_notExists_id(){
         hotelModel=HotelCreator.newModelHotel();
         hotelModel.setId(1L);
-        hotelDto=new HotelDto(hotelModel);
+        hotelDto=modelMapper.map(hotelModel,HotelDto.class);
         long id=99L;
 
        when(hotelRepository.findById(id)).thenThrow(ResourceNotFoundException.class);
@@ -175,7 +193,7 @@ public class HotelServiceIMPTest {
 
         verify(hotelRepository,times(1)).findById(id);
         verify(hotelRepository,times(0)).save(hotelModel);
-        verify(hotelRepository,times(0)).existsByCnpjAndIdNot(hotelDto.cnpj(), id);
+        verify(hotelRepository,times(0)).existsByCnpjAndIdNot(hotelDto.getCnpj(), id);
        
     }
 
@@ -184,15 +202,15 @@ public class HotelServiceIMPTest {
     void Test_update_hotel_by_Exists_cnpj(){
         hotelModel=HotelCreator.newModelHotel();
         hotelModel.setId(1L);
-        hotelDto=new HotelDto(hotelModel);
+        hotelDto=modelMapper.map(hotelModel,HotelDto.class);
         long id=99L;
 
        when(hotelRepository.findById(id)).thenReturn(Optional.of(hotelModel));
-       when(hotelRepository.existsByCnpjAndIdNot(hotelDto.cnpj(), id)).thenReturn(true);
+       when(hotelRepository.existsByCnpjAndIdNot(hotelDto.getCnpj(), id)).thenReturn(true);
        assertThrows(GeralException.class , ()-> hotelServiceIMP.updateById(id,hotelDto));
 
         verify(hotelRepository,times(1)).findById(id);
-        verify(hotelRepository,times(1)).existsByCnpjAndIdNot(hotelDto.cnpj(), id);
+        verify(hotelRepository,times(1)).existsByCnpjAndIdNot(hotelDto.getCnpj(), id);
         verify(hotelRepository,times(0)).save(hotelModel);
        
     }
@@ -213,8 +231,8 @@ public class HotelServiceIMPTest {
         PageDto<HotelDto> result = hotelServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
         verify(hotelRepository, times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
 
-        assertEquals(0, result.totalElments());
-        assertEquals(1, result.totalPages());
+        assertEquals(0, result.getTotalElments());
+        assertEquals(1, result.getTotalPages());
     }
 
     @Test
@@ -238,8 +256,8 @@ public class HotelServiceIMPTest {
         PageDto<HotelDto> result = hotelServiceIMP.getAll(pageNumber, pageSize, sortBy, sortOrder);
         verify(hotelRepository, times(1)).findAll(PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).ascending()));
 
-        assertEquals(2, result.totalElments());
-        assertEquals(1, result.totalPages());
+        assertEquals(2, result.getTotalElments());
+        assertEquals(1, result.getTotalPages());
     }
 
 

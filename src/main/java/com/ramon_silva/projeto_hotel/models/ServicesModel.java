@@ -2,17 +2,11 @@ package com.ramon_silva.projeto_hotel.models;
 
 
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.ramon_silva.projeto_hotel.dto.ServicesDto;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,13 +22,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ServicesModel {
-    
-    public ServicesModel(Long id,ServicesDto service){
-        this.id=id;
-        this.name=service.name();
-        this.price=service.price();
-        this.type_service=service.type_service();
-    }
+ 
+ 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,11 +38,13 @@ public class ServicesModel {
     @Column(name = "tipo_servico")
     private String type_service;
 
+    @Column(name = "ativo")
+    private Boolean active=true;
+    
     @Column(name="preco")
     @NotNull
     private Double price;
 
-    @ManyToMany(mappedBy = "services")
-    private Set<ReservationModel> reservation=new HashSet<>();
+
 
 }

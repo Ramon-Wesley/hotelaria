@@ -1,48 +1,52 @@
 package com.ramon_silva.projeto_hotel.dto;
 
 import java.time.LocalDate;
-
-import com.ramon_silva.projeto_hotel.models.ReservationModel;
-import com.ramon_silva.projeto_hotel.models.ServicesModel;
-import com.ramon_silva.projeto_hotel.enums.StatusEnum;
-import com.ramon_silva.projeto_hotel.dto.ServicesDto;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
-import org.bouncycastle.asn1.cms.RsaKemParameters;
+import com.ramon_silva.projeto_hotel.enums.StatusEnum;
+import com.ramon_silva.projeto_hotel.models.GuestModel;
+import com.ramon_silva.projeto_hotel.models.Reservation_serviceModel;
+import com.ramon_silva.projeto_hotel.models.RoomModel;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record ReservationDto(
 
-     Long id,
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class ReservationDto{
+
+    private Long id;
+
+    @NotNull
+    private GuestDto guest;
+
+    @NotNull
+    private RoomDto room;
+
+    @Future
+    @NotNull
+    private LocalDate checkInDate;
+
+    @Future
+    @NotNull
+    private LocalDate checkOutDate;
     
-     ClientDto client,
+    @NotNull
+    private StatusEnum status;
 
-     RoomDto room,
+    private Double total_pay;
+    
+    private Set<Reservation_serviceModel> reservation_service=new HashSet<>();
 
-     @Future
-     @NotNull
-     LocalDate checkInDate,
-
-     @Future
-     @NotNull
-     LocalDate checkOutDate,
-   
-     StatusEnum status,
-
-     double total_pay,
-    Set<ServicesDto> services
-
-
-) {
-    public ReservationDto(ReservationModel reservationModel){
-     this(reservationModel.getId(),new ClientDto(reservationModel.getClient()),new RoomDto(reservationModel.getRoom()),
-     reservationModel.getCheckInDate(),reservationModel.getCheckOutDate(),
-      reservationModel.getStatus(), reservationModel.getTotal_pay(),
-      reservationModel.getServices().stream().map(ServicesDto::new).collect(Collectors.toSet()));
-    }
 }

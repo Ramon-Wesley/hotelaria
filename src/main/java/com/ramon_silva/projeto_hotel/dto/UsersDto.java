@@ -8,23 +8,35 @@ import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record UsersDto(
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+public class UsersDto{
     
-    Long id,
+    private Long id;
 
     @NotBlank
     @Length(min = 2)
-    String login,
+    private String login;
 
     @NotBlank
     @Length(min = 8)
-    String password,
+    private String password;
 
     @Enumerated
     @NotNull
-    UsersEnum role
+    private UsersEnum role;
 
-
-) {
     
 }
